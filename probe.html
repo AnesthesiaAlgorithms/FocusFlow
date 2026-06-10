@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FoCUS Virtual Probe</title>
+<style>
+  :root{
+    --navy:#1A3A5C; --blue:#2E6DA4; --lightblue:#EBF3FB; --accent:#6BAED6;
+    --green:#3C9A5F; --red:#C0392B; --gray:#6b7280; --bg:#F4F7FA;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background:var(--bg); color:var(--navy);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:18px 18px 40px;}
+  h1{font-size:1.3rem; margin:6px 0 4px;}
+  p{line-height:1.5;}
+  .muted{color:var(--gray); font-size:.92rem;}
+  .center{text-align:center;}
+  .card{
+    background:#fff; border-radius:14px; padding:18px; margin:14px 0;
+    box-shadow:0 1px 4px rgba(20,40,70,.08);
+  }
+  .status-row{display:flex; align-items:center; gap:8px; font-size:.92rem; font-weight:600; margin-bottom:6px;}
+  .status-dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:#cbd5e1; flex:0 0 auto;}
+  .status-dot.live{background:var(--green); box-shadow:0 0 0 4px rgba(60,154,95,.18);}
+  .status-dot.error{background:var(--red); box-shadow:0 0 0 4px rgba(192,57,43,.18);}
+  .status-dot.busy{background:var(--accent); box-shadow:0 0 0 4px rgba(107,174,214,.2);}
+  .btn{
+    display:block; width:100%; border:none; border-radius:12px; padding:16px;
+    font-size:1.05rem; font-weight:700; cursor:pointer; margin-top:10px;
+  }
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-secondary{background:#fff; color:var(--blue); border:2px solid var(--blue);}
+  .btn:disabled{opacity:.5;}
+  .pose-label{
+    font-size:1.6rem; font-weight:800; letter-spacing:1px; color:var(--navy);
+    text-align:center; margin:4px 0 8px;
+  }
+  .pose-step{font-size:.85rem; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:1px; text-align:center;}
+  .live-view{
+    text-align:center; background:var(--navy); color:#fff; border-radius:14px;
+    padding:30px 16px; margin:14px 0; min-height:120px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .live-view .name{font-size:1.8rem; font-weight:800; letter-spacing:2px;}
+  .live-view .hint{font-size:.85rem; color:#cfe0f0; margin-top:6px;}
+  .countdown{font-size:2.4rem; font-weight:800; text-align:center; color:var(--blue); margin:8px 0;}
+  .readout{
+    font-family:ui-monospace,"SF Mono",monospace; font-size:.78rem; color:var(--gray);
+    text-align:center; margin-top:10px;
+  }
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FoCUS Virtual Probe</h1>
+  <div class="status-row">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Connecting…</span>
+  </div>
+
+  <!-- No host code in URL -->
+  <div class="card" id="screen-nohost" hidden>
+    <p><b>No iPad found.</b></p>
+    <p>Open the <b>Virtual Probe Simulation</b> step on the iPad and scan its QR code, or open the address shown there on this phone.</p>
+  </div>
+
+  <!-- Connecting / connection failed -->
+  <div class="card" id="screen-connecting" hidden>
+    <p id="connectingMsg">Connecting to the iPad…</p>
+    <button class="btn btn-primary" id="btnRetryConnect" hidden>Try Again</button>
+  </div>
+
+  <!-- Permission step -->
+  <div class="card" id="screen-permission" hidden>
+    <p>Connected to the iPad.</p>
+    <p>This page uses your phone's <b>motion &amp; orientation sensors</b> to act as a simulated ultrasound probe. Tap below and allow access when prompted.</p>
+    <button class="btn btn-primary" id="btnEnableMotion">Enable Motion &amp; Orientation</button>
+    <p class="muted center" id="permissionError" style="color:var(--red); margin-top:10px;" hidden></p>
+  </div>
+
+  <!-- Calibration -->
+  <div class="card" id="screen-calibrate" hidden>
+    <div class="pose-step" id="calibStep">Step 1 of 3</div>
+    <div class="pose-label" id="calibLabel">PLAX</div>
+    <p id="calibInstructions"></p>
+    <p class="muted center">Hold the phone steady in this position, then tap below.</p>
+    <div class="countdown" id="calibCountdown" hidden></div>
+    <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
+  </div>
+
+  <!-- Live streaming -->
+  <div class="card" id="screen-live" hidden>
+    <p class="muted center" style="margin-top:0;">Move and tilt the phone the way you'd position a real probe. The matching view will appear on the iPad.</p>
+    <div class="live-view">
+      <div class="name" id="liveName">SEARCHING…</div>
+      <div class="hint">Hold steady on a position to lock it in</div>
+    </div>
+    <div class="readout" id="liveReadout"></div>
+    <button class="btn btn-secondary" id="btnRecalibrate">Recalibrate</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const CALIB_VIEWS = [
+    {
+      id: 'plax', label: 'PLAX',
+      instructions: 'Hold the phone flat against the left side of the chest near the breastbone (3rd–4th rib space), angled toward the right shoulder — the parasternal long-axis position.'
+    },
+    {
+      id: 'a4c', label: 'A4C',
+      instructions: 'Move the phone down to the cardiac apex (lower-left ribs) and angle it up toward the right shoulder — the apical 4-chamber position.'
+    },
+    {
+      id: 'subcostal', label: 'SUBCOSTAL 4CH',
+      instructions: 'Move the phone flat just below the breastbone and angle it up toward the left shoulder at a shallow angle — the subcostal position.'
+    }
+  ];
+
+  const $ = sel => document.querySelector(sel);
+
+  const STATE = {
+    peer: null,
+    conn: null,
+    hostId: null,
+    calibration: {},
+    calibIndex: 0,
+    samples: [],
+    capturing: false,
+    smoothed: null,
+    streamTimer: null,
+    lastSent: undefined
+  };
+
+  function setStatus(state, text) {
+    const dot = $('#statusDot');
+    const label = $('#statusText');
+    dot.className = 'status-dot' + (state ? ' ' + state : '');
+    label.textContent = text;
+  }
+
+  function showScreen(id) {
+    ['screen-nohost', 'screen-connecting', 'screen-permission', 'screen-calibrate', 'screen-live']
+      .forEach(s => { const el = $('#' + s); if (el) el.hidden = (s !== id); });
+  }
+
+  function getHostId() {
+    const params = new URLSearchParams(location.search);
+    return params.get('host');
+  }
+
+  /* ---------------- Connection ---------------- */
+
+  function connectToHost(hostId) {
+    if (typeof Peer === 'undefined') {
+      setStatus('error', 'Could not load connection library');
+      $('#connectingMsg').textContent = 'Could not load the connection library. Check your internet connection and reload this page.';
+      $('#btnRetryConnect').hidden = true;
+      showScreen('screen-connecting');
+      return;
+    }
+    setStatus('busy', 'Connecting…');
+    showScreen('screen-connecting');
+    $('#connectingMsg').textContent = 'Connecting to the iPad…';
+    $('#btnRetryConnect').hidden = true;
+
+    const peer = new Peer({ debug: 0 });
+    STATE.peer = peer;
+
+    peer.on('open', () => {
+      const conn = peer.connect(hostId, { reliable: true });
+      STATE.conn = conn;
+
+      conn.on('open', () => {
+        setStatus('live', 'Connected to iPad');
+        showScreen('screen-permission');
+      });
+
+      conn.on('close', () => {
+        setStatus('error', 'Disconnected from iPad');
+        stopStreaming();
+        $('#connectingMsg').textContent = 'Lost connection to the iPad. Tap Try Again to reconnect.';
+        $('#btnRetryConnect').hidden = false;
+        showScreen('screen-connecting');
+      });
+
+      conn.on('error', () => {
+        setStatus('error', 'Connection error');
+      });
+    });
+
+    peer.on('error', err => {
+      stopStreaming();
+      if (err && err.type === 'peer-unavailable') {
+        setStatus('error', 'iPad not found');
+        $('#connectingMsg').textContent = "Couldn't find the iPad. Make sure it's on the Virtual Probe Simulation step, then try again.";
+      } else {
+        setStatus('error', 'Connection error');
+        $('#connectingMsg').textContent = 'A connection error occurred. Tap Try Again.';
+      }
+      $('#btnRetryConnect').hidden = false;
+      showScreen('screen-connecting');
+    });
+  }
+
+  function send(data) {
+    if (STATE.conn && STATE.conn.open) {
+      try { STATE.conn.send(data); } catch (e) { /* ignore */ }
+    }
+  }
+
+  $('#btnRetryConnect').addEventListener('click', () => {
+    if (STATE.peer && !STATE.peer.destroyed) STATE.peer.destroy();
+    connectToHost(STATE.hostId);
+  });
+
+  /* ---------------- Motion permission ---------------- */
+
+  $('#btnEnableMotion').addEventListener('click', () => {
+    const DOE = window.DeviceOrientationEvent;
+    if (DOE && typeof DOE.requestPermission === 'function') {
+      DOE.requestPermission().then(result => {
+        if (result === 'granted') {
+          startOrientation();
+          beginCalibration();
+        } else {
+          $('#permissionError').hidden = false;
+          $('#permissionError').textContent = 'Motion access was not granted. Enable it in Settings > Safari > Motion & Orientation Access, then reload this page.';
+        }
+      }).catch(() => {
+        $('#permissionError').hidden = false;
+        $('#permissionError').textContent = 'Could not request motion access. Reload this page and try again.';
+      });
+    } else if (window.DeviceOrientationEvent) {
+      startOrientation();
+      beginCalibration();
+    } else {
+      $('#permissionError').hidden = false;
+      $('#permissionError').textContent = 'This device or browser does not support orientation sensors.';
+    }
+  });
+
+  /* ---------------- Orientation tracking ---------------- */
+
+  let latest = { alpha: 0, beta: 0, gamma: 0 };
+
+  function startOrientation() {
+    window.addEventListener('deviceorientation', e => {
+      latest = { alpha: e.alpha || 0, beta: e.beta || 0, gamma: e.gamma || 0 };
+      if (STATE.capturing) {
+        STATE.samples.push({ beta: latest.beta, gamma: latest.gamma });
+      }
+    }, true);
+  }
+
+  function circularMean(values) {
+    let sumSin = 0, sumCos = 0;
+    values.forEach(v => {
+      const rad = v * Math.PI / 180;
+      sumSin += Math.sin(rad);
+      sumCos += Math.cos(rad);
+    });
+    return Math.atan2(sumSin / values.length, sumCos / values.length) * 180 / Math.PI;
+  }
+
+  function angleDiff(a, b) {
+    let d = a - b;
+    while (d > 180) d -= 360;
+    while (d < -180) d += 360;
+    return d;
+  }
+
+  /* ---------------- Calibration ---------------- */
+
+  function beginCalibration() {
+    STATE.calibIndex = 0;
+    STATE.calibration = {};
+    showCalibStep();
+    showScreen('screen-calibrate');
+  }
+
+  function showCalibStep() {
+    const v = CALIB_VIEWS[STATE.calibIndex];
+    $('#calibStep').textContent = `Step ${STATE.calibIndex + 1} of ${CALIB_VIEWS.length}`;
+    $('#calibLabel').textContent = v.label;
+    $('#calibInstructions').textContent = v.instructions;
+    $('#btnCapture').disabled = false;
+    $('#btnCapture').textContent = 'Hold Steady & Capture';
+    $('#calibCountdown').hidden = true;
+    send({ type: 'calibrating', step: STATE.calibIndex + 1, total: CALIB_VIEWS.length });
+  }
+
+  $('#btnCapture').addEventListener('click', () => {
+    if (STATE.capturing) return;
+    const v = CALIB_VIEWS[STATE.calibIndex];
+    $('#btnCapture').disabled = true;
+    STATE.samples = [];
+    STATE.capturing = true;
+
+    let count = 3;
+    const countdownEl = $('#calibCountdown');
+    countdownEl.hidden = false;
+    countdownEl.textContent = count;
+    const timer = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        countdownEl.textContent = count;
+      } else {
+        clearInterval(timer);
+        countdownEl.hidden = true;
+        STATE.capturing = false;
+        const betas = STATE.samples.map(s => s.beta);
+        const gammas = STATE.samples.map(s => s.gamma);
+        STATE.calibration[v.id] = {
+          beta: betas.length ? circularMean(betas) : latest.beta,
+          gamma: gammas.length ? circularMean(gammas) : latest.gamma
+        };
+        STATE.calibIndex += 1;
+        if (STATE.calibIndex < CALIB_VIEWS.length) {
+          showCalibStep();
+        } else {
+          finishCalibration();
+        }
+      }
+    }, 1000);
+  });
+
+  $('#btnRecalibrate').addEventListener('click', () => {
+    stopStreaming();
+    beginCalibration();
+  });
+
+  function finishCalibration() {
+    send({ type: 'ready' });
+    setStatus('live', 'Streaming probe position');
+    STATE.smoothed = null;
+    showScreen('screen-live');
+    startStreaming();
+  }
+
+  /* ---------------- Live streaming ---------------- */
+
+  const MATCH_THRESHOLD = 25; // degrees
+  const SMOOTHING = 0.2;
+
+  function startStreaming() {
+    stopStreaming();
+    STATE.streamTimer = setInterval(streamTick, 150);
+  }
+
+  function stopStreaming() {
+    if (STATE.streamTimer) {
+      clearInterval(STATE.streamTimer);
+      STATE.streamTimer = null;
+    }
+  }
+
+  function streamTick() {
+    if (!STATE.smoothed) {
+      STATE.smoothed = { beta: latest.beta, gamma: latest.gamma };
+    } else {
+      STATE.smoothed.beta += angleDiff(latest.beta, STATE.smoothed.beta) * SMOOTHING;
+      STATE.smoothed.gamma += angleDiff(latest.gamma, STATE.smoothed.gamma) * SMOOTHING;
+    }
+
+    let best = null, bestDist = Infinity;
+    CALIB_VIEWS.forEach(v => {
+      const cal = STATE.calibration[v.id];
+      if (!cal) return;
+      const db = angleDiff(STATE.smoothed.beta, cal.beta);
+      const dg = angleDiff(STATE.smoothed.gamma, cal.gamma);
+      const dist = Math.sqrt(db * db + dg * dg);
+      if (dist < bestDist) { bestDist = dist; best = v; }
+    });
+
+    const matchId = (best && bestDist <= MATCH_THRESHOLD) ? best.id : null;
+
+    $('#liveName').textContent = matchId
+      ? CALIB_VIEWS.find(v => v.id === matchId).label
+      : 'SEARCHING…';
+    $('#liveReadout').textContent =
+      `beta ${STATE.smoothed.beta.toFixed(0)}°  gamma ${STATE.smoothed.gamma.toFixed(0)}°`;
+
+    if (matchId !== STATE.lastSent) {
+      STATE.lastSent = matchId;
+      send({ type: 'view', id: matchId });
+    }
+  }
+
+  /* ---------------- Init ---------------- */
+
+  const hostId = getHostId();
+  if (!hostId) {
+    setStatus('error', 'No iPad code found');
+    showScreen('screen-nohost');
+  } else {
+    STATE.hostId = hostId;
+    connectToHost(hostId);
+  }
+})();
+</script>
+</body>
+</html>
