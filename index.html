@@ -179,6 +179,30 @@
   .view-display canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;
   }
+  /* Real echo cine-loop engine (crossfading video layers) */
+  .echo-stack{position:absolute; inset:0; z-index:1; overflow:hidden; transition:filter .15s;}
+  .echo-layer{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+    opacity:0; transition:opacity .12s linear; background:#000;
+  }
+  .echo-haze{
+    position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 40%, transparent 28%, rgba(0,0,0,.7) 100%),
+      repeating-radial-gradient(circle at 50% 40%, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+  }
+  .echo-hud{position:absolute; top:10px; right:12px; z-index:3; text-align:right; font-family:ui-monospace,monospace; line-height:1.25;}
+  .echo-state{display:block; font-size:.7rem; font-weight:700; letter-spacing:1px; color:#9fb4c7;}
+  .echo-state.locked{color:#39C06B;}
+  .echo-acc{display:block; font-size:1.1rem; font-weight:800; color:#7CD4FF;}
+  .echo-caption{
+    position:absolute; bottom:30px; left:12px; right:12px; z-index:3;
+    font-size:.72rem; color:#cfe0f0; font-family:ui-monospace,monospace;
+  }
+  .echo-credits{
+    font-size:.68rem; color:var(--gray); line-height:1.5; margin-top:10px;
+    border-top:1px solid #eef2f6; padding-top:8px; word-break:break-word;
+  }
 
   /* Label on/off toggle for probe simulator */
   .probe-toggle-row{
@@ -436,7 +460,7 @@
       <div id="probeScanCard" style="display:none;">
         <div class="probe-target-row" id="probeTargetRow"></div>
         <div class="probe-toggle-row" id="probeLabelToggleRow">
-          <span>Labels</span>
+          <span>Teaching caption</span>
           <label class="switch">
             <input type="checkbox" id="probeLabelToggle" checked>
             <span class="slider"></span>
@@ -444,11 +468,21 @@
         </div>
         <div class="view-display" id="probeDisplay">
           <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
-          <canvas id="probeCanvas" width="320" height="320"></canvas>
-          <div id="probeViewSvg"></div>
+          <div class="echo-stack" id="echoStack">
+            <video class="echo-layer" id="echo-plax" muted loop playsinline preload="auto"></video>
+            <video class="echo-layer" id="echo-a4c" muted loop playsinline preload="auto"></video>
+            <video class="echo-layer" id="echo-subcostal" muted loop playsinline preload="auto"></video>
+            <div class="echo-haze" id="echoHaze"></div>
+          </div>
+          <div class="echo-hud">
+            <span class="echo-state" id="echoState">SEARCHING</span>
+            <span class="echo-acc" id="echoAcc"></span>
+          </div>
           <div class="view-sub" id="probeViewSub">Move your phone to a probe position.</div>
+          <div class="echo-caption" id="echoCaption" hidden></div>
         </div>
         <div id="probeBodyDiagram" class="center"></div>
+        <div class="echo-credits" id="echoCredits"></div>
       </div>
 
       <p class="muted center" style="margin-top:14px;">This step is optional &mdash; you can skip it and continue to the post-assessment at any time.</p>

@@ -18,10 +18,9 @@
      ============================================================ */
 
   const CONFIDENCE_ITEMS = [
-    "I can identify the five basic FoCUS views (PLAX, PSAX, A4C, subcostal, and IVC).",
+    "I can identify the basic FoCUS views (PLAX, A4C, and subcostal).",
     "I can recognize severely reduced left ventricular systolic function on a focused cardiac ultrasound.",
     "I can identify a clinically significant pericardial effusion.",
-    "I can use the IVC to estimate a patient's volume status.",
     "I can recognize a FoCUS finding that should prompt delaying surgery or requesting a formal echocardiogram.",
     "Overall, I feel confident in my ability to perform and interpret a basic preoperative FoCUS exam."
   ];
@@ -49,7 +48,7 @@
           "It can only be used in cardiac surgery patients",
           "It requires a cardiology consult to calculate"], c: 1 },
     { q: "The parasternal long-axis (PLAX) view is primarily used to assess:",
-      o: ["IVC diameter and collapsibility",
+      o: ["Abdominal aortic aneurysm screening",
           "LV size/function, mitral and aortic valves, aortic root, and pericardial space",
           "Right ventricular strain only",
           "Carotid artery flow"], c: 1 },
@@ -58,11 +57,11 @@
           "Severe aortic stenosis",
           "RV dilation/dysfunction, which may indicate pulmonary hypertension or PE",
           "Hypovolemia"], c: 2 },
-    { q: "A plethoric IVC (>2.1 cm) with minimal respiratory collapse (<50%) is most consistent with:",
-      o: ["Hypovolemia",
-          "Elevated right atrial pressure / volume overload",
+    { q: "On FoCUS, a large pericardial effusion with right ventricular diastolic collapse is most consistent with:",
+      o: ["A normal incidental finding requiring no action",
+          "Tamponade physiology — a red-flag finding warranting prompt communication",
           "Severe mitral stenosis",
-          "Normal volume status"], c: 1 },
+          "Volume depletion"], c: 1 },
     { q: "Which finding on FoCUS would be considered a \"red flag\" warranting further evaluation before proceeding with an elective case?",
       o: ["Mild left atrial enlargement",
           "Trace mitral regurgitation",
@@ -110,7 +109,7 @@
           "Can only be applied to outpatient procedures",
           "Requires an echocardiogram to complete"], c: 1 },
     { q: "Which structures are best evaluated using the parasternal long-axis (PLAX) window?",
-      o: ["IVC and hepatic veins",
+      o: ["Renal artery flow",
           "LV chamber size/function, mitral and aortic valves, and the pericardium",
           "Carotid bifurcation",
           "Pulmonary artery branches only"], c: 1 },
@@ -119,16 +118,16 @@
           "Severe mitral stenosis",
           "RV dilation/dysfunction, possibly from pulmonary hypertension or pulmonary embolism",
           "Volume depletion"], c: 2 },
-    { q: "A dilated, non-collapsing IVC on FoCUS most likely reflects:",
-      o: ["Volume depletion",
-          "Elevated right-sided filling pressures / volume overload",
-          "Severe aortic regurgitation",
-          "A normal finding in all adults"], c: 1 },
+    { q: "Which finding on FoCUS would most strongly suggest pericardial tamponade physiology?",
+      o: ["A trace pericardial effusion with no chamber collapse",
+          "A large pericardial effusion with right ventricular diastolic collapse",
+          "Mild left ventricular hypertrophy",
+          "A normal-appearing aortic root"], c: 1 },
     { q: "Which of these would be considered an unexpected, high-acuity finding on a preoperative FoCUS that should prompt further discussion before an elective procedure?",
       o: ["Mildly thickened aortic valve leaflets with normal excursion",
           "A new, large pericardial effusion with evidence of tamponade physiology",
           "Trace tricuspid regurgitation",
-          "Normal IVC collapsibility"], c: 1 },
+          "Normal global LV systolic function"], c: 1 },
     { q: "The subcostal window is especially valuable because it:",
       o: ["Is the best view for assessing the aortic arch",
           "Can detect pericardial effusion and serve as a backup four-chamber view",
@@ -164,7 +163,7 @@
           "Document the findings and discuss with the team regarding further cardiac evaluation before the elective procedure",
           "Administer a fluid bolus and proceed",
           "Cancel all future surgeries for this patient permanently"], c: 1 },
-    { v: "A 58-year-old patient is scheduled for an elective laparoscopic cholecystectomy. Preoperative FoCUS shows normal LV size and function, no pericardial effusion, normal RV size, and a normal IVC with appropriate respiratory collapse.",
+    { v: "A 58-year-old patient is scheduled for an elective laparoscopic cholecystectomy. Preoperative FoCUS shows normal LV size and function, no pericardial effusion, and normal RV size.",
       q: "Based on these findings, the most appropriate next step is:",
       o: ["Proceed with the planned anesthetic; findings are reassuring and consistent with the existing risk assessment",
           "Cancel the case pending cardiology clearance",
@@ -176,12 +175,12 @@
           "Possible pulmonary hypertension or RV strain; communicate the finding to the team and consider further workup before proceeding",
           "A normal finding in COPD patients; no action needed",
           "Severe mitral stenosis; proceed with the case as planned"], c: 1 },
-    { v: "A 45-year-old trauma patient requires urgent surgery. FoCUS shows a small, hyperdynamic LV with an IVC that nearly fully collapses with inspiration.",
+    { v: "A 45-year-old trauma patient requires urgent surgery. FoCUS reveals a large, new pericardial effusion with right ventricular diastolic collapse and a small, hyperdynamic left ventricle.",
       q: "These findings are most consistent with:",
-      o: ["Volume overload; restrict fluids",
-          "Hypovolemia; consider volume resuscitation as part of the anesthetic plan",
-          "Severe LV failure; start inotropes immediately",
-          "Normal findings; no further consideration needed"], c: 1 }
+      o: ["Volume overload; restrict fluids and proceed",
+          "Tamponade physiology; communicate the finding immediately and discuss the risk/benefit of proceeding with the team",
+          "A normal finding in trauma patients; no action needed",
+          "Severe mitral stenosis; proceed with the case as planned"], c: 1 }
   ];
 
   // Case-based scenarios - Form B (post-training, parallel form)
@@ -192,7 +191,7 @@
           "Document the finding and discuss with the team regarding further cardiac evaluation before the elective procedure",
           "Give a vasopressor bolus prophylactically and proceed",
           "Permanently cancel all future procedures for the patient"], c: 1 },
-    { v: "A 52-year-old patient is scheduled for an elective umbilical hernia repair. FoCUS demonstrates normal LV size/function, no pericardial effusion, normal RV size, and an IVC that collapses appropriately with inspiration.",
+    { v: "A 52-year-old patient is scheduled for an elective umbilical hernia repair. FoCUS demonstrates normal LV size/function, no pericardial effusion, and normal RV size.",
       q: "Based on these findings, the most appropriate next step is:",
       o: ["Proceed with the planned anesthetic; findings support the existing risk assessment",
           "Delay the case for cardiology evaluation",
@@ -204,12 +203,12 @@
           "Possible RV strain/pulmonary hypertension; communicate the finding and consider further evaluation before proceeding",
           "A normal finding for COPD; no further action",
           "Severe aortic regurgitation; proceed as planned"], c: 1 },
-    { v: "A 39-year-old trauma patient requires emergent surgery. FoCUS reveals a small, vigorously contracting LV and an IVC that is small and collapses nearly completely with inspiration.",
+    { v: "A 39-year-old trauma patient requires emergent surgery. FoCUS shows a large pericardial effusion with right ventricular diastolic collapse and a small, vigorously contracting left ventricle.",
       q: "These findings most likely indicate:",
       o: ["Volume overload; restrict fluids and consider diuresis",
-          "Hypovolemia; volume resuscitation should be incorporated into the anesthetic plan",
-          "Severe systolic heart failure; begin inotropic support immediately",
-          "No clinically relevant finding"], c: 1 }
+          "Tamponade physiology; this is a red-flag finding that should be communicated immediately",
+          "A normal finding; no further consideration needed",
+          "Severe systolic heart failure; begin inotropic support immediately"], c: 1 }
   ];
 
   /* ============================================================
@@ -259,22 +258,6 @@
       assesses: "LV size and global systolic function, septal and posterior wall motion, mitral and aortic valves, aortic root diameter, pericardial space (effusion)."
     },
     {
-      id: 'psax', name: 'Parasternal Short-Axis (PSAX)',
-      probe: bodyDiagram(82, 70, 110, '#9fe6b0', 'Same window, rotated 90° from PLAX'),
-      view: viewWrap('PSAX', 'LV cross-section • Papillary muscles • RV',
-        `<svg viewBox="0 0 200 200" class="diagram" style="max-width:220px;">
-          <circle cx="105" cy="100" r="72" fill="none" stroke="#3a4a5c" stroke-width="2"/>
-          <circle cx="105" cy="100" r="46" fill="none" stroke="#7CD4FF" stroke-width="2"/>
-          <text x="105" y="105" fill="#7CD4FF" font-size="13" text-anchor="middle">LV</text>
-          <circle cx="86" cy="118" r="6" fill="#FFD479"/>
-          <circle cx="124" cy="118" r="6" fill="#FFD479"/>
-          <text x="105" y="142" fill="#FFD479" font-size="9" text-anchor="middle">papillary muscles</text>
-          <path d="M58,80 A75,75 0 0,1 58,120 Q40,100 58,80 Z" fill="none" stroke="#9fe6b0" stroke-width="2"/>
-          <text x="42" y="103" fill="#9fe6b0" font-size="12" text-anchor="middle">RV</text>
-        </svg>`),
-      assesses: "Global LV systolic function (visual EF), regional wall-motion abnormalities across vascular territories, RV size at the base."
-    },
-    {
       id: 'a4c', name: 'Apical 4-Chamber (A4C)',
       probe: bodyDiagram(70, 138, -40, '#FFD479', 'Cardiac apex, 5th–6th ICS'),
       subText: 'Apex up • LV/RV size comparison • AV valves',
@@ -309,22 +292,6 @@
         </svg>`,
       get view() { return viewWrap('SUBCOSTAL', this.subText, this.svg); },
       assesses: "Pericardial effusion (often the best view for this), and a backup four-chamber view when parasternal/apical windows are limited."
-    },
-    {
-      id: 'ivc', name: 'IVC View',
-      probe: bodyDiagram(100, 192, 180, '#c9a8ff', 'Subxiphoid, rotated to long axis, beam toward head'),
-      view: viewWrap('IVC', 'Diameter & respiratory collapse → volume status',
-        `<svg viewBox="0 0 200 200" class="diagram" style="max-width:220px;">
-          <line x1="10" y1="38" x2="190" y2="38" stroke="#3a4a5c" stroke-width="2" stroke-dasharray="5 5"/>
-          <text x="100" y="32" fill="#94a3b8" font-size="9" text-anchor="middle">diaphragm</text>
-          <path d="M70,8 L70,150 Q70,180 110,180 L155,180" fill="none" stroke="#7CD4FF" stroke-width="10" stroke-linecap="round"/>
-          <text x="40" y="90" fill="#7CD4FF" font-size="12" text-anchor="middle">IVC</text>
-          <ellipse cx="158" cy="180" rx="34" ry="17" fill="none" stroke="#f3a6c1" stroke-width="2"/>
-          <text x="158" y="184" fill="#f3a6c1" font-size="10" text-anchor="middle">RA</text>
-          <path d="M70,95 L42,75" stroke="#FFD479" stroke-width="4" stroke-linecap="round"/>
-          <text x="38" y="65" fill="#FFD479" font-size="9" text-anchor="middle">hepatic v.</text>
-        </svg>`),
-      assesses: "IVC diameter and inspiratory collapse: a small, fully-collapsing IVC suggests hypovolemia; a dilated, non-collapsing IVC suggests elevated right atrial pressure / volume overload."
     }
   ];
 
@@ -352,21 +319,20 @@
         <p>Perioperative hemodynamic instability — including intraoperative hypotension, hypertensive crises, and dysrhythmias — complicates a substantial proportion of noncardiac surgical procedures and is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays.</p>
         <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point each for six clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>exclusively</i> on clinical history — it cannot detect subclinical ventricular dysfunction, valvular disease, or other structural abnormalities that meaningfully raise perioperative risk.</p>
         <p>Focused cardiac ultrasound (FoCUS) — also called point-of-care ultrasound (POCUS) or focused TTE — is a goal-directed bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools; it adds a layer of structural information that clinical scoring alone cannot provide.</p>
-        <h3 style="margin-top:14px;">FoCUS is designed to answer five targeted questions</h3>
+        <h3 style="margin-top:14px;">FoCUS is designed to answer four targeted questions</h3>
         <ul class="content-list">
           <li>Is global left ventricular systolic function preserved or reduced?</li>
           <li>Is there a clinically significant pericardial effusion?</li>
           <li>Is right ventricular size and function normal?</li>
           <li>Is there severe valvular pathology that would change the anesthetic plan?</li>
-          <li>Does the IVC suggest volume depletion or volume overload?</li>
         </ul>
         <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice. When a FoCUS finding raises concern, the appropriate response is not to make a definitive diagnosis — it is to <b>communicate the finding</b> and integrate it into the existing risk-assessment and decision-making process alongside the surgical and anesthesia team.</p>
       `
     },
     {
-      title: "Module 2 of 5: The Five Basic FoCUS Views",
+      title: "Module 2 of 5: Core FoCUS Views",
       html: `
-        <p>A complete focused exam moves through five standard windows. For each, note the probe position shown on the body diagram and the structures highlighted on the simulated screen.</p>
+        <p>This training focuses on three core windows. For each, note the probe position shown on the body diagram and the structures highlighted on the simulated screen.</p>
         ${VIEWS.map(v => `
           <div class="view-card">
             <h4>${v.name}</h4>
@@ -384,10 +350,9 @@
       html: `
         <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause, document, and communicate before proceeding with an elective case.</p>
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure.</div>
-        <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with RV diastolic collapse and/or a plethoric, non-collapsing IVC.</div>
+        <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with right ventricular diastolic collapse.</div>
         <div class="flag-box"><b>Severe valvular pathology</b> — e.g., a heavily calcified aortic valve with markedly reduced leaflet excursion (severe AS), or a flail mitral leaflet with severe MR.</div>
         <div class="flag-box"><b>RV dilation/dysfunction</b> — RV approaching or exceeding LV size, with septal flattening. Raises concern for pulmonary hypertension or pulmonary embolism.</div>
-        <div class="flag-box"><b>IVC abnormalities</b> — A plethoric, non-collapsing IVC (volume overload/elevated RAP) or a small, fully-collapsing IVC (hypovolemia) — either may warrant adjustment of the fluid plan.</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
@@ -402,8 +367,6 @@
         <div class="flow-box"><b>3. New, non-life-threatening finding</b>e.g., mild–moderate valve disease, mild LV dysfunction.<br><b>→ Document</b>, communicate to the team, correlate clinically, and consider further workup if time allows &mdash; proceeding is often still appropriate.</div>
         <div class="flow-arrow">↓</div>
         <div class="flow-box alert"><b>4. Red-flag finding</b>Severe LV dysfunction, tamponade physiology, severe valve disease, or significant RV dysfunction.<br><b>→ Document and communicate immediately</b>; discuss the risk/benefit of proceeding vs. delaying with the team, and consider formal TTE or cardiology consultation.</div>
-        <div class="flow-arrow">↓</div>
-        <div class="flow-box"><b>5. Volume status (IVC) findings</b>Plethoric or collapsed IVC.<br><b>→ Incorporate</b> into the fluid management plan for the case.</div>
       `
     },
     {
@@ -899,207 +862,114 @@
   });
 
   /* ============================================================
-     REALISTIC PLAX SIMULATION (canvas)
+     ECHO LOOP ENGINE — real, CC-licensed cine loops
+     Loads clips/manifest.json and crossfades the three view loops by the
+     phone's blend weights. Never blanks (the weights sum to 1, so the
+     nearest view always shows); off-window the image blurs and darkens
+     like poor probe contact, then re-sharpens as accuracy rises.
      ============================================================ */
-  const PLAX_PAN_SCALE = 0.7;
-  const PLAX_CYCLE_MS = 850; // ~70 bpm
-
-  const PLAX_SIM = {
-    running: false,
+  const ECHO = {
+    manifest: null,
+    videos: {},
+    opacity: { plax: 0, a4c: 0, subcostal: 0 },
+    targetOp: { plax: 0, a4c: 0, subcostal: 0 },
     raf: null,
-    startTime: null,
-    showLabels: true,
-    noiseCanvas: null,
-    current: { quality: 0, panX: 0, panY: 0 },
-    target: { quality: 0, panX: 0, panY: 0 }
+    showCaption: true,
+    acc: 0
   };
 
-  // 0 = diastole (LV relaxed/largest), 1 = systole (LV contracted/smallest)
-  function cardiacContraction(phase) {
-    if (phase < 0.35) {
-      return Math.sin((phase / 0.35) * (Math.PI / 2));
-    }
-    return Math.cos(((phase - 0.35) / 0.65) * (Math.PI / 2));
+  function loadEchoManifest() {
+    if (ECHO.manifest) return Promise.resolve(ECHO.manifest);
+    return fetch('clips/manifest.json')
+      .then(r => r.json())
+      .then(m => { ECHO.manifest = m; return m; })
+      .catch(() => { ECHO.manifest = null; return null; });
   }
 
-  function plaxNoiseCanvas(w, h) {
-    const c = document.createElement('canvas');
-    c.width = w;
-    c.height = h;
-    const nctx = c.getContext('2d');
-    if (!nctx) return c;
-    const img = nctx.createImageData(w, h);
-    for (let i = 0; i < img.data.length; i += 4) {
-      const v = Math.floor(Math.random() * 60);
-      img.data[i] = v;
-      img.data[i + 1] = v;
-      img.data[i + 2] = v;
-      img.data[i + 3] = 255;
+  function echoSrc(id) {
+    if (ECHO.manifest && ECHO.manifest.views[id] && ECHO.manifest.views[id].src) {
+      return ECHO.manifest.views[id].src;
     }
-    nctx.putImageData(img, 0, 0);
-    return c;
+    return 'clips/' + id + '.webm';
   }
 
-  function startPlaxSim() {
-    const canvas = $('#probeCanvas');
-    if (!canvas || typeof canvas.getContext !== 'function') return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    if (!PLAX_SIM.noiseCanvas) {
-      PLAX_SIM.noiseCanvas = plaxNoiseCanvas(canvas.width, canvas.height);
-    }
-    if (PLAX_SIM.running) return;
-    PLAX_SIM.running = true;
-    PLAX_SIM.startTime = null;
-    const loop = now => {
-      if (!PLAX_SIM.running) return;
-      if (PLAX_SIM.startTime === null) PLAX_SIM.startTime = now;
-      drawPlaxFrame(ctx, canvas, now - PLAX_SIM.startTime);
-      PLAX_SIM.raf = requestAnimationFrame(loop);
+  function setupEchoVideos() {
+    PROBE_VIEW_IDS.forEach(id => {
+      const v = $('#echo-' + id);
+      if (!v) return;
+      ECHO.videos[id] = v;
+      ECHO.opacity[id] = 0;
+      ECHO.targetOp[id] = 0;
+      const src = echoSrc(id);
+      if (v.getAttribute('src') !== src) v.setAttribute('src', src);
+      v.muted = true; v.loop = true; v.playsInline = true;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
+    });
+    renderEchoCredits();
+  }
+
+  function renderEchoCredits() {
+    const el = $('#echoCredits');
+    if (!el || !ECHO.manifest) return;
+    const lines = PROBE_VIEW_IDS
+      .map(id => ECHO.manifest.views[id] && ECHO.manifest.views[id].citation)
+      .filter(Boolean);
+    if (lines.length) el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
+  }
+
+  function startEchoLoop() {
+    if (ECHO.raf) return;
+    const tick = () => {
+      PROBE_VIEW_IDS.forEach(id => {
+        const cur = ECHO.opacity[id], tgt = ECHO.targetOp[id];
+        ECHO.opacity[id] = cur + (tgt - cur) * 0.18;
+        const v = ECHO.videos[id];
+        if (v) v.style.opacity = ECHO.opacity[id].toFixed(3);
+      });
+      const acc = clampNum(ECHO.acc / 100, 0, 1);
+      const stack = $('#echoStack');
+      if (stack) {
+        stack.style.filter =
+          'blur(' + ((1 - acc) * 2.2).toFixed(2) + 'px) ' +
+          'brightness(' + (0.55 + 0.45 * acc).toFixed(2) + ') ' +
+          'contrast(' + (0.9 + 0.2 * acc).toFixed(2) + ')';
+      }
+      const haze = $('#echoHaze');
+      if (haze) haze.style.opacity = ((1 - acc) * 0.55).toFixed(2);
+      ECHO.raf = requestAnimationFrame(tick);
     };
-    PLAX_SIM.raf = requestAnimationFrame(loop);
+    ECHO.raf = requestAnimationFrame(tick);
   }
 
+  // Kept under the old name so renderStep() can pause the sim on screen exit.
   function stopPlaxSim() {
-    PLAX_SIM.running = false;
-    if (PLAX_SIM.raf) cancelAnimationFrame(PLAX_SIM.raf);
-    PLAX_SIM.raf = null;
+    if (ECHO.raf) { cancelAnimationFrame(ECHO.raf); ECHO.raf = null; }
+    Object.keys(ECHO.videos).forEach(id => {
+      const v = ECHO.videos[id];
+      if (v) { try { v.pause(); } catch (e) {} }
+    });
   }
 
-  function drawPlaxFrame(ctx, canvas, elapsed) {
-    const w = canvas.width, h = canvas.height;
-    const c = PLAX_SIM.current, t = PLAX_SIM.target;
-    c.quality += (t.quality - c.quality) * 0.12;
-    c.panX += (t.panX - c.panX) * 0.12;
-    c.panY += (t.panY - c.panY) * 0.12;
-
-    const phase = (elapsed % PLAX_CYCLE_MS) / PLAX_CYCLE_MS;
-    const contraction = cardiacContraction(phase);
-
-    ctx.save();
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-
-    // Sector (fan) clip, apex near top-center, nudged by tilt for a "live" feel
-    const apexX = w / 2 + c.panX;
-    const apexY = 6 + c.panY;
-    const halfAngle = 0.5; // radians
-    const radius = Math.max(w, h) * 1.3;
-    ctx.beginPath();
-    ctx.moveTo(apexX, apexY);
-    ctx.arc(apexX, apexY, radius, Math.PI / 2 - halfAngle, Math.PI / 2 + halfAngle);
-    ctx.closePath();
-    ctx.clip();
-
-    if (PLAX_SIM.noiseCanvas) {
-      ctx.globalAlpha = 1;
-      ctx.drawImage(PLAX_SIM.noiseCanvas, 0, 0);
+  function setEchoState(matchId, acc, locked, targetId) {
+    const labelEl = $('#probeViewLabel');
+    const accEl = $('#echoAcc');
+    const stEl = $('#echoState');
+    const subEl = $('#probeViewSub');
+    const capEl = $('#echoCaption');
+    const id = matchId || targetId || null;
+    const view = id ? getViewById(id) : null;
+    const info = (ECHO.manifest && id) ? ECHO.manifest.views[id] : null;
+    if (labelEl) labelEl.textContent = view ? probeShortLabel(view) : 'SEARCHING…';
+    if (accEl) accEl.textContent = acc ? (acc + '%') : '';
+    if (stEl) {
+      stEl.textContent = locked ? 'LOCKED' : (acc >= 60 ? 'ACQUIRING' : 'SEARCHING');
+      stEl.className = 'echo-state' + (locked ? ' locked' : '');
     }
-
-    const q = clampNum(c.quality, 0, 1);
-    if (q > 0.02) {
-      ctx.globalAlpha = q;
-      drawPlaxAnatomy(ctx, contraction);
-    }
-    ctx.globalAlpha = 1;
-    ctx.restore();
-
-    // Sector outline — the visible "ultrasound frame"
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,.25)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(apexX, apexY);
-    ctx.arc(apexX, apexY, radius, Math.PI / 2 - halfAngle, Math.PI / 2 + halfAngle);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // Draws PLAX anatomy scaled from the 200x200 PLAX schematic viewBox into the
-  // 320x320 canvas (S maps viewBox coords -> canvas coords).
-  function drawPlaxAnatomy(ctx, contraction) {
-    const S = v => v * 1.5 + 10;
-    const lvShrink = 1 - 0.22 * contraction;
-    const laGrow = 1 + 0.06 * contraction;
-
-    // Pericardium / chest wall outline
-    ctx.strokeStyle = '#9fb4c7';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(S(20), S(40));
-    ctx.quadraticCurveTo(S(10), S(120), S(60), S(170));
-    ctx.lineTo(S(160), S(170));
-    ctx.quadraticCurveTo(S(190), S(120), S(170), S(40));
-    ctx.quadraticCurveTo(S(100), S(10), S(20), S(40));
-    ctx.closePath();
-    ctx.stroke();
-
-    // RV
-    ctx.strokeStyle = '#9fe6b0';
-    ctx.beginPath();
-    ctx.moveTo(S(65), S(78));
-    ctx.quadraticCurveTo(S(48), S(98), S(65), S(122));
-    ctx.lineTo(S(97), S(110));
-    ctx.quadraticCurveTo(S(86), S(90), S(97), S(75));
-    ctx.closePath();
-    ctx.stroke();
-
-    // LV — pulses with the cardiac cycle
-    ctx.strokeStyle = '#7CD4FF';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(S(120), S(120), 82.5 * lvShrink, 67.5 * lvShrink, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // LA — subtle reciprocal pulse
-    ctx.strokeStyle = '#FFD479';
-    ctx.beginPath();
-    ctx.ellipse(S(150), S(55), 45 * laGrow, 37.5 * laGrow, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Aortic root walls
-    ctx.beginPath();
-    ctx.moveTo(S(118), S(75));
-    ctx.lineTo(S(150), S(75));
-    ctx.lineTo(S(150), S(38));
-    ctx.stroke();
-
-    // Aortic valve leaflets — open during systole
-    const avOpen = contraction;
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    const avBaseX = S(134), avBaseY = S(75);
-    ctx.beginPath();
-    ctx.moveTo(avBaseX, avBaseY);
-    ctx.lineTo(avBaseX - 10 * avOpen, avBaseY - 14);
-    ctx.moveTo(avBaseX, avBaseY);
-    ctx.lineTo(avBaseX + 10 * avOpen, avBaseY - 14);
-    ctx.stroke();
-
-    // Mitral valve leaflets — open during diastole
-    const mvOpen = 1 - contraction;
-    const mvBaseX = S(107), mvBaseY = S(79);
-    ctx.beginPath();
-    ctx.moveTo(S(97), S(80));
-    ctx.lineTo(mvBaseX, mvBaseY - 10 * mvOpen);
-    ctx.moveTo(S(118), S(78));
-    ctx.lineTo(mvBaseX, mvBaseY + 10 * mvOpen);
-    ctx.stroke();
-
-    if (PLAX_SIM.showLabels) {
-      ctx.textAlign = 'center';
-      ctx.font = '13px -apple-system, sans-serif';
-      ctx.fillStyle = '#7CD4FF';
-      ctx.fillText('LV', S(120), S(125));
-      ctx.fillStyle = '#FFD479';
-      ctx.fillText('LA', S(150), S(60));
-      ctx.fillStyle = '#9fe6b0';
-      ctx.fillText('RV', S(73), S(100));
-      ctx.font = '10px -apple-system, sans-serif';
-      ctx.fillStyle = '#fff';
-      ctx.fillText('MV', S(108), S(70));
-      ctx.fillText('AV', S(134), S(60));
+    if (subEl) subEl.textContent = view ? ('Target: ' + view.name) : 'Move your phone to a probe position.';
+    if (capEl) {
+      if (ECHO.showCaption && info && info.structures) { capEl.hidden = false; capEl.textContent = info.structures; }
+      else capEl.hidden = true;
     }
   }
 
@@ -1150,73 +1020,35 @@
     }).join('');
   }
 
-  function updateProbeView(id) {
-    const labelEl = $('#probeViewLabel');
-    const svgEl = $('#probeViewSvg');
-    const subEl = $('#probeViewSub');
-    const bodyEl = $('#probeBodyDiagram');
-    const canvasEl = $('#probeCanvas');
-    const toggleRow = $('#probeLabelToggleRow');
-    if (!labelEl || !svgEl || !subEl || !bodyEl) return;
-
-    // PLAX gets the realistic animated canvas sim; SEARCHING (no id) shows
-    // the same canvas as a "noisy, unlocked" view. Other views stay schematic.
-    const showCanvas = (id === 'plax' || id === null);
-    if (canvasEl) canvasEl.style.display = showCanvas ? '' : 'none';
-    if (toggleRow) toggleRow.style.display = showCanvas ? '' : 'none';
-
-    if (showCanvas) {
-      svgEl.style.display = 'none';
-      svgEl.innerHTML = '';
-      startPlaxSim();
-    } else {
-      svgEl.style.display = '';
-      stopPlaxSim();
-    }
-
-    if (!id) {
-      labelEl.textContent = 'SEARCHING…';
-      subEl.textContent = 'Move your phone to a probe position.';
-      bodyEl.innerHTML = '';
-      return;
-    }
-    const v = getViewById(id);
-    if (!v) return;
-    labelEl.textContent = probeShortLabel(v);
-    if (!showCanvas) svgEl.innerHTML = v.svg;
-    subEl.textContent = v.subText;
-    bodyEl.innerHTML = v.probe;
-  }
+  // updateProbeView() removed — the echo engine handles the display (see setEchoState).
 
   function handleProbeData(data) {
     if (!data || typeof data !== 'object') return;
     if (data.type === 'calibrating') {
-      setProbeStatus('busy', `Calibrating phone — hold position ${data.step} of ${data.total}…`);
+      setProbeStatus('busy', `Calibrating phone — pose ${data.step} of ${data.total}…`);
     } else if (data.type === 'ready') {
       PROBE.connected = true;
-      PROBE.lastViewId = null;
       setProbeStatus('live', 'Connected — hold your phone like a probe');
       const connectCard = $('#probeConnectCard');
       const scanCard = $('#probeScanCard');
       if (connectCard) connectCard.style.display = 'none';
       if (scanCard) scanCard.style.display = '';
       renderProbeTargets(null);
-      updateProbeView(null);
-    } else if (data.type === 'view') {
-      if (data.id !== PROBE.lastViewId) {
-        PROBE.lastViewId = data.id;
-        renderProbeTargets(data.id);
-        updateProbeView(data.id);
-      }
-      if (typeof data.plaxQuality === 'number') {
-        PLAX_SIM.target.quality = clampNum(data.plaxQuality, 0, 1);
-      }
-      if (typeof data.panGamma === 'number') {
-        PLAX_SIM.target.panX = clampNum(data.panGamma * PLAX_PAN_SCALE, -22, 22);
-      }
-      if (typeof data.panBeta === 'number') {
-        PLAX_SIM.target.panY = clampNum(data.panBeta * PLAX_PAN_SCALE, -22, 22);
-      }
+      setupEchoVideos();
+      startEchoLoop();
+      setEchoState(null, 0, false, null);
+    } else if (data.type === 'pose') {
+      let sum = 0;
+      PROBE_VIEW_IDS.forEach(id => { sum += (data.blend && data.blend[id]) || 0; });
+      PROBE_VIEW_IDS.forEach(id => {
+        let w = (data.blend && data.blend[id]) || 0;
+        if (sum > 0) w = w / sum;
+        ECHO.targetOp[id] = w;
+      });
+      ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
+      const locked = !!data.matchId && ECHO.acc >= 90;
+      setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
+      renderProbeTargets(locked ? data.matchId : (data.target || null));
     }
   }
 
@@ -1279,14 +1111,12 @@
 
   function initProbe() {
     renderProbeTargets(null);
-    updateProbeView(null);
+    loadEchoManifest().then(renderEchoCredits);
     const toggle = $('#probeLabelToggle');
     if (toggle && !PROBE.toggleBound) {
       PROBE.toggleBound = true;
-      PLAX_SIM.showLabels = toggle.checked;
-      toggle.addEventListener('change', () => {
-        PLAX_SIM.showLabels = toggle.checked;
-      });
+      ECHO.showCaption = toggle.checked;
+      toggle.addEventListener('change', () => { ECHO.showCaption = toggle.checked; });
     }
     if (PROBE.peer && !PROBE.peer.destroyed) return;
     createProbePeer();

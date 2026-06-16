@@ -1,0 +1,28 @@
+{
+  "views": {
+    "plax": {
+      "src": "clips/plax.webm",
+      "label": "PLAX",
+      "name": "Parasternal Long-Axis",
+      "structures": "RV, IVS, LV, posterior wall, aortic root, LA, mitral & aortic valves",
+      "status": "ready (temporary stopgap — replace with Ashley's own clip)",
+      "citation": "CardioNetworks Foundation. (n.d.). Parasternal long axis (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Parasternal_long_axis (CC BY-SA)"
+    },
+    "a4c": {
+      "src": "clips/a4c.webm",
+      "label": "A4CH",
+      "name": "Apical 4-Chamber",
+      "structures": "LV, RV, LA, RA, interventricular & interatrial septa, mitral & tricuspid valves",
+      "status": "ready",
+      "citation": "CardioNetworks. (n.d.). A4C normal [Video]. ECHOpedia; Wikimedia Commons. https://commons.wikimedia.org/wiki/File:A4C_normal_(CardioNetworks_ECHOpedia).webm (CC BY-SA 4.0)"
+    },
+    "subcostal": {
+      "src": "clips/subcostal.webm",
+      "label": "SUBCOSTAL",
+      "name": "Subcostal 4-Chamber",
+      "structures": "liver (near field), all 4 chambers, IVS, pericardium",
+      "status": "ready (temporary stopgap — replace with Ashley's own clip)",
+      "citation": "CardioNetworks Foundation. (n.d.). Subcostal view (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Subcostal_view (CC BY-SA)"
+    }
+  }
+}
