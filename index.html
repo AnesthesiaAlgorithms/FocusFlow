@@ -109,6 +109,12 @@
     border-radius:6px; padding:12px 14px; font-size:.9rem; margin-bottom:10px;
     font-style:italic;
   }
+  .case-media{margin:0 0 10px; text-align:center;}
+  .case-media-el{
+    width:360px; max-width:100%; max-height:300px; display:block; margin:0 auto;
+    border-radius:10px; background:#000; border:3px solid #1f2937;
+  }
+  .case-media-cap{font-size:.78rem; color:var(--gray); margin-top:6px;}
 
   /* Module nav dots */
   .mod-dots{display:flex; justify-content:center; gap:6px; margin:16px 0;}
@@ -126,6 +132,15 @@
   .results-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eef2f6; font-size:.92rem;}
   .results-row:last-child{border-bottom:none;}
   .results-row .val{font-weight:700; color:var(--navy);}
+  .review-block{margin-top:14px; border-top:1px solid #eef2f6; padding-top:12px;}
+  .review-block summary{font-weight:700; color:var(--navy); cursor:pointer; font-size:.98rem;}
+  .review-item{border:1px solid #e5e9ef; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.9rem;}
+  .review-q{margin-bottom:6px;}
+  .review-ans{font-weight:700; font-size:.85rem; margin-bottom:4px;}
+  .review-ans.ok{color:var(--green);}
+  .review-ans.no{color:var(--red);}
+  .review-correct{color:var(--navy); font-weight:600; font-size:.85rem; margin-bottom:4px;}
+  .review-why{color:#374151; line-height:1.5;}
   .delta-up{color:var(--green); font-weight:700;}
   .delta-down{color:var(--red); font-weight:700;}
 
@@ -203,6 +218,11 @@
     font-size:.68rem; color:var(--gray); line-height:1.5; margin-top:10px;
     border-top:1px solid #eef2f6; padding-top:8px; word-break:break-word;
   }
+  /* Always-on real loop (training modules + probe-screen preview) */
+  .echo-loop{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:1;}
+  .echo-preview{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:10px 0 4px;}
+  .echo-preview .view-display{flex:1; min-width:140px; max-width:210px; margin:0; aspect-ratio:1/1;}
+  .echo-preview-cap{font-size:.82rem; color:var(--gray); text-align:center; margin:6px 0 0;}
 
   /* Label on/off toggle for probe simulator */
   .probe-toggle-row{
@@ -443,7 +463,10 @@
     <div class="card">
       <span class="pill">Step 4 of 6 &mdash; Optional</span>
       <h2 class="section-title">Virtual Probe Simulation</h2>
-      <p>This optional activity turns your <b>phone</b> into a simulated ultrasound probe. Connect your phone below, then hold and move it the way you would position a real probe on a patient's chest &mdash; the simulated image on this screen will update to match three core windows: <b>PLAX</b>, <b>A4C</b>, and <b>Subcostal 4CH</b>.</p>
+      <p>This optional activity turns your <b>phone</b> into a simulated ultrasound probe. Connect your phone below, then hold and move it the way you would position a real probe on a patient's chest &mdash; the real echo loop on this screen glides between three core windows: <b>PLAX</b>, <b>A4C</b>, and <b>Subcostal 4CH</b>.</p>
+
+      <div class="echo-preview" id="echoPreview"></div>
+      <p class="echo-preview-cap">The three target windows (real echocardiography loops). Connect your phone to control them.</p>
 
       <div class="probe-status-row">
         <span class="status-dot" id="probeStatusDot"></span>
@@ -469,9 +492,15 @@
         <div class="view-display" id="probeDisplay">
           <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
           <div class="echo-stack" id="echoStack">
-            <video class="echo-layer" id="echo-plax" muted loop playsinline preload="auto"></video>
-            <video class="echo-layer" id="echo-a4c" muted loop playsinline preload="auto"></video>
-            <video class="echo-layer" id="echo-subcostal" muted loop playsinline preload="auto"></video>
+            <video class="echo-layer" id="echo-plax" muted loop playsinline preload="auto">
+              <source src="clips/plax.webm" type="video/webm"><source src="clips/plax.mp4" type="video/mp4">
+            </video>
+            <video class="echo-layer" id="echo-a4c" muted loop playsinline preload="auto">
+              <source src="clips/a4c.webm" type="video/webm"><source src="clips/a4c.mp4" type="video/mp4">
+            </video>
+            <video class="echo-layer" id="echo-subcostal" muted loop playsinline preload="auto">
+              <source src="clips/subcostal.webm" type="video/webm"><source src="clips/subcostal.mp4" type="video/mp4">
+            </video>
             <div class="echo-haze" id="echoHaze"></div>
           </div>
           <div class="echo-hud">

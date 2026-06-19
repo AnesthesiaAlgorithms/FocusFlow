@@ -156,59 +156,75 @@
   ];
 
   // Case-based scenarios - Form A (pre-training)
+  // Case-based scenarios - Form A (pre-training). Distractors are all clinically
+  // plausible (no give-aways). Items marked "image-ready" are written so a real
+  // TTE still/loop can be dropped in later via an `img:` field (see caseMediaHTML).
   const CASES_PRE = [
-    { v: "A 74-year-old patient with a history of hypertension is scheduled for an elective total hip arthroplasty. Preoperative FoCUS reveals a heavily calcified aortic valve with severely reduced leaflet excursion and a hyperdynamic LV. There is no echocardiogram on file, and the patient reports increasing fatigue over the past 3 months.",
+    { v: "A 74-year-old is scheduled for an elective total hip arthroplasty and reports worsening fatigue and exertional dyspnea over 3 months. Preoperative FoCUS shows a heavily calcified aortic valve with severely reduced leaflet excursion and a hyperdynamic, normal-sized LV. There is no echocardiogram on file.",
       q: "What is the most appropriate next step?",
-      o: ["Proceed with the planned anesthetic without further action",
-          "Document the findings and discuss with the team regarding further cardiac evaluation before the elective procedure",
-          "Administer a fluid bolus and proceed",
-          "Cancel all future surgeries for this patient permanently"], c: 1 },
-    { v: "A 58-year-old patient is scheduled for an elective laparoscopic cholecystectomy. Preoperative FoCUS shows normal LV size and function, no pericardial effusion, and normal RV size.",
-      q: "Based on these findings, the most appropriate next step is:",
-      o: ["Proceed with the planned anesthetic; findings are reassuring and consistent with the existing risk assessment",
-          "Cancel the case pending cardiology clearance",
-          "Order an urgent formal TTE before proceeding",
-          "Repeat the FoCUS exam multiple times to confirm"], c: 0 },
-    { v: "A 66-year-old patient with COPD presents for an elective inguinal hernia repair. FoCUS reveals a dilated right ventricle that appears larger than the left ventricle, with flattening of the interventricular septum.",
+      o: ["Proceed; FoCUS is only a qualitative screen and cannot diagnose valve disease, so the finding can be set aside",
+          "Document the finding and discuss with the team; obtain formal echocardiography and reassess the risk/benefit before this elective case",
+          "Proceed with an arterial line and vasopressors available — an isolated calcified valve does not justify delaying surgery",
+          "Attribute the fatigue to deconditioning and proceed; a calcified valve is an expected age-related change"], c: 1 },
+    { v: "A 58-year-old with good exercise tolerance and no cardiac symptoms is scheduled for an elective laparoscopic cholecystectomy. FoCUS shows normal LV size and function, no pericardial effusion, normal RV size, and an IVC with normal respiratory variation.",
+      q: "Should a formal transthoracic echocardiogram (TTE) be obtained before proceeding?",
+      o: ["Yes — a formal TTE should follow every FoCUS exam to confirm the findings",
+          "No — with a reassuring FoCUS and no other cardiac indication, proceed; FoCUS supports the existing risk assessment but does not replace formal echo if symptoms later develop",
+          "Yes — FoCUS cannot evaluate systolic function, so a confirmatory TTE is required before any anesthetic",
+          "No — a normal FoCUS definitively rules out all valvular and structural heart disease"], c: 1 },
+    { v: "A 66-year-old with COPD presents for an elective inguinal hernia repair. On the apical 4-chamber view the right ventricle appears equal to or larger than the left ventricle, with flattening of the interventricular septum.",
       q: "This finding is most consistent with which process, and what is the most appropriate action?",
-      o: ["Hypovolemia; administer additional IV fluids and proceed",
-          "Possible pulmonary hypertension or RV strain; communicate the finding to the team and consider further workup before proceeding",
-          "A normal finding in COPD patients; no action needed",
-          "Severe mitral stenosis; proceed with the case as planned"], c: 1 },
-    { v: "A 45-year-old trauma patient requires urgent surgery. FoCUS reveals a large, new pericardial effusion with right ventricular diastolic collapse and a small, hyperdynamic left ventricle.",
-      q: "These findings are most consistent with:",
-      o: ["Volume overload; restrict fluids and proceed",
-          "Tamponade physiology; communicate the finding immediately and discuss the risk/benefit of proceeding with the team",
-          "A normal finding in trauma patients; no action needed",
-          "Severe mitral stenosis; proceed with the case as planned"], c: 1 }
+      o: ["Right ventricular pressure/volume overload (e.g., pulmonary hypertension or acute PE); communicate the finding and consider further evaluation before proceeding",
+          "Left ventricular underfilling from hypovolemia — the RV only looks large by comparison; give fluids and proceed",
+          "Elevated left-heart filling pressures from LV failure; diurese and proceed",
+          "An off-axis, foreshortened A4C distorting the RV:LV ratio; re-center the view and disregard the finding"], c: 0 },
+    { v: "A 45-year-old trauma patient who has received minimal fluids requires urgent surgery. FoCUS shows a small, vigorously contracting (hyperdynamic) left ventricle and an IVC that nearly fully collapses with inspiration.",
+      q: "These findings are most consistent with — and the best response is:",
+      o: ["Hypovolemia / volume responsiveness; incorporate volume resuscitation into the anesthetic plan and seek the source",
+          "Normal euvolemic findings; a small hyperdynamic LV is expected in a young patient and needs no action",
+          "Cardiogenic shock from LV failure; begin inotropes before induction",
+          "Early tamponade; the small LV reflects external compression — restrict fluids"], c: 0 },
+    { v: "A 70-year-old scheduled for an elective ventral hernia repair reports two months of worsening exertional dyspnea. FoCUS suggests at least moderately reduced LV systolic function with global hypokinesis. No prior echocardiogram is on file.",
+      q: "For this elective procedure, the most appropriate next step is:",
+      o: ["Proceed; visual ('eyeball') EF estimation on FoCUS is too unreliable to change management",
+          "Document and discuss with the team; obtain formal echocardiography and optimize the patient before this elective case",
+          "Proceed with inotropes prepared — reduced function alone does not warrant delaying surgery",
+          "Cancel and refer directly for coronary angiography"], c: 1 }
   ];
 
-  // Case-based scenarios - Form B (post-training, parallel form)
+  // Case-based scenarios - Form B (post-training, parallel form). Same constructs
+  // as Form A in the same order; correct answers sit in different positions.
   const CASES_POST = [
-    { v: "A 71-year-old patient with a history of exertional dyspnea is scheduled for an elective total knee arthroplasty. Preoperative FoCUS demonstrates a thickened, heavily calcified aortic valve with markedly reduced leaflet motion. No prior echocardiogram is on file.",
+    { v: "A 71-year-old scheduled for an elective total knee arthroplasty reports several months of exertional dyspnea. FoCUS shows a thickened, heavily calcified aortic valve with markedly reduced leaflet motion and a hyperdynamic LV. No prior echocardiogram is on file.",
       q: "What is the most appropriate next step?",
-      o: ["Proceed with the case without documenting or discussing the finding",
-          "Document the finding and discuss with the team regarding further cardiac evaluation before the elective procedure",
-          "Give a vasopressor bolus prophylactically and proceed",
-          "Permanently cancel all future procedures for the patient"], c: 1 },
-    { v: "A 52-year-old patient is scheduled for an elective umbilical hernia repair. FoCUS demonstrates normal LV size/function, no pericardial effusion, and normal RV size.",
-      q: "Based on these findings, the most appropriate next step is:",
-      o: ["Proceed with the planned anesthetic; findings support the existing risk assessment",
-          "Delay the case for cardiology evaluation",
-          "Order an emergent formal TTE",
-          "Repeat the FoCUS multiple times before making a decision"], c: 0 },
-    { v: "A 69-year-old patient with known COPD presents for an elective umbilical hernia repair. FoCUS shows the right ventricle appears dilated, equal to or larger than the left ventricle, with septal flattening.",
-      q: "This finding most likely reflects which process, and what should the CRNA do?",
-      o: ["Hypovolemia; give fluids and proceed without further discussion",
-          "Possible RV strain/pulmonary hypertension; communicate the finding and consider further evaluation before proceeding",
-          "A normal finding for COPD; no further action",
-          "Severe aortic regurgitation; proceed as planned"], c: 1 },
-    { v: "A 39-year-old trauma patient requires emergent surgery. FoCUS shows a large pericardial effusion with right ventricular diastolic collapse and a small, vigorously contracting left ventricle.",
-      q: "These findings most likely indicate:",
-      o: ["Volume overload; restrict fluids and consider diuresis",
-          "Tamponade physiology; this is a red-flag finding that should be communicated immediately",
-          "A normal finding; no further consideration needed",
-          "Severe systolic heart failure; begin inotropic support immediately"], c: 1 }
+      o: ["Document the finding and discuss with the team; obtain formal echocardiography and reassess before this elective case",
+          "Proceed; FoCUS cannot diagnose valve disease, so the appearance can be disregarded",
+          "Proceed with invasive arterial monitoring and vasopressors ready — the valve finding alone does not warrant delay",
+          "Attribute the dyspnea to age and proceed without further evaluation"], c: 0 },
+    { v: "A 52-year-old with no cardiac symptoms and good functional capacity is scheduled for an elective umbilical hernia repair. FoCUS shows normal LV size/function, no pericardial effusion, normal RV size, and normal IVC respiratory variation.",
+      q: "Should a formal TTE be obtained before proceeding?",
+      o: ["No — a normal FoCUS conclusively excludes all valvular and structural heart disease",
+          "Yes — FoCUS does not assess systolic function, so a confirmatory TTE is mandatory",
+          "No — with a reassuring FoCUS and no other indication, proceed; FoCUS supports the existing risk assessment but does not replace formal echo if symptoms arise",
+          "Yes — every FoCUS should be confirmed with a formal TTE before anesthesia"], c: 2 },
+    { v: "A 69-year-old with known COPD presents for an elective umbilical hernia repair. On the apical 4-chamber view the right ventricle appears dilated — equal to or larger than the LV — with septal flattening.",
+      q: "This most likely reflects which process, and what should the CRNA do?",
+      o: ["An off-axis A4C exaggerating the RV; re-center the view and disregard the finding",
+          "Right ventricular strain / pulmonary hypertension (or acute PE); communicate the finding and consider further evaluation before proceeding",
+          "Hypovolemia with LV underfilling; administer fluids and proceed",
+          "Left ventricular failure with elevated filling pressures; proceed after diuresis"], c: 1 },
+    { v: "A 39-year-old trauma patient who has had minimal resuscitation requires urgent surgery. FoCUS shows a small, hyperdynamic LV and an IVC that collapses almost completely with inspiration.",
+      q: "These findings are most consistent with — and the best response is:",
+      o: ["Cardiogenic shock; start inotropes before induction",
+          "Early tamponade; restrict fluids",
+          "Normal euvolemic findings requiring no action",
+          "Hypovolemia / volume responsiveness; plan for volume resuscitation and identify the source"], c: 3 },
+    { v: "A 68-year-old scheduled for an elective ventral hernia repair reports several weeks of worsening dyspnea on exertion. FoCUS suggests at least moderately reduced LV systolic function with global hypokinesis; no prior echocardiogram is available.",
+      q: "For this elective procedure, the most appropriate next step is:",
+      o: ["Cancel and refer directly for coronary angiography",
+          "Proceed with inotropes available — reduced function alone does not justify delay",
+          "Document and discuss with the team; obtain formal echocardiography and optimize before this elective case",
+          "Proceed; qualitative FoCUS EF is too unreliable to act on"], c: 2 }
   ];
 
   /* ============================================================
@@ -237,6 +253,29 @@
     </div>`;
   }
 
+  // Real, CC-licensed cine loop for a view (webm + mp4 source for cross-browser
+  // playback, incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
+  function echoLoopHTML(id, label, sub) {
+    return `<div class="view-display">
+      <div class="view-label">${label}</div>
+      <video class="echo-loop" autoplay muted loop playsinline preload="metadata">
+        <source src="clips/${id}.webm" type="video/webm">
+        <source src="clips/${id}.mp4" type="video/mp4">
+      </video>
+      <div class="view-sub">${sub}</div>
+    </div>`;
+  }
+
+  // Videos inserted via innerHTML don't honor the autoplay attribute, so kick
+  // them off explicitly (muted -> allowed to autoplay).
+  function playEchoLoops(root) {
+    (root || document).querySelectorAll('video.echo-loop').forEach(v => {
+      v.muted = true;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
+    });
+  }
+
   const VIEWS = [
     {
       id: 'plax', name: 'Parasternal Long-Axis (PLAX)',
@@ -254,7 +293,7 @@
           <line x1="97" y1="80" x2="118" y2="78" stroke="#fff" stroke-width="2"/>
           <text x="108" y="70" fill="#fff" font-size="10" text-anchor="middle">MV</text>
         </svg>`,
-      get view() { return viewWrap('PLAX', this.subText, this.svg); },
+      get view() { return echoLoopHTML('plax', 'PLAX', this.subText); },
       assesses: "LV size and global systolic function, septal and posterior wall motion, mitral and aortic valves, aortic root diameter, pericardial space (effusion)."
     },
     {
@@ -273,7 +312,7 @@
           <ellipse cx="65" cy="178" rx="34" ry="20" fill="none" stroke="#f3a6c1" stroke-width="2"/>
           <text x="65" y="182" fill="#f3a6c1" font-size="11" text-anchor="middle">RA</text>
         </svg>`,
-      get view() { return viewWrap('A4C', this.subText, this.svg); },
+      get view() { return echoLoopHTML('a4c', 'A4C', this.subText); },
       assesses: "Side-by-side comparison of RV vs. LV size (RV should normally appear smaller), atrioventricular valve regurgitation, global biventricular function."
     },
     {
@@ -290,7 +329,7 @@
           <text x="68" y="123" fill="#9fe6b0" font-size="12" text-anchor="middle">RV</text>
           <text x="100" y="195" fill="#9fb4c7" font-size="9" text-anchor="middle">pericardial space outlined in dark</text>
         </svg>`,
-      get view() { return viewWrap('SUBCOSTAL', this.subText, this.svg); },
+      get view() { return echoLoopHTML('subcostal', 'SUBCOSTAL', this.subText); },
       assesses: "Pericardial effusion (often the best view for this), and a backup four-chamber view when parasternal/apical windows are limited."
     }
   ];
@@ -332,7 +371,7 @@
     {
       title: "Module 2 of 5: Core FoCUS Views",
       html: `
-        <p>This training focuses on three core windows. For each, note the probe position shown on the body diagram and the structures highlighted on the simulated screen.</p>
+        <p>This training focuses on three core windows. For each, note the probe position on the body diagram and the real echo loop of that window. Tap the toggle to compare with the labeled structures.</p>
         ${VIEWS.map(v => `
           <div class="view-card">
             <h4>${v.name}</h4>
@@ -552,6 +591,18 @@
      RENDER: CASES
      ============================================================ */
 
+  // Optional echo image/loop for a case scenario. To attach one, add to any
+  // CASES_PRE/CASES_POST item:  img: 'clips/case_rv.jpg'  (or a .webm/.mp4 loop),
+  // and optionally  imgcap: 'Apical 4-chamber'.
+  function caseMediaHTML(item) {
+    const src = item.img;
+    const cap = item.imgcap ? `<figcaption class="case-media-cap">${item.imgcap}</figcaption>` : '';
+    const media = /\.(webm|mp4|ogv)$/i.test(src)
+      ? `<video class="case-media-el" autoplay muted loop playsinline preload="metadata"><source src="${src}"></video>`
+      : `<img class="case-media-el" src="${src}" alt="Echocardiography image for this case scenario">`;
+    return `<figure class="case-media">${media}${cap}</figure>`;
+  }
+
   function renderCases(phase) {
     const items = phase === 'pre' ? CASES_PRE : CASES_POST;
     const answers = STATE[phase].cases;
@@ -562,6 +613,7 @@
       <div class="q-block">
         <div class="q-num">Case ${i + 1} of ${items.length}</div>
         <div class="case-vignette">${item.v}</div>
+        ${item.img ? caseMediaHTML(item) : ''}
         <div class="q-text">${item.q}</div>
         ${item.o.map((opt, oi) => `
           <div class="radio-row ${answers[i] === oi ? 'selected' : ''}" data-caseq="${i}" data-val="${oi}">
@@ -572,6 +624,9 @@
       </div>
     `).join('');
     $('#casesContainer').innerHTML = html;
+    $('#casesContainer').querySelectorAll('video').forEach(v => {
+      v.muted = true; const p = v.play(); if (p && p.catch) p.catch(() => {});
+    });
     updateCasesNext(phase);
   }
 
@@ -589,6 +644,7 @@
   function renderModule(index) {
     $('#moduleTitle').textContent = MODULES[index].title;
     $('#moduleContainer').innerHTML = MODULES[index].html;
+    playEchoLoops($('#moduleContainer'));
     $('#modDots').innerHTML = MODULES.map((_, i) =>
       `<div class="mod-dot ${i === index ? 'active' : ''}"></div>`
     ).join('');
@@ -646,6 +702,52 @@
     return `<span>0${suffix}</span>`;
   }
 
+  // One rationale per construct; CASES_PRE and CASES_POST test the same
+  // construct at the same index, so the review (post form) reuses these.
+  const CASE_RATIONALES = [
+    "Symptomatic severe aortic stenosis (heavily calcified valve, reduced leaflet excursion, exertional symptoms) found on a screening FoCUS is a red flag before an elective case. FoCUS does not grade stenosis severity, so the correct step is to document, communicate, and obtain formal echocardiography to reassess risk — not to disregard it or rely on monitoring alone.",
+    "A reassuring FoCUS in a patient with no symptoms and no other cardiac indication supports proceeding — a formal TTE is not required after every FoCUS. The nuance: FoCUS supports but does not replace formal echo, and it does not 'rule out all structural disease.' It does give a qualitative look at systolic function.",
+    "A right ventricle equal to or larger than the LV with septal flattening reflects RV pressure/volume overload — chronic pulmonary hypertension or acute strain such as PE — not LV failure or simple hypovolemia. An off-axis A4C can distort the ratio, but a reproducible finding should be communicated and evaluated before proceeding.",
+    "A small, hyperdynamic LV with a near-fully collapsing IVC indicates hypovolemia / volume responsiveness, especially in a trauma patient with minimal resuscitation. The plan should incorporate volume resuscitation and a search for the source — not fluid restriction, inotropes, or assuming the picture is normal.",
+    "A new, symptomatic reduction in LV systolic function with no prior echo warrants formal evaluation and optimization before an elective procedure. FoCUS EF is qualitative, but a symptomatic finding should prompt workup — not be dismissed as unreliable, and proceeding straight to angiography is premature before echocardiography."
+  ];
+
+  // One rationale per knowledge construct (KNOWLEDGE_PRE/POST share the order).
+  const KNOWLEDGE_RATIONALES = [
+    "FoCUS is a goal-directed, time-limited exam that answers a few specific questions relevant to the anesthetic — it does not replace comprehensive echocardiography or grade disease severity.",
+    "A focused preoperative cardiac ultrasound is meant to be brief — on the order of 8–12 minutes — which is what distinguishes it from a complete study.",
+    "The RCRI is based on history and comorbidities; it does not detect subclinical structural disease such as valvular pathology or LV dysfunction — a gap that FoCUS can help fill.",
+    "The parasternal long-axis (PLAX) window shows LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space.",
+    "An RV that appears equal to or larger than the LV (often with septal flattening) suggests RV dilation/dysfunction — concerning for pulmonary hypertension or acute PE — not a normal variant, aortic stenosis, or hypovolemia.",
+    "A large pericardial effusion with right ventricular diastolic collapse indicates tamponade physiology — a red-flag finding that warrants prompt communication.",
+    "Of the options, only a new, large pericardial effusion with tamponade signs is a high-acuity red flag; mild/trace findings and normal or hyperdynamic function are not.",
+    "The subcostal (subxiphoid) view is excellent for detecting pericardial effusion and serves as a backup four-chamber view when parasternal/apical windows are limited.",
+    "A heavily calcified aortic valve with markedly reduced leaflet excursion suggests significant aortic stenosis; the correct response is to document and communicate for possible further cardiac evaluation — not to ignore it or cancel care.",
+    "FoCUS is a screening adjunct to existing clinical risk assessment that flags findings needing further workup — it is not a replacement for cardiology evaluation.",
+    "Visually severe LV dysfunction (estimated EF <30%) should be communicated and prompt consideration of further evaluation before elective surgery — not disregarded or managed by simply changing drug doses.",
+    "The AANA describes POCUS, including FoCUS, as an advancing competency for evidence-based nurse anesthesia practice."
+  ];
+
+  // Generic review block: marks each item correct/incorrect, shows the best
+  // answer and a one-line rationale. Used for both the case and knowledge reviews.
+  function reviewItemsHTML(items, answers, rationales, label) {
+    return items.map((item, i) => {
+      const ans = answers[i];
+      const got = (ans === item.c);
+      const userLine = (typeof ans === 'number')
+        ? `${String.fromCharCode(65 + ans)}. ${item.o[ans]}`
+        : '(no answer recorded)';
+      const correctLine = `${String.fromCharCode(65 + item.c)}. ${item.o[item.c]}`;
+      return `
+        <div class="review-item">
+          <div class="review-q"><b>${label} ${i + 1}.</b> ${item.q}</div>
+          <div class="review-ans ${got ? 'ok' : 'no'}">${got ? '✓ Correct' : '✗ Your answer: ' + userLine}</div>
+          ${got ? '' : `<div class="review-correct">Best answer: ${correctLine}</div>`}
+          <div class="review-why"><b>Why:</b> ${rationales[i]}</div>
+        </div>`;
+    }).join('');
+  }
+
   function renderResults() {
     STATE.completedAt = new Date().toISOString();
 
@@ -663,6 +765,16 @@
       <div class="results-row"><span>Case-based score (post)</span><span class="val">${cPost.correct}/${cPost.total} (${cPost.pct}%) &nbsp; ${deltaSpan(cPost.pct - cPre.pct, ' pts')}</span></div>
       <div class="results-row"><span>Average confidence (pre)</span><span class="val">${confPre.toFixed(1)} / 5</span></div>
       <div class="results-row"><span>Average confidence (post)</span><span class="val">${confPost.toFixed(1)} / 5 &nbsp; ${deltaSpan(Math.round((confPost - confPre) * 10) / 10, '')}</span></div>
+      <details class="review-block">
+        <summary>Review the case answers &amp; rationale</summary>
+        <p class="muted" style="margin-top:8px;">Shown only here, after completion, so it does not affect your scores. Based on the post-training scenarios.</p>
+        ${reviewItemsHTML(CASES_POST, STATE.post.cases, CASE_RATIONALES, 'Case')}
+      </details>
+      <details class="review-block">
+        <summary>Review the knowledge answers &amp; rationale</summary>
+        <p class="muted" style="margin-top:8px;">Based on the post-training knowledge questions.</p>
+        ${reviewItemsHTML(KNOWLEDGE_POST, STATE.post.knowledge, KNOWLEDGE_RATIONALES, 'Question')}
+      </details>
     `;
     $('#resultsContainer').innerHTML = html;
   }
@@ -900,8 +1012,8 @@
       ECHO.videos[id] = v;
       ECHO.opacity[id] = 0;
       ECHO.targetOp[id] = 0;
-      const src = echoSrc(id);
-      if (v.getAttribute('src') !== src) v.setAttribute('src', src);
+      // Sources (webm + mp4) are declared statically in index.html for
+      // cross-browser playback; just ensure it's playing.
       v.muted = true; v.loop = true; v.playsInline = true;
       const p = v.play();
       if (p && p.catch) p.catch(() => {});
@@ -1036,7 +1148,11 @@
       renderProbeTargets(null);
       setupEchoVideos();
       startEchoLoop();
-      setEchoState(null, 0, false, null);
+      // Show a real view immediately so the display is never black before the
+      // first pose arrives (and as a fallback if a clip is slow to decode).
+      ECHO.targetOp.plax = 1;
+      ECHO.opacity.plax = 1;
+      setEchoState(null, 0, false, 'plax');
     } else if (data.type === 'pose') {
       let sum = 0;
       PROBE_VIEW_IDS.forEach(id => { sum += (data.blend && data.blend[id]) || 0; });
@@ -1046,7 +1162,7 @@
         ECHO.targetOp[id] = w;
       });
       ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
-      const locked = !!data.matchId && ECHO.acc >= 90;
+      const locked = !!data.locked;
       setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
       renderProbeTargets(locked ? data.matchId : (data.target || null));
     }
@@ -1112,6 +1228,14 @@
   function initProbe() {
     renderProbeTargets(null);
     loadEchoManifest().then(renderEchoCredits);
+    const prev = $('#echoPreview');
+    if (prev && !prev.childElementCount) {
+      prev.innerHTML = PROBE_VIEW_IDS.map(id => {
+        const v = getViewById(id);
+        return echoLoopHTML(id, probeShortLabel(v), v.subText);
+      }).join('');
+      playEchoLoops(prev);
+    }
     const toggle = $('#probeLabelToggle');
     if (toggle && !PROBE.toggleBound) {
       PROBE.toggleBound = true;
