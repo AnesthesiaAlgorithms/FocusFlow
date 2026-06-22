@@ -1168,6 +1168,18 @@
     }
   }
 
+  // STUN + TURN (Open Relay) so the QR pairing works on locked-down networks
+  // (hospital WiFi, personal hotspots). When a direct peer-to-peer link is
+  // blocked, TURN relays the connection through ports 80/443 — which firewalls
+  // almost always allow — so the two devices can still reach each other.
+  const ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:openrelay.metered.ca:80' },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+  ];
+
   function createProbePeer(attempt) {
     attempt = attempt || 1;
     if (attempt > 5) {
@@ -1180,7 +1192,7 @@
     }
     setProbeStatus('busy', 'Starting connection…');
     const id = 'focus-' + Math.random().toString(36).slice(2, 8);
-    const peer = new Peer(id, { debug: 0 });
+    const peer = new Peer(id, { debug: 0, config: { iceServers: ICE_SERVERS } });
     PROBE.peer = peer;
 
     peer.on('open', hostId => {

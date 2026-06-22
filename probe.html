@@ -98,7 +98,7 @@
     <div class="pose-step" id="calibStep">Step 1 of 3</div>
     <div class="pose-label" id="calibLabel">PLAX</div>
     <p id="calibInstructions" class="center"></p>
-    <p class="muted center">Hold this position steady, then capture. Make the three poses clearly different.</p>
+    <p class="muted center">Hold this position steady, then capture. The three poses should be distinct but comfortable — natural probe angles, no need to exaggerate.</p>
     <div class="countdown" id="calibCountdown" hidden></div>
     <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
   </div>
@@ -187,7 +187,16 @@
     }
     setStatus('busy','Connecting…'); showScreen('screen-connecting');
     $('#connectingMsg').textContent='Connecting to the display…'; $('#btnRetryConnect').hidden=true;
-    var peer=new Peer({debug:0}); STATE.peer=peer;
+    // STUN + TURN (Open Relay) so pairing works on hospital WiFi / hotspots.
+    // TURN relays via ports 80/443 when a direct connection is blocked.
+    var ICE_SERVERS=[
+      {urls:'stun:stun.l.google.com:19302'},
+      {urls:'stun:openrelay.metered.ca:80'},
+      {urls:'turn:openrelay.metered.ca:80', username:'openrelayproject', credential:'openrelayproject'},
+      {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
+      {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'}
+    ];
+    var peer=new Peer({debug:0, config:{iceServers:ICE_SERVERS}}); STATE.peer=peer;
     peer.on('open', function(){
       var conn=peer.connect(hostId,{reliable:true}); STATE.conn=conn;
       conn.on('open', function(){ setStatus('live','Connected'); showScreen('screen-permission'); });
@@ -291,11 +300,11 @@
   }
 
   /* ---------- live streaming + compass ---------- */
-  var SMOOTH=0.25, TICK_MS=80;
-  var ACC_RANGE=45;       // deg distance that maps accuracy 100->0
-  var BLEND_RANGE=60;     // deg distance over which a view contributes to the glide
-  var YAW_W=0.7;          // yaw weighted slightly less (noisier)
-  var LOCK_ACC=90, LOCK_HOLD=1100; // %, ms to lock a target
+  var SMOOTH=0.16, TICK_MS=80;  // lower = smoother / less twitchy
+  var ACC_RANGE=62;       // deg distance that maps accuracy 100->0 (wider = gentler)
+  var BLEND_RANGE=95;     // deg distance over which a view contributes to the glide (wider = smoother crossfade)
+  var YAW_W=0.45;         // yaw weighted lower so the twist axis isn't twitchy
+  var LOCK_ACC=84, LOCK_HOLD=1100; // %, ms to lock a target (easier to reach)
 
   function startStreaming(){ stopStreaming(); STATE.streamTimer=setInterval(tick, TICK_MS); }
   function stopStreaming(){ if (STATE.streamTimer){ clearInterval(STATE.streamTimer); STATE.streamTimer=null; } }
@@ -359,9 +368,9 @@
   function updateCompass(dB,dG,dY,acc,label){
     // probe glyph: rotate by yaw deviation, nudge by tilt/rock; green when close
     var g=$('#probeGlyph');
-    var tx=clamp(dG*0.9,-46,46), ty=clamp(dB*0.9,-46,46), rot=clamp(dY,-180,180);
+    var tx=clamp(dG*0.55,-38,38), ty=clamp(dB*0.55,-38,38), rot=clamp(dY*0.7,-70,70);
     g.setAttribute('transform','translate('+tx.toFixed(1)+','+ty.toFixed(1)+') rotate('+rot.toFixed(1)+' 100 100)');
-    var col = acc>=90?'#39C06B': acc>=60?'#F5A623':'#6BAED6';
+    var col = acc>=LOCK_ACC?'#39C06B': acc>=55?'#F5A623':'#6BAED6';
     $('#probeArrow').setAttribute('fill',col);
 
     $('#tiltLbl').innerHTML = (dB>=0?'Tilt<br>Anterior':'Tilt<br>Posterior');
