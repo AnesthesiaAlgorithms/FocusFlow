@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FoCUS Preoperative Training Module</title>
+<style>
+  :root{
+    --navy:#1A3A5C;
+    --blue:#2E6DA4;
+    --lightblue:#EBF3FB;
+    --accent:#6BAED6;
+    --green:#3C9A5F;
+    --red:#C0392B;
+    --gray:#6b7280;
+    --bg:#F4F7FA;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:-apple-system, "Helvetica Neue", Arial, sans-serif;
+    margin:0; background:var(--bg); color:#1f2937;
+    -webkit-text-size-adjust:100%;
+  }
+  header.app-header{
+    background:var(--navy); color:#fff; padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:50;
+  }
+  header.app-header h1{font-size:1.05rem; margin:0; font-weight:600; letter-spacing:.3px;}
+  header.app-header .step-indicator{font-size:.78rem; opacity:.85;}
+  main{max-width:760px; margin:0 auto; padding:18px 16px 90px;}
+  .screen{display:none; animation:fade .25s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .card{
+    background:#fff; border-radius:14px; padding:18px 18px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06); margin-bottom:14px;
+    border:1px solid #e5e9ef;
+  }
+  h2.section-title{
+    color:var(--navy); font-size:1.25rem; margin:0 0 8px;
+    border-bottom:2px solid var(--accent); padding-bottom:8px;
+  }
+  h3{color:var(--blue); font-size:1.02rem; margin:18px 0 8px;}
+  p{line-height:1.55; font-size:.95rem;}
+  .muted{color:var(--gray); font-size:.85rem;}
+  .pill{
+    display:inline-block; background:var(--lightblue); color:var(--navy);
+    border-radius:999px; padding:3px 12px; font-size:.75rem; font-weight:600;
+    letter-spacing:.4px; text-transform:uppercase; margin-bottom:10px;
+  }
+
+  /* Form elements */
+  label{display:block; font-weight:600; font-size:.9rem; margin:14px 0 6px;}
+  select, input[type=text], input[type=number], textarea{
+    width:100%; padding:10px 12px; font-size:1rem; border:1px solid #cbd5e1;
+    border-radius:8px; background:#fff; font-family:inherit;
+  }
+  textarea{min-height:90px; resize:vertical;}
+
+  .radio-row, .check-row{
+    display:flex; align-items:center; gap:10px; padding:9px 12px;
+    border:1px solid #e2e8f0; border-radius:8px; margin-bottom:6px;
+    cursor:pointer; transition:border-color .15s, background .15s;
+  }
+  .radio-row:hover, .check-row:hover{border-color:var(--accent); background:#f8fbfe;}
+  .radio-row input, .check-row input{flex:0 0 auto; width:18px; height:18px;}
+  .radio-row.selected, .check-row.selected{border-color:var(--blue); background:var(--lightblue);}
+  .radio-row span, .check-row span{font-size:.92rem;}
+
+  /* Likert */
+  .likert{margin-bottom:18px;}
+  .likert .stmt{font-size:.92rem; font-weight:500; margin-bottom:8px;}
+  .likert-scale{display:flex; gap:6px; justify-content:space-between;}
+  .likert-opt{
+    flex:1; text-align:center; border:1px solid #cbd5e1; border-radius:8px;
+    padding:10px 2px; cursor:pointer; font-size:.78rem; color:var(--gray);
+    transition:all .15s;
+  }
+  .likert-opt .num{display:block; font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:2px;}
+  .likert-opt.selected{border-color:var(--blue); background:var(--blue); color:#fff;}
+  .likert-opt.selected .num{color:#fff;}
+  .likert-labels{display:flex; justify-content:space-between; font-size:.7rem; color:var(--gray); margin-top:4px;}
+
+  /* Buttons */
+  .btn-row{display:flex; gap:10px; margin-top:18px;}
+  button{
+    font-family:inherit; font-size:1rem; font-weight:600; border:none;
+    border-radius:10px; padding:14px 20px; cursor:pointer; transition:opacity .15s, transform .05s;
+  }
+  button:active{transform:scale(.98);}
+  .btn-primary{background:var(--blue); color:#fff; flex:1;}
+  .btn-secondary{background:#e2e8f0; color:#334155;}
+  .btn-primary:disabled{background:#a8c4dd; cursor:not-allowed;}
+  .btn-block{width:100%;}
+
+  /* Progress bar */
+  .progress-wrap{height:5px; background:#dbe4ee; border-radius:3px; overflow:hidden; margin-bottom:4px;}
+  .progress-bar{height:100%; background:var(--accent); transition:width .3s;}
+
+  /* Question block */
+  .q-block{margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid #eef2f6;}
+  .q-block:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .q-num{font-size:.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.5px;}
+  .q-text{font-weight:600; margin:4px 0 10px; font-size:.95rem;}
+  .case-vignette{
+    background:var(--lightblue); border-left:4px solid var(--accent);
+    border-radius:6px; padding:12px 14px; font-size:.9rem; margin-bottom:10px;
+    font-style:italic;
+  }
+  .case-media{margin:0 0 10px; text-align:center;}
+  .case-media-el{
+    width:360px; max-width:100%; max-height:300px; display:block; margin:0 auto;
+    border-radius:10px; background:#000; border:3px solid #1f2937;
+  }
+  .case-media-cap{font-size:.78rem; color:var(--gray); margin-top:6px;}
+
+  /* Module nav dots */
+  .mod-dots{display:flex; justify-content:center; gap:6px; margin:16px 0;}
+  .mod-dot{width:8px; height:8px; border-radius:50%; background:#cbd5e1;}
+  .mod-dot.active{background:var(--blue); width:22px; border-radius:4px;}
+
+  svg.diagram{width:100%; height:auto; display:block; margin:10px 0;}
+
+  .flag-box{
+    border:1px solid #f1c0b8; background:#FBEAE7; border-radius:8px;
+    padding:10px 12px; margin-bottom:8px; font-size:.88rem;
+  }
+  .flag-box b{color:var(--red);}
+
+  .results-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eef2f6; font-size:.92rem;}
+  .results-row:last-child{border-bottom:none;}
+  .results-row .val{font-weight:700; color:var(--navy);}
+  .review-block{margin-top:14px; border-top:1px solid #eef2f6; padding-top:12px;}
+  .review-block summary{font-weight:700; color:var(--navy); cursor:pointer; font-size:.98rem;}
+  .review-item{border:1px solid #e5e9ef; border-radius:10px; padding:12px 14px; margin:10px 0; font-size:.9rem;}
+  .review-q{margin-bottom:6px;}
+  .review-ans{font-weight:700; font-size:.85rem; margin-bottom:4px;}
+  .review-ans.ok{color:var(--green);}
+  .review-ans.no{color:var(--red);}
+  .review-correct{color:var(--navy); font-weight:600; font-size:.85rem; margin-bottom:4px;}
+  .review-why{color:#374151; line-height:1.5;}
+  .delta-up{color:var(--green); font-weight:700;}
+  .delta-down{color:var(--red); font-weight:700;}
+
+  footer.appfoot{
+    position:fixed; bottom:0; left:0; right:0; background:#fff;
+    border-top:1px solid #e5e9ef; padding:10px 16px;
+    padding-bottom:max(10px, env(safe-area-inset-bottom));
+  }
+  footer.appfoot .inner{max-width:760px; margin:0 auto; display:flex; gap:10px;}
+
+  .center{text-align:center;}
+  .id-badge{
+    font-family: ui-monospace, "SF Mono", monospace; font-size:1.4rem; font-weight:700;
+    letter-spacing:3px; background:var(--navy); color:#fff; padding:10px 16px;
+    border-radius:10px; display:inline-block; margin:10px 0;
+  }
+  #qrcode{display:flex; justify-content:center; margin:14px 0;}
+  .status-dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:#cbd5e1; margin-right:6px; flex:0 0 auto;}
+  .status-dot.live{background:var(--green); box-shadow:0 0 0 4px rgba(60,154,95,.18);}
+  .status-dot.error{background:var(--red); box-shadow:0 0 0 4px rgba(192,57,43,.18);}
+  .status-dot.busy{background:var(--accent); box-shadow:0 0 0 4px rgba(107,174,214,.2);}
+
+  /* Probe simulator */
+  .probe-status-row{display:flex; align-items:center; gap:8px; margin:12px 0; font-size:.92rem; font-weight:600; color:var(--navy);}
+  .qr-wrap{display:flex; justify-content:center; margin:12px 0;}
+  .qr-wrap svg{width:170px; height:170px;}
+  .probe-url{
+    font-family:ui-monospace,"SF Mono",monospace; font-size:.8rem; text-align:center;
+    word-break:break-all; background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px;
+  }
+  .probe-target-row{display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;}
+  .probe-target{
+    flex:1; min-width:90px; text-align:center; border:2px solid #e2e8f0; border-radius:10px;
+    padding:10px 6px; font-size:.78rem; font-weight:700; color:var(--gray); background:#fff;
+  }
+  .probe-target.matched{border-color:var(--green); color:var(--green); background:#EAF7EE;}
+
+  .view-display{
+    background:#0b0f14; border-radius:14px; aspect-ratio:1/1; max-width:360px;
+    margin:14px auto; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; border:3px solid #1f2937;
+  }
+  .view-display .view-label{
+    position:absolute; top:10px; left:12px; color:#7CD4FF; font-family:ui-monospace,monospace;
+    font-size:.85rem; letter-spacing:1px; font-weight:700; z-index:2;
+  }
+  .view-display .view-sub{
+    position:absolute; bottom:10px; left:12px; right:12px; color:#9fb4c7; font-family:ui-monospace,monospace;
+    font-size:.7rem; z-index:2;
+  }
+  .view-display canvas{
+    position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;
+  }
+  /* Real echo cine-loop engine (crossfading video layers) */
+  .echo-stack{position:absolute; inset:0; z-index:1; overflow:hidden; transition:filter .15s;}
+  .echo-layer{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+    opacity:0; transition:opacity .12s linear; background:#000;
+  }
+  .echo-haze{
+    position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 40%, transparent 28%, rgba(0,0,0,.7) 100%),
+      repeating-radial-gradient(circle at 50% 40%, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+  }
+  .echo-hud{position:absolute; top:10px; right:12px; z-index:3; text-align:right; font-family:ui-monospace,monospace; line-height:1.25;}
+  .echo-state{display:block; font-size:.7rem; font-weight:700; letter-spacing:1px; color:#9fb4c7;}
+  .echo-state.locked{color:#39C06B;}
+  .echo-acc{display:block; font-size:1.1rem; font-weight:800; color:#7CD4FF;}
+  .echo-caption{
+    position:absolute; bottom:30px; left:12px; right:12px; z-index:3;
+    font-size:.72rem; color:#cfe0f0; font-family:ui-monospace,monospace;
+  }
+  .echo-credits{
+    font-size:.68rem; color:var(--gray); line-height:1.5; margin-top:10px;
+    border-top:1px solid #eef2f6; padding-top:8px; word-break:break-word;
+  }
+  /* Always-on real loop (training modules + probe-screen preview) */
+  .echo-loop{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; z-index:1;}
+  .echo-preview{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:10px 0 4px;}
+  .echo-preview .view-display{flex:1; min-width:140px; max-width:210px; margin:0; aspect-ratio:1/1;}
+  .echo-preview-cap{font-size:.82rem; color:var(--gray); text-align:center; margin:6px 0 0;}
+
+  /* Label on/off toggle for probe simulator */
+  .probe-toggle-row{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin:10px 0; font-size:.85rem; font-weight:600; color:var(--navy);
+  }
+  .switch{position:relative; display:inline-block; width:44px; height:24px; flex:0 0 auto;}
+  .switch input{opacity:0; width:0; height:0; position:absolute;}
+  .switch .slider{
+    position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:24px; transition:.2s;
+  }
+  .switch .slider:before{
+    content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px;
+    background:#fff; border-radius:50%; transition:.2s;
+  }
+  .switch input:checked + .slider{background:var(--blue);}
+  .switch input:checked + .slider:before{transform:translateX(20px);}
+
+  /* Module content helpers */
+  .flow-box{
+    border:2px solid var(--blue); border-radius:10px; padding:12px 14px;
+    margin:0 auto; font-size:.9rem; background:#fff; max-width:480px;
+  }
+  .flow-box.alert{border-color:var(--red); background:#FBEAE7;}
+  .flow-box.go{border-color:var(--green); background:#EAF7EE;}
+  .flow-box b{display:block; margin-bottom:3px;}
+  .flow-arrow{text-align:center; font-size:1.4rem; color:var(--accent); margin:2px 0;}
+  .view-card{margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid #eef2f6;}
+  .view-card:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .view-card h4{color:var(--navy); margin:0 0 6px; font-size:1.02rem;}
+  .view-grid{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start; justify-content:center;}
+  .view-grid > div{flex:1; min-width:160px;}
+  ul.content-list{padding-left:20px; font-size:.92rem; line-height:1.65; margin:8px 0;}
+  ul.content-list li{margin-bottom:5px;}
+  .assess-tag{
+    display:inline-block; background:var(--lightblue); color:var(--blue);
+    font-size:.78rem; font-weight:600; border-radius:6px; padding:2px 8px; margin-top:4px;
+  }
+
+  /* ---------------- Dev tools (remove DEV_MODE in app.js before distributing) ---------------- */
+  #devBar{
+    position:fixed; left:10px; bottom:10px; z-index:999;
+    font-family:-apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  #devBarToggle{
+    width:42px; height:42px; border-radius:50%; border:none; cursor:pointer;
+    background:#F5A623; color:#1f2937; font-size:1.2rem; font-weight:800;
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+  }
+  #devBarPanel{
+    margin-bottom:8px; background:#1f2937; color:#fff; border-radius:12px;
+    padding:12px 14px; width:260px; box-shadow:0 4px 16px rgba(0,0,0,.3);
+    font-size:.82rem;
+  }
+  #devBarPanel h4{
+    margin:0 0 8px; font-size:.78rem; text-transform:uppercase; letter-spacing:1px;
+    color:#F5A623;
+  }
+  #devBarPanel label{
+    display:block; font-weight:600; font-size:.78rem; margin:10px 0 4px; color:#cbd5e1;
+  }
+  #devBarPanel select{
+    width:100%; padding:6px 8px; font-size:.82rem; border-radius:6px; border:1px solid #475569;
+    background:#0f172a; color:#fff;
+  }
+  .dev-edit-row{display:flex; align-items:center; gap:8px; margin-top:10px;}
+  .dev-edit-row span{font-weight:600; font-size:.82rem;}
+  .dev-bar-actions{display:flex; gap:6px; margin-top:10px;}
+  .dev-bar-actions button{
+    flex:1; padding:6px 4px; font-size:.72rem; font-weight:700; border-radius:6px;
+    border:1px solid #475569; background:#334155; color:#fff; cursor:pointer;
+  }
+  .dev-bar-hint{font-size:.7rem; color:#94a3b8; margin-top:8px; line-height:1.4;}
+  [contenteditable="true"].dev-editable{
+    outline:2px dashed #F5A623; outline-offset:2px; border-radius:4px;
+    background:rgba(245,166,35,.08); cursor:text;
+  }
+  [contenteditable="true"].dev-editable:focus{
+    outline:2px solid #F5A623; background:rgba(245,166,35,.15);
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>FoCUS Preop Training</h1>
+  <span class="step-indicator" id="stepIndicator">Welcome</span>
+</header>
+
+<main id="main">
+
+  <!-- ============ SCREEN: WELCOME ============ -->
+  <section class="screen active" id="screen-welcome">
+    <div class="card">
+      <span class="pill">DNP Quality Improvement Pilot</span>
+      <h2 class="section-title">Focused Preoperative Cardiac Ultrasound (FoCUS) Training</h2>
+      <p>This brief module is designed to introduce certified registered nurse anesthetists (CRNAs), student registered nurse anesthetists (SRNAs), residents, and faculty to the basic principles of focused preoperative transthoracic echocardiography (FoCUS).</p>
+      <p>You will complete a short knowledge and confidence questionnaire before and after working through the training content. The entire module takes approximately <b>30&ndash;45 minutes</b>.</p>
+      <h3>What to expect</h3>
+      <p style="margin-top:0">
+        1. A brief demographics questionnaire<br>
+        2. A pre-training knowledge test, confidence survey, and case scenarios<br>
+        3. Five short training modules covering FoCUS views, red-flag findings, and decision-making<br>
+        4. An optional hands-on "virtual probe" simulation using your phone<br>
+        5. A post-training knowledge test, confidence survey, case scenarios, and brief feedback survey
+      </p>
+      <h3>About your responses</h3>
+      <p style="margin-top:0">Participation is voluntary and anonymous. No patient information is collected or entered at any point. Your responses are stored only on this device and are not transmitted anywhere unless you choose to download and submit your results file. You may stop at any time without any effect on your employment or academic standing.</p>
+      <div class="check-row" id="consentRow">
+        <input type="checkbox" id="consentCheck">
+        <span>I am 18 years of age or older, I understand the information above, and I voluntarily agree to participate.</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary btn-block" id="btnStart" disabled>Begin</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: DEMOGRAPHICS ============ -->
+  <section class="screen" id="screen-demo">
+    <div class="card">
+      <span class="pill">Step 1 of 6</span>
+      <h2 class="section-title">A Little About You</h2>
+      <p class="muted">This information helps us understand the background of participants. No identifying information is collected.</p>
+
+      <label>What is your current role?</label>
+      <div id="roleOptions">
+        <div class="radio-row" data-name="role" data-value="SRNA"><input type="radio" name="role" value="SRNA"><span>SRNA (student registered nurse anesthetist)</span></div>
+        <div class="radio-row" data-name="role" data-value="CRNA"><input type="radio" name="role" value="CRNA"><span>CRNA</span></div>
+        <div class="radio-row" data-name="role" data-value="Resident"><input type="radio" name="role" value="Resident"><span>Anesthesia resident</span></div>
+        <div class="radio-row" data-name="role" data-value="Faculty CRNA"><input type="radio" name="role" value="Faculty CRNA"><span>Faculty CRNA</span></div>
+        <div class="radio-row" data-name="role" data-value="Other"><input type="radio" name="role" value="Other"><span>Other</span></div>
+      </div>
+
+      <label for="yearsExp">Years of anesthesia experience (enter 0 if a student/resident)</label>
+      <input type="number" id="yearsExp" min="0" max="60" placeholder="e.g., 3">
+
+      <label>Have you had any prior point-of-care ultrasound (POCUS) training?</label>
+      <div id="pocusTraining">
+        <div class="radio-row" data-name="pocusTraining" data-value="Yes"><input type="radio" name="pocusTraining" value="Yes"><span>Yes</span></div>
+        <div class="radio-row" data-name="pocusTraining" data-value="No"><input type="radio" name="pocusTraining" value="No"><span>No</span></div>
+      </div>
+
+      <label>Have you previously performed or assisted with a focused cardiac ultrasound (FoCUS) exam?</label>
+      <div id="focusExp">
+        <div class="radio-row" data-name="focusExp" data-value="Yes"><input type="radio" name="focusExp" value="Yes"><span>Yes</span></div>
+        <div class="radio-row" data-name="focusExp" data-value="No"><input type="radio" name="focusExp" value="No"><span>No</span></div>
+      </div>
+
+      <div class="likert" style="margin-top:18px">
+        <div class="stmt">Overall, how comfortable are you with cardiac ultrasound concepts?</div>
+        <div class="likert-scale" data-likert="comfortBaseline">
+          <div class="likert-opt" data-val="1"><span class="num">1</span></div>
+          <div class="likert-opt" data-val="2"><span class="num">2</span></div>
+          <div class="likert-opt" data-val="3"><span class="num">3</span></div>
+          <div class="likert-opt" data-val="4"><span class="num">4</span></div>
+          <div class="likert-opt" data-val="5"><span class="num">5</span></div>
+        </div>
+        <div class="likert-labels"><span>Not at all comfortable</span><span>Very comfortable</span></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnDemoBack">Back</button>
+      <button class="btn-primary" id="btnDemoNext">Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: PRETEST INTRO ============ -->
+  <section class="screen" id="screen-pretest-intro">
+    <div class="card">
+      <span class="pill">Step 2 of 6</span>
+      <h2 class="section-title">Before You Begin: Pre-Training Assessment</h2>
+      <p>The next set of questions assesses your <b>current</b> knowledge, confidence, and clinical decision-making related to focused preoperative cardiac ultrasound &mdash; <b>before</b> you see the training content.</p>
+      <p>There are no trick questions, and it's completely fine not to know an answer &mdash; please just give your best response. This will take about 10 minutes.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnPreIntroBack">Back</button>
+      <button class="btn-primary" id="btnPreIntroNext">Start Pre-Assessment</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: KNOWLEDGE TEST (reused pre/post) ============ -->
+  <section class="screen" id="screen-knowledge">
+    <div class="card">
+      <span class="pill" id="knowledgePill">Step 2 of 6</span>
+      <h2 class="section-title" id="knowledgeTitle">Knowledge Check</h2>
+      <div id="knowledgeContainer"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnKnowledgeBack">Back</button>
+      <button class="btn-primary" id="btnKnowledgeNext" disabled>Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: CONFIDENCE SURVEY (reused pre/post) ============ -->
+  <section class="screen" id="screen-confidence">
+    <div class="card">
+      <span class="pill" id="confidencePill">Step 2 of 6</span>
+      <h2 class="section-title" id="confidenceTitle">Confidence Survey</h2>
+      <p class="muted">For each statement, select the response that best reflects your level of agreement (1 = Strongly Disagree, 5 = Strongly Agree).</p>
+      <div id="confidenceContainer"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnConfidenceBack">Back</button>
+      <button class="btn-primary" id="btnConfidenceNext" disabled>Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: CASE SCENARIOS (reused pre/post) ============ -->
+  <section class="screen" id="screen-cases">
+    <div class="card">
+      <span class="pill" id="casesPill">Step 2 of 6</span>
+      <h2 class="section-title" id="casesTitle">Case-Based Scenarios</h2>
+      <div id="casesContainer"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnCasesBack">Back</button>
+      <button class="btn-primary" id="btnCasesNext" disabled>Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: TRAINING MODULES (reused for all 5 modules) ============ -->
+  <section class="screen" id="screen-module">
+    <div class="card">
+      <span class="pill">Step 3 of 6 &mdash; Training</span>
+      <h2 class="section-title" id="moduleTitle">Module</h2>
+      <div id="moduleContainer"></div>
+      <div class="mod-dots" id="modDots"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnModuleBack">Back</button>
+      <button class="btn-primary" id="btnModuleNext">Next</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: PROBE SIMULATOR ============ -->
+  <section class="screen" id="screen-probe">
+    <div class="card">
+      <span class="pill">Step 4 of 6 &mdash; Optional</span>
+      <h2 class="section-title">Virtual Probe Simulation</h2>
+      <p>This optional activity turns your <b>phone</b> into a simulated ultrasound probe. Connect your phone below, then hold and move it the way you would position a real probe on a patient's chest &mdash; the real echo loop on this screen glides between three core windows: <b>PLAX</b>, <b>A4C</b>, and <b>Subcostal 4CH</b>.</p>
+
+      <div class="echo-preview" id="echoPreview"></div>
+      <p class="echo-preview-cap">The three target windows (real echocardiography loops). Connect your phone to control them.</p>
+
+      <div class="probe-status-row">
+        <span class="status-dot" id="probeStatusDot"></span>
+        <span id="probeStatusText">Starting connection&hellip;</span>
+      </div>
+
+      <div id="probeConnectCard" class="card" style="background:var(--lightblue); border:1px dashed var(--accent);">
+        <p class="muted center" style="margin-top:0">On your phone, open the <b>Camera</b> app and point it at this code, then tap the banner that appears.</p>
+        <div id="qrcode" class="qr-wrap"></div>
+        <p class="muted center">Or open this address on your phone's browser:</p>
+        <p class="probe-url" id="probeUrl">&hellip;</p>
+      </div>
+
+      <div id="probeScanCard" style="display:none;">
+        <div class="probe-target-row" id="probeTargetRow"></div>
+        <div class="probe-toggle-row" id="probeLabelToggleRow">
+          <span>Teaching caption</span>
+          <label class="switch">
+            <input type="checkbox" id="probeLabelToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="view-display" id="probeDisplay">
+          <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
+          <div class="echo-stack" id="echoStack">
+            <!-- Clip layers are built in JS from clips/manifest.json (one <video>
+                 per sweep clip) so the image can slide through the fan sequence. -->
+            <div class="echo-haze" id="echoHaze"></div>
+          </div>
+          <div class="echo-hud">
+            <span class="echo-state" id="echoState">SEARCHING</span>
+            <span class="echo-acc" id="echoAcc"></span>
+          </div>
+          <div class="view-sub" id="probeViewSub">Move your phone to a probe position.</div>
+          <div class="echo-caption" id="echoCaption" hidden></div>
+        </div>
+        <div id="probeBodyDiagram" class="center"></div>
+        <div class="echo-credits" id="echoCredits"></div>
+      </div>
+
+      <p class="muted center" style="margin-top:14px;">This step is optional &mdash; you can skip it and continue to the post-assessment at any time.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnProbeBack">Back</button>
+      <button class="btn-primary" id="btnProbeNext">Continue to Post-Assessment</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: USABILITY SURVEY ============ -->
+  <section class="screen" id="screen-usability">
+    <div class="card">
+      <span class="pill">Step 6 of 6</span>
+      <h2 class="section-title">Final Feedback</h2>
+      <p class="muted">A few last questions about the module itself.</p>
+      <div id="usabilityContainer"></div>
+      <label for="openFeedback">Any other comments or suggestions for improving this training module?</label>
+      <textarea id="openFeedback" placeholder="Optional"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="btnUsabilityBack">Back</button>
+      <button class="btn-primary" id="btnUsabilityNext">See Results</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: RESULTS ============ -->
+  <section class="screen" id="screen-results">
+    <div class="card">
+      <span class="pill">Complete</span>
+      <h2 class="section-title">Thank You</h2>
+      <p>Here is a summary of your pre- and post-training results.</p>
+      <div id="resultsContainer"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Your Responses</h3>
+      <div id="submitStatus"><p class="muted">Finalizing&hellip;</p></div>
+      <button class="btn-primary btn-block" id="btnDownload" style="display:none;">Save a backup copy</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary btn-block" id="btnRestart">Start Over</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="appfoot">
+  <div class="inner">
+    <div class="progress-wrap" style="flex:1; align-self:center;">
+      <div class="progress-bar" id="progressBar" style="width:2%"></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ DEV TOOLS (set DEV_MODE = false in app.js to remove for distribution) ============ -->
+<div id="devBar">
+  <div id="devBarPanel" hidden>
+    <h4>Dev Tools</h4>
+    <label for="devStepJump">Jump to step</label>
+    <select id="devStepJump"></select>
+
+    <div class="dev-edit-row">
+      <label class="switch" style="margin:0;">
+        <input type="checkbox" id="devEditToggle">
+        <span class="slider"></span>
+      </label>
+      <span>Edit page text</span>
+    </div>
+
+    <div class="dev-bar-actions">
+      <button type="button" id="devExportBtn">Copy edits</button>
+      <button type="button" id="devClearBtn">Clear edits</button>
+    </div>
+    <p class="dev-bar-hint">
+      Turn on "Edit page text", then click any text to change it. Edits are
+      saved in this browser automatically. Use "Copy edits" to send them to
+      Claude so they can be saved into the site permanently.
+    </p>
+  </div>
+  <button id="devBarToggle" type="button" title="Dev tools">🛠</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

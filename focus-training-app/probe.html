@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FoCUS Virtual Probe — Orientation Compass</title>
+<style>
+  :root{
+    --navy:#0E2438; --panel:#13314c; --blue:#2E6DA4; --accent:#6BAED6;
+    --green:#39C06B; --amber:#F5A623; --red:#C0392B; --gray:#8FA3B6; --ink:#EAF2FB;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background:var(--navy); color:var(--ink);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-tap-highlight-color: transparent; overflow:hidden;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:10px 18px 24px; height:100%;}
+  .topbar{display:flex; align-items:center; gap:10px; padding:6px 0 10px;}
+  .topbar .chev{font-size:1.5rem; color:var(--ink); opacity:.55; width:24px;}
+  .topbar h1{font-size:1.15rem; margin:0; font-weight:700; flex:1; text-align:center;}
+  .topbar .spacer{width:24px;}
+  .status-row{display:flex; align-items:center; justify-content:center; gap:8px; font-size:.82rem; color:var(--gray); margin-bottom:8px;}
+  .status-dot{width:9px; height:9px; border-radius:50%; background:#46627e; flex:0 0 auto;}
+  .status-dot.live{background:var(--green); box-shadow:0 0 0 4px rgba(57,192,107,.18);}
+  .status-dot.error{background:var(--red);}
+  .status-dot.busy{background:var(--accent);}
+  .card{background:var(--panel); border-radius:16px; padding:18px; margin:10px 0;}
+  p{line-height:1.5;}
+  .muted{color:var(--gray); font-size:.92rem;}
+  .center{text-align:center;}
+  .btn{display:block; width:100%; border:none; border-radius:13px; padding:15px;
+    font-size:1.05rem; font-weight:700; cursor:pointer; margin-top:12px;}
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-ghost{background:transparent; color:var(--accent); border:2px solid var(--accent);}
+  .btn:disabled{opacity:.5;}
+  [hidden]{display:none !important;}
+
+  /* compass */
+  .compass-wrap{display:flex; justify-content:center; margin:4px 0 2px;}
+  svg.compass{width:min(72vw,300px); height:min(72vw,300px);}
+  .readouts{display:flex; justify-content:space-around; text-align:center; margin:6px 0 2px;}
+  .readouts .r .lbl{font-size:.72rem; color:var(--gray); text-transform:uppercase; letter-spacing:.6px; line-height:1.25;}
+  .readouts .r .val{font-size:1.5rem; font-weight:800; margin-top:2px;}
+  .target-line{text-align:center; font-size:1.6rem; font-weight:800; margin:10px 0 2px; letter-spacing:.5px;}
+  .target-line span{color:var(--accent);}
+  .acc-line{text-align:center; font-size:1.15rem; font-weight:700; margin:2px 0 10px;}
+  .acc-line b{color:var(--green);}
+  .pbar{height:12px; border-radius:8px; background:#0c1c2c; overflow:hidden;}
+  .pbar > div{height:100%; width:2%; background:var(--green); border-radius:8px; transition:width .15s, background .2s;}
+  .lock-toast{
+    text-align:center; font-weight:800; color:var(--green); margin-top:10px; min-height:1.2em;
+    opacity:0; transition:opacity .2s;
+  }
+  .lock-toast.show{opacity:1;}
+  .pose-step{font-size:.82rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:1px; text-align:center;}
+  .pose-label{font-size:1.7rem; font-weight:800; text-align:center; margin:4px 0 8px;}
+  .countdown{font-size:2.4rem; font-weight:800; text-align:center; color:var(--accent); margin:6px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="chev">&#8249;</div>
+    <h1>Probe Orientation</h1>
+    <div class="spacer"></div>
+  </div>
+  <div class="status-row">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Connecting&hellip;</span>
+  </div>
+
+  <!-- No host code -->
+  <div class="card" id="screen-nohost" hidden>
+    <p><b>No display found.</b></p>
+    <p class="muted">Open the <b>Virtual Probe Simulation</b> step on the iPad/laptop and scan its QR code, or open the address it shows on this phone.</p>
+  </div>
+
+  <!-- Connecting -->
+  <div class="card" id="screen-connecting" hidden>
+    <p id="connectingMsg">Connecting to the display&hellip;</p>
+    <button class="btn btn-primary" id="btnRetryConnect" hidden>Try Again</button>
+  </div>
+
+  <!-- Permission -->
+  <div class="card" id="screen-permission" hidden>
+    <p>Connected. This turns your phone into a simulated ultrasound probe using its <b>motion &amp; orientation sensors</b>.</p>
+    <p class="muted">Hold the phone <b>flat, screen up</b>, docked on the probe with the long edge along the probe marker. Tap below and allow access.</p>
+    <button class="btn btn-primary" id="btnEnableMotion">Enable Motion &amp; Orientation</button>
+    <p class="center" id="permissionError" style="color:var(--red); margin-top:10px;" hidden></p>
+  </div>
+
+  <!-- Calibration -->
+  <div class="card" id="screen-calibrate" hidden>
+    <div class="pose-step" id="calibStep">Step 1 of 3</div>
+    <div class="pose-label" id="calibLabel">PLAX</div>
+    <p id="calibInstructions" class="center"></p>
+    <p class="muted center">Hold this position steady, then capture. The three poses should be distinct but comfortable — natural probe angles, no need to exaggerate.</p>
+    <div class="countdown" id="calibCountdown" hidden></div>
+    <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
+  </div>
+
+  <!-- Live compass -->
+  <div id="screen-live" hidden>
+    <div class="compass-wrap">
+      <svg class="compass" viewBox="0 0 200 200" id="compass" aria-hidden="true">
+        <circle cx="100" cy="100" r="92" fill="#0c1f31" stroke="#21425f" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#1b3950" stroke-width="1"/>
+        <line x1="100" y1="14" x2="100" y2="30" stroke="#3a5d7d" stroke-width="2"/>
+        <line x1="100" y1="170" x2="100" y2="186" stroke="#3a5d7d" stroke-width="2"/>
+        <line x1="14" y1="100" x2="30" y2="100" stroke="#3a5d7d" stroke-width="2"/>
+        <line x1="170" y1="100" x2="186" y2="100" stroke="#3a5d7d" stroke-width="2"/>
+        <line x1="100" y1="40" x2="100" y2="160" stroke="#16304699" stroke-width="1"/>
+        <line x1="40" y1="100" x2="160" y2="100" stroke="#16304699" stroke-width="1"/>
+        <g id="probeGlyph">
+          <path id="probeArrow" d="M100,38 L116,74 L100,66 L84,74 Z" fill="#39C06B"/>
+          <rect x="90" y="70" width="20" height="46" rx="9" fill="#f3f6fa" stroke="#c4d2df" stroke-width="1.5"/>
+          <rect x="88" y="112" width="24" height="10" rx="3" fill="#2E6DA4"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="readouts">
+      <div class="r"><div class="lbl" id="tiltLbl">Tilt<br>Anterior</div><div class="val" id="tiltVal">0&deg;</div></div>
+      <div class="r"><div class="lbl" id="rotLbl">Rotate<br>Clockwise</div><div class="val" id="rotVal">0&deg;</div></div>
+      <div class="r"><div class="lbl" id="rockLbl">Rock<br>Left</div><div class="val" id="rockVal">0&deg;</div></div>
+    </div>
+
+    <div class="target-line">Target: <span id="targetName">PLAX</span></div>
+    <div class="acc-line">Accuracy: <b id="accVal">0%</b></div>
+    <div class="pbar"><div id="accBar"></div></div>
+    <div class="lock-toast" id="lockToast"></div>
+
+    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:16px;">Recalibrate</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s){ return document.querySelector(s); };
+
+  // Guided sequence + calibration poses. Instructions stress making the three
+  // poses clearly DIFFERENT (tilt + rotation), which is what keeps the sensor
+  // signatures well separated.
+  var VIEWS = [
+    { id:'plax', label:'PLAX',
+      instr:'Left of the breastbone, 3rd–4th rib space. Marker toward the right shoulder. Probe fairly UPRIGHT.' },
+    { id:'a4c', label:'A4CH',
+      instr:'Down at the cardiac apex (lower-left ribs). ROTATE the probe ~90° and TILT up toward the right shoulder.' },
+    { id:'subcostal', label:'SUBCOSTAL 4CH',
+      instr:'Just below the breastbone. Lay the probe over toward the belly, beam angled up to the left shoulder — but not fully vertical.' }
+  ];
+
+  var FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
+
+  var STATE = {
+    ws:null, sessionCode:null,
+    calibration:{},        // id -> {beta,gamma,yaw}
+    calibIndex:0, samples:[], capturing:false,
+    yawRef:null,           // alpha at calibration start -> relative-yaw baseline
+    smoothed:null,
+    targetIndex:0,         // guided sequence pointer
+    lockProgress:0,
+    streamTimer:null
+  };
+
+  function setStatus(state, text){
+    var d=$('#statusDot'), l=$('#statusText');
+    d.className='status-dot'+(state?(' '+state):''); l.textContent=text;
+  }
+  function showScreen(id){
+    ['screen-nohost','screen-connecting','screen-permission','screen-calibrate','screen-live']
+      .forEach(function(s){ var el=$('#'+s); if(el) el.hidden=(s!==id); });
+  }
+  function getSessionCode(){ return new URLSearchParams(location.search).get('session'); }
+  function wsRelayBase(){ return FOCUSFLOW_SERVER.replace(/^http/,'ws') + '/ws'; }
+
+  /* ---------- connection (WebSocket relay through our server) ---------- */
+  function connectToHost(sessionCode){
+    if (!('WebSocket' in window)){
+      setStatus('error','Not supported');
+      $('#connectingMsg').textContent='This browser cannot make the connection. Try Safari or Chrome.';
+      showScreen('screen-connecting'); return;
+    }
+    setStatus('busy','Connecting…'); showScreen('screen-connecting');
+    $('#connectingMsg').textContent='Connecting to the display…'; $('#btnRetryConnect').hidden=true;
+    var ws;
+    try { ws = new WebSocket(wsRelayBase()+'?role=probe&session='+encodeURIComponent(sessionCode)); }
+    catch(e){
+      setStatus('error','Connection error');
+      $('#connectingMsg').textContent='A connection error occurred. Tap Try Again.';
+      $('#btnRetryConnect').hidden=false; showScreen('screen-connecting'); return;
+    }
+    STATE.ws = ws;
+    ws.onmessage = function(ev){
+      var m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
+      if (m.type==='paired'){ setStatus('live','Connected'); showScreen('screen-permission'); }
+      else if (m.type==='error' && m.error==='no-session'){
+        setStatus('error','Display not found');
+        $('#connectingMsg').textContent="Couldn't find the display. Make sure the Virtual Probe step is open on it, then scan the code again.";
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
+      } else if (m.type==='peer-disconnected'){
+        setStatus('error','Display disconnected'); stopStreaming();
+        $('#connectingMsg').textContent='The display disconnected. Tap Try Again.';
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
+      }
+    };
+    ws.onclose = function(){
+      stopStreaming();
+      if (STATE.ws===ws){
+        setStatus('error','Disconnected');
+        $('#connectingMsg').textContent='Lost connection. Tap Try Again.';
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
+      }
+    };
+    ws.onerror = function(){ setStatus('error','Connection error'); };
+  }
+  function send(data){ if (STATE.ws && STATE.ws.readyState===1){ try{ STATE.ws.send(JSON.stringify(data)); }catch(e){} } }
+  $('#btnRetryConnect').addEventListener('click', function(){
+    if (STATE.ws){ try{ STATE.ws.close(); }catch(e){} STATE.ws=null; }
+    connectToHost(STATE.sessionCode);
+  });
+
+  /* ---------- motion permission ---------- */
+  $('#btnEnableMotion').addEventListener('click', function(){
+    var DOE=window.DeviceOrientationEvent;
+    if (DOE && typeof DOE.requestPermission==='function'){
+      DOE.requestPermission().then(function(res){
+        if (res==='granted'){ startOrientation(); beginCalibration(); }
+        else showPermErr('Motion access was not granted. Enable it in Settings ▸ Safari ▸ Motion & Orientation, then reload.');
+      }).catch(function(){ showPermErr('Could not request motion access. Reload and try again.'); });
+    } else if (window.DeviceOrientationEvent){ startOrientation(); beginCalibration(); }
+    else showPermErr('This device/browser does not support orientation sensors.');
+  });
+  function showPermErr(m){ var e=$('#permissionError'); e.hidden=false; e.textContent=m; }
+
+  /* ---------- orientation ---------- */
+  var latest={alpha:0,beta:0,gamma:0};
+  function startOrientation(){
+    window.addEventListener('deviceorientation', function(e){
+      latest={alpha:e.alpha||0, beta:e.beta||0, gamma:e.gamma||0};
+      if (STATE.capturing) STATE.samples.push({alpha:latest.alpha,beta:latest.beta,gamma:latest.gamma});
+    }, true);
+  }
+  function angleDiff(a,b){ var d=a-b; while(d>180)d-=360; while(d<-180)d+=360; return d; }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function circMean(vals){
+    var s=0,c=0; vals.forEach(function(v){ var r=v*Math.PI/180; s+=Math.sin(r); c+=Math.cos(r); });
+    return Math.atan2(s/vals.length, c/vals.length)*180/Math.PI;
+  }
+  // relative yaw = how far alpha has turned from the session baseline (no compass dependence)
+  function relYaw(alpha){ return STATE.yawRef==null ? 0 : angleDiff(alpha, STATE.yawRef); }
+
+  /* ---------- calibration ---------- */
+  function beginCalibration(){
+    STATE.calibIndex=0; STATE.calibration={}; STATE.yawRef=null; STATE.targetIndex=0;
+    showCalibStep(); showScreen('screen-calibrate');
+  }
+  function showCalibStep(){
+    var v=VIEWS[STATE.calibIndex];
+    $('#calibStep').textContent='Step '+(STATE.calibIndex+1)+' of '+VIEWS.length;
+    $('#calibLabel').textContent=v.label;
+    $('#calibInstructions').textContent=v.instr;
+    $('#btnCapture').disabled=false; $('#btnCapture').textContent='Hold Steady & Capture';
+    $('#calibCountdown').hidden=true;
+    send({type:'calibrating', step:STATE.calibIndex+1, total:VIEWS.length});
+  }
+  $('#btnCapture').addEventListener('click', function(){
+    if (STATE.capturing) return;
+    if (STATE.yawRef==null) STATE.yawRef=latest.alpha;   // baseline from the first pose held
+    var v=VIEWS[STATE.calibIndex];
+    $('#btnCapture').disabled=true; STATE.samples=[]; STATE.capturing=true;
+    var count=3, el=$('#calibCountdown'); el.hidden=false; el.textContent=count;
+    var t=setInterval(function(){
+      count--;
+      if (count>0){ el.textContent=count; return; }
+      clearInterval(t); el.hidden=true; STATE.capturing=false;
+      var betas=STATE.samples.map(function(s){return s.beta;});
+      var gammas=STATE.samples.map(function(s){return s.gamma;});
+      var yaws=STATE.samples.map(function(s){return relYaw(s.alpha);});
+      STATE.calibration[v.id]={
+        beta:  betas.length? circMean(betas) : latest.beta,
+        gamma: gammas.length? circMean(gammas): latest.gamma,
+        yaw:   yaws.length?  circMean(yaws)  : relYaw(latest.alpha)
+      };
+      STATE.calibIndex++;
+      if (STATE.calibIndex<VIEWS.length) showCalibStep(); else finishCalibration();
+    },1000);
+  });
+  $('#btnRecalibrate').addEventListener('click', function(){ stopStreaming(); beginCalibration(); });
+
+  function finishCalibration(){
+    send({type:'ready'}); setStatus('live','Streaming probe position');
+    STATE.smoothed=null; STATE.targetIndex=0; STATE.lockProgress=0;
+    showScreen('screen-live'); startStreaming();
+  }
+
+  /* ---------- live streaming + compass ---------- */
+  var SMOOTH=0.16, TICK_MS=80;  // lower = smoother / less twitchy
+  var ACC_RANGE=62;       // deg distance that maps accuracy 100->0 (wider = gentler)
+  var BLEND_RANGE=95;     // deg distance over which a view contributes to the glide (wider = smoother crossfade)
+  var YAW_W=0.45;         // yaw weighted lower so the twist axis isn't twitchy
+  var LOCK_ACC=84, LOCK_HOLD=1100; // %, ms to lock a target (easier to reach)
+
+  function startStreaming(){ stopStreaming(); STATE.streamTimer=setInterval(tick, TICK_MS); }
+  function stopStreaming(){ if (STATE.streamTimer){ clearInterval(STATE.streamTimer); STATE.streamTimer=null; } }
+
+  function poseDist(s, cal){
+    var db=angleDiff(s.beta,cal.beta), dg=angleDiff(s.gamma,cal.gamma), dy=angleDiff(s.yaw,cal.yaw);
+    return Math.sqrt(db*db + dg*dg + YAW_W*dy*dy);
+  }
+
+  function tick(){
+    var cur={beta:latest.beta, gamma:latest.gamma, yaw:relYaw(latest.alpha)};
+    if (!STATE.smoothed) STATE.smoothed=cur;
+    else {
+      STATE.smoothed.beta += angleDiff(cur.beta, STATE.smoothed.beta)*SMOOTH;
+      STATE.smoothed.gamma+= angleDiff(cur.gamma,STATE.smoothed.gamma)*SMOOTH;
+      STATE.smoothed.yaw  += angleDiff(cur.yaw,  STATE.smoothed.yaw)*SMOOTH;
+    }
+    var s=STATE.smoothed;
+
+    // distance + blend weight to every calibrated view
+    var blend={}, nearest=null, nearestDist=Infinity;
+    VIEWS.forEach(function(v){
+      var cal=STATE.calibration[v.id]; if(!cal) return;
+      var d=poseDist(s,cal);
+      var w=Math.max(0,1-d/BLEND_RANGE); w=w*w;
+      blend[v.id]=w;
+      if (d<nearestDist){ nearestDist=d; nearest=v.id; }
+    });
+    // normalize blend; never all-zero -> iPad never blanks
+    var sum=0; Object.keys(blend).forEach(function(k){ sum+=blend[k]; });
+    if (sum<=0.0001){ Object.keys(blend).forEach(function(k){ blend[k]=0; }); if(nearest) blend[nearest]=1; sum=1; }
+    Object.keys(blend).forEach(function(k){ blend[k]=blend[k]/sum; });
+
+    // guided target + accuracy
+    var target=VIEWS[STATE.targetIndex];
+    var tcal=STATE.calibration[target.id];
+    var tdist = tcal? poseDist(s,tcal) : 999;
+    var accuracy = Math.round(clamp(100*(1-tdist/ACC_RANGE),0,100));
+
+    // readouts (deviation from current target)
+    var dB = tcal? angleDiff(s.beta, tcal.beta):0;
+    var dG = tcal? angleDiff(s.gamma,tcal.gamma):0;
+    var dY = tcal? angleDiff(s.yaw,  tcal.yaw):0;
+    updateCompass(dB,dG,dY,accuracy,target.label);
+
+    // lock + advance through the sequence
+    if (accuracy>=LOCK_ACC){ STATE.lockProgress+=TICK_MS; } else { STATE.lockProgress=0; }
+    var locked=false;
+    if (STATE.lockProgress>=LOCK_HOLD){
+      locked=true; STATE.lockProgress=0;
+      flashLock(target.label);
+      if (STATE.targetIndex<VIEWS.length-1) STATE.targetIndex++;
+    }
+
+    // fan = forward/back tilt relative to the NEAREST view's calibrated pose;
+    // the display uses it to slide through that window's clip sweep.
+    var ncal = STATE.calibration[nearest];
+    var fan = ncal ? angleDiff(s.beta, ncal.beta) : 0;
+
+    send({ type:'pose', target:target.id, matchId:(accuracy>=LOCK_ACC?target.id:nearest),
+           nearestId:nearest, fan:fan,
+           accuracy:accuracy, blend:blend, locked:locked,
+           tilt:dB, rock:dG, rotate:dY,
+           beta:s.beta, gamma:s.gamma, yaw:s.yaw });
+  }
+
+  function updateCompass(dB,dG,dY,acc,label){
+    // probe glyph: rotate by yaw deviation, nudge by tilt/rock; green when close
+    var g=$('#probeGlyph');
+    var tx=clamp(dG*0.55,-38,38), ty=clamp(dB*0.55,-38,38), rot=clamp(dY*0.7,-70,70);
+    g.setAttribute('transform','translate('+tx.toFixed(1)+','+ty.toFixed(1)+') rotate('+rot.toFixed(1)+' 100 100)');
+    var col = acc>=LOCK_ACC?'#39C06B': acc>=55?'#F5A623':'#6BAED6';
+    $('#probeArrow').setAttribute('fill',col);
+
+    $('#tiltLbl').innerHTML = (dB>=0?'Tilt<br>Anterior':'Tilt<br>Posterior');
+    $('#rockLbl').innerHTML = (dG>=0?'Rock<br>Right':'Rock<br>Left');
+    $('#rotLbl').innerHTML  = (dY>=0?'Rotate<br>Clockwise':'Rotate<br>Counter-CW');
+    $('#tiltVal').textContent=Math.abs(Math.round(dB))+'°';
+    $('#rockVal').textContent=Math.abs(Math.round(dG))+'°';
+    $('#rotVal').textContent =Math.abs(Math.round(dY))+'°';
+    $('#targetName').textContent=label;
+    $('#accVal').textContent=acc+'%';
+    var bar=$('#accBar'); bar.style.width=Math.max(2,acc)+'%';
+    bar.style.background = acc>=90?'#39C06B': acc>=60?'#F5A623':'#2E6DA4';
+  }
+
+  var toastTimer=null;
+  function flashLock(label){
+    var t=$('#lockToast');
+    var next = STATE.targetIndex<VIEWS.length-1 ? '' : ' — sequence complete';
+    var nextLabel = STATE.targetIndex<VIEWS.length ? VIEWS[STATE.targetIndex].label : '';
+    t.textContent = '✓ '+label+' locked'+(next? next : '  •  next: '+nextLabel);
+    t.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  /* ---------- init ---------- */
+  var sessionCode=getSessionCode();
+  if (!sessionCode){ setStatus('error','No display code found'); showScreen('screen-nohost'); }
+  else { STATE.sessionCode=sessionCode; connectToHost(sessionCode); }
+})();
+</script>
+</body>
+</html>
