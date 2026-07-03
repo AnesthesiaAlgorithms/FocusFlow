@@ -55,6 +55,11 @@
     opacity:0; transition:opacity .2s;
   }
   .lock-toast.show{opacity:1;}
+  .sens-row{margin:16px 0 4px; text-align:center;}
+  .sens-row label{font-size:.9rem; font-weight:600; color:var(--ink); display:block; margin-bottom:6px;}
+  .sens-row input[type=range]{width:80%; max-width:300px;}
+  .sens-hint{font-size:.75rem; color:var(--gray); margin-top:4px;}
+  #sensVal{color:var(--accent); font-weight:800;}
   .pose-step{font-size:.82rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:1px; text-align:center;}
   .pose-label{font-size:1.7rem; font-weight:800; text-align:center; margin:4px 0 8px;}
   .countdown{font-size:2.4rem; font-weight:800; text-align:center; color:var(--accent); margin:6px 0;}
@@ -134,12 +139,17 @@
     <div class="pbar"><div id="accBar"></div></div>
     <div class="lock-toast" id="lockToast"></div>
 
-    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:16px;">Recalibrate</button>
+    <div class="sens-row">
+      <label for="sensSlider">Sensitivity <span id="sensVal">5</span></label>
+      <input type="range" min="1" max="10" step="1" value="5" id="sensSlider">
+      <div class="sens-hint">Higher = smaller probe movements change the image more.</div>
+    </div>
+
+    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Recalibrate</button>
   </div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 (function () {
   'use strict';
@@ -157,8 +167,10 @@
       instr:'Just below the breastbone. Lay the probe over toward the belly, beam angled up to the left shoulder — but not fully vertical.' }
   ];
 
+  var FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
+
   var STATE = {
-    peer:null, conn:null, hostId:null,
+    ws:null, sessionCode:null,
     calibration:{},        // id -> {beta,gamma,yaw}
     calibIndex:0, samples:[], capturing:false,
     yawRef:null,           // alpha at calibration start -> relative-yaw baseline
@@ -176,53 +188,53 @@
     ['screen-nohost','screen-connecting','screen-permission','screen-calibrate','screen-live']
       .forEach(function(s){ var el=$('#'+s); if(el) el.hidden=(s!==id); });
   }
-  function getHostId(){ return new URLSearchParams(location.search).get('host'); }
+  function getSessionCode(){ return new URLSearchParams(location.search).get('session'); }
+  function wsRelayBase(){ return FOCUSFLOW_SERVER.replace(/^http/,'ws') + '/ws'; }
 
-  /* ---------- connection ---------- */
-  function connectToHost(hostId){
-    if (typeof Peer==='undefined'){
-      setStatus('error','Could not load connection library');
-      $('#connectingMsg').textContent='Could not load the connection library. Check internet and reload.';
+  /* ---------- connection (WebSocket relay through our server) ---------- */
+  function connectToHost(sessionCode){
+    if (!('WebSocket' in window)){
+      setStatus('error','Not supported');
+      $('#connectingMsg').textContent='This browser cannot make the connection. Try Safari or Chrome.';
       showScreen('screen-connecting'); return;
     }
     setStatus('busy','Connecting…'); showScreen('screen-connecting');
     $('#connectingMsg').textContent='Connecting to the display…'; $('#btnRetryConnect').hidden=true;
-    // STUN + TURN (Open Relay) so pairing works on hospital WiFi / hotspots.
-    // TURN relays via ports 80/443 when a direct connection is blocked.
-    var ICE_SERVERS=[
-      {urls:'stun:stun.l.google.com:19302'},
-      {urls:'stun:openrelay.metered.ca:80'},
-      {urls:'turn:openrelay.metered.ca:80', username:'openrelayproject', credential:'openrelayproject'},
-      {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
-      {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'}
-    ];
-    var peer=new Peer({debug:0, config:{iceServers:ICE_SERVERS}}); STATE.peer=peer;
-    peer.on('open', function(){
-      var conn=peer.connect(hostId,{reliable:true}); STATE.conn=conn;
-      conn.on('open', function(){ setStatus('live','Connected'); showScreen('screen-permission'); });
-      conn.on('close', function(){
-        setStatus('error','Disconnected'); stopStreaming();
-        $('#connectingMsg').textContent='Lost connection. Tap Try Again.'; $('#btnRetryConnect').hidden=false;
-        showScreen('screen-connecting');
-      });
-      conn.on('error', function(){ setStatus('error','Connection error'); });
-    });
-    peer.on('error', function(err){
-      stopStreaming();
-      if (err && err.type==='peer-unavailable'){
+    var ws;
+    try { ws = new WebSocket(wsRelayBase()+'?role=probe&session='+encodeURIComponent(sessionCode)); }
+    catch(e){
+      setStatus('error','Connection error');
+      $('#connectingMsg').textContent='A connection error occurred. Tap Try Again.';
+      $('#btnRetryConnect').hidden=false; showScreen('screen-connecting'); return;
+    }
+    STATE.ws = ws;
+    ws.onmessage = function(ev){
+      var m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
+      if (m.type==='paired'){ setStatus('live','Connected'); showScreen('screen-permission'); }
+      else if (m.type==='error' && m.error==='no-session'){
         setStatus('error','Display not found');
-        $('#connectingMsg').textContent="Couldn't find the display. Make sure it's on the Virtual Probe step, then try again.";
-      } else {
-        setStatus('error','Connection error');
-        $('#connectingMsg').textContent='A connection error occurred. Tap Try Again.';
+        $('#connectingMsg').textContent="Couldn't find the display. Make sure the Virtual Probe step is open on it, then scan the code again.";
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
+      } else if (m.type==='peer-disconnected'){
+        setStatus('error','Display disconnected'); stopStreaming();
+        $('#connectingMsg').textContent='The display disconnected. Tap Try Again.';
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
       }
-      $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
-    });
+    };
+    ws.onclose = function(){
+      stopStreaming();
+      if (STATE.ws===ws){
+        setStatus('error','Disconnected');
+        $('#connectingMsg').textContent='Lost connection. Tap Try Again.';
+        $('#btnRetryConnect').hidden=false; showScreen('screen-connecting');
+      }
+    };
+    ws.onerror = function(){ setStatus('error','Connection error'); };
   }
-  function send(data){ if (STATE.conn && STATE.conn.open){ try{ STATE.conn.send(data); }catch(e){} } }
+  function send(data){ if (STATE.ws && STATE.ws.readyState===1){ try{ STATE.ws.send(JSON.stringify(data)); }catch(e){} } }
   $('#btnRetryConnect').addEventListener('click', function(){
-    if (STATE.peer && !STATE.peer.destroyed) STATE.peer.destroy();
-    connectToHost(STATE.hostId);
+    if (STATE.ws){ try{ STATE.ws.close(); }catch(e){} STATE.ws=null; }
+    connectToHost(STATE.sessionCode);
   });
 
   /* ---------- motion permission ---------- */
@@ -292,6 +304,11 @@
     },1000);
   });
   $('#btnRecalibrate').addEventListener('click', function(){ stopStreaming(); beginCalibration(); });
+  $('#sensSlider').addEventListener('input', function(){
+    var v = parseInt(this.value, 10);
+    SENS = v / 5;   // 5 = default (1.0); 10 = very sensitive (2.0); 1 = gentle (0.2)
+    $('#sensVal').textContent = v;
+  });
 
   function finishCalibration(){
     send({type:'ready'}); setStatus('live','Streaming probe position');
@@ -300,11 +317,14 @@
   }
 
   /* ---------- live streaming + compass ---------- */
-  var SMOOTH=0.16, TICK_MS=80;  // lower = smoother / less twitchy
+  var SMOOTH=0.20, TICK_MS=80;  // higher = snappier / more responsive
   var ACC_RANGE=62;       // deg distance that maps accuracy 100->0 (wider = gentler)
   var BLEND_RANGE=95;     // deg distance over which a view contributes to the glide (wider = smoother crossfade)
-  var YAW_W=0.45;         // yaw weighted lower so the twist axis isn't twitchy
+  var YAW_W=0.9;          // twist (rotation) weighted heavily -> drives PLAX<->A4C, which is a ~90 deg probe rotation
   var LOCK_ACC=84, LOCK_HOLD=1100; // %, ms to lock a target (easier to reach)
+  // Live sensitivity multiplier (1 = default). Higher = smaller probe movements
+  // produce bigger image change. Controlled by the on-screen slider.
+  var SENS = 1.0;
 
   function startStreaming(){ stopStreaming(); STATE.streamTimer=setInterval(tick, TICK_MS); }
   function stopStreaming(){ if (STATE.streamTimer){ clearInterval(STATE.streamTimer); STATE.streamTimer=null; } }
@@ -329,7 +349,7 @@
     VIEWS.forEach(function(v){
       var cal=STATE.calibration[v.id]; if(!cal) return;
       var d=poseDist(s,cal);
-      var w=Math.max(0,1-d/BLEND_RANGE); w=w*w;
+      var w=Math.max(0,1-d*SENS/BLEND_RANGE); w=w*w;
       blend[v.id]=w;
       if (d<nearestDist){ nearestDist=d; nearest=v.id; }
     });
@@ -342,7 +362,7 @@
     var target=VIEWS[STATE.targetIndex];
     var tcal=STATE.calibration[target.id];
     var tdist = tcal? poseDist(s,tcal) : 999;
-    var accuracy = Math.round(clamp(100*(1-tdist/ACC_RANGE),0,100));
+    var accuracy = Math.round(clamp(100*(1-tdist*SENS/ACC_RANGE),0,100));
 
     // readouts (deviation from current target)
     var dB = tcal? angleDiff(s.beta, tcal.beta):0;
@@ -359,7 +379,13 @@
       if (STATE.targetIndex<VIEWS.length-1) STATE.targetIndex++;
     }
 
+    // fan = forward/back tilt relative to the NEAREST view's calibrated pose;
+    // the display uses it to slide through that window's clip sweep.
+    var ncal = STATE.calibration[nearest];
+    var fan = ncal ? angleDiff(s.beta, ncal.beta) * SENS : 0;
+
     send({ type:'pose', target:target.id, matchId:(accuracy>=LOCK_ACC?target.id:nearest),
+           nearestId:nearest, fan:fan,
            accuracy:accuracy, blend:blend, locked:locked,
            tilt:dB, rock:dG, rotate:dY,
            beta:s.beta, gamma:s.gamma, yaw:s.yaw });
@@ -397,9 +423,9 @@
   }
 
   /* ---------- init ---------- */
-  var hostId=getHostId();
-  if (!hostId){ setStatus('error','No display code found'); showScreen('screen-nohost'); }
-  else { STATE.hostId=hostId; connectToHost(hostId); }
+  var sessionCode=getSessionCode();
+  if (!sessionCode){ setStatus('error','No display code found'); showScreen('screen-nohost'); }
+  else { STATE.sessionCode=sessionCode; connectToHost(sessionCode); }
 })();
 </script>
 </body>

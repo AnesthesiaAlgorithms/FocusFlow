@@ -433,10 +433,17 @@
     return 'P-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   }
 
+  // After the droplet is deployed, set this to the server address, e.g.
+  // 'https://203-0-113-45.sslip.io'. When set, results upload AUTOMATICALLY on
+  // completion (no button). Left '' it falls back to a manual download.
+  const FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
+
   const STATE = {
     participantId: genId(),
     startedAt: new Date().toISOString(),
     completedAt: null,
+    submitted: false,
+    participantNumber: null,
     demo: { role: null, yearsExp: null, pocusTraining: null, focusExp: null, comfortBaseline: null },
     pre: { knowledge: {}, confidence: {}, cases: {} },
     post: { knowledge: {}, confidence: {}, cases: {} },
@@ -777,19 +784,19 @@
       </details>
     `;
     $('#resultsContainer').innerHTML = html;
+    submitResults();
   }
 
   /* ============================================================
      EXPORT
      ============================================================ */
 
-  function downloadResults() {
+  function buildPayload() {
     const kPre = score(KNOWLEDGE_PRE, STATE.pre.knowledge);
     const kPost = score(KNOWLEDGE_POST, STATE.post.knowledge);
     const cPre = score(CASES_PRE, STATE.pre.cases);
     const cPost = score(CASES_POST, STATE.post.cases);
-
-    const payload = {
+    return {
       participantId: STATE.participantId,
       startedAt: STATE.startedAt,
       completedAt: STATE.completedAt,
@@ -811,8 +818,11 @@
       usability: STATE.usability,
       openFeedback: STATE.openFeedback
     };
+  }
 
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  // Manual download — kept only as a fallback if auto-upload can't reach the server.
+  function downloadResults() {
+    const blob = new Blob([JSON.stringify(buildPayload(), null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -821,6 +831,57 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  // Auto-upload on completion — no button, no manual step. Runs once.
+  function submitResults() {
+    if (STATE.submitted) return;
+    STATE.submitted = true;
+    const statusEl = $('#submitStatus');
+    const fallbackBtn = $('#btnDownload');
+    const showFallback = (msg) => {
+      if (statusEl) statusEl.innerHTML = `<p class="muted">${msg}</p>`;
+      if (fallbackBtn) fallbackBtn.style.display = '';
+    };
+
+    if (!FOCUSFLOW_SERVER) {
+      showFallback('Tap below to save your results file and share it with the project lead.');
+      return;
+    }
+    if (statusEl) statusEl.innerHTML = '<p>Submitting your responses&hellip;</p>';
+
+    const attempt = (n) => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      fetch(FOCUSFLOW_SERVER + '/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload()),
+        signal: ctrl.signal
+      })
+        .then(r => r.json().then(d => ({ ok: r.ok, status: r.status, d })))
+        .then(({ ok, status, d }) => {
+          clearTimeout(timer);
+          if (ok && d && typeof d.participantNumber === 'number') {
+            STATE.participantNumber = d.participantNumber;
+            if (statusEl) statusEl.innerHTML =
+              '<p style="font-weight:600;color:var(--green);">&#10003; Your responses have been submitted automatically &mdash; thank you.</p>' +
+              '<p>Your participant number is <b style="font-size:1.35rem;color:var(--navy);">' + d.participantNumber + '</b>.</p>' +
+              '<p class="muted">You\'re all done. You may close this page.</p>';
+          } else if (status === 403) {
+            if (statusEl) statusEl.innerHTML = '<p style="color:var(--red);font-weight:600;">' +
+              ((d && d.message) || 'This study has reached its participant limit and is now closed.') + '</p>';
+          } else {
+            throw new Error('unexpected response');
+          }
+        })
+        .catch(() => {
+          clearTimeout(timer);
+          if (n < 3) { setTimeout(() => attempt(n + 1), 1500 * n); }
+          else { showFallback('We couldn\'t upload automatically. Please tap below to save your results and send the file to the project lead.'); }
+        });
+    };
+    attempt(1);
   }
 
   /* ============================================================
@@ -882,6 +943,8 @@
       participantId: genId(),
       startedAt: new Date().toISOString(),
       completedAt: null,
+      submitted: false,
+      participantNumber: null,
       demo: { role: null, yearsExp: null, pocusTraining: null, focusExp: null, comfortBaseline: null },
       pre: { knowledge: {}, confidence: {}, cases: {} },
       post: { knowledge: {}, confidence: {}, cases: {} },
@@ -982,43 +1045,65 @@
      ============================================================ */
   const ECHO = {
     manifest: null,
-    videos: {},
-    opacity: { plax: 0, a4c: 0, subcostal: 0 },
-    targetOp: { plax: 0, a4c: 0, subcostal: 0 },
+    layers: {},        // view id -> array of <video> (one per sweep clip)
+    op: {},            // "id#idx" -> current opacity
+    targetOp: {},      // "id#idx" -> target opacity
+    built: false,
     raf: null,
     showCaption: true,
     acc: 0
   };
+  const FAN_RANGE = 12;  // degrees of fan/tilt that span a view's full clip sweep (lower = more sensitive slide)
 
   function loadEchoManifest() {
     if (ECHO.manifest) return Promise.resolve(ECHO.manifest);
-    return fetch('clips/manifest.json')
+    // cache-bust the tiny manifest so clip/citation updates always take effect
+    return fetch('clips/manifest.json?v=' + Date.now())
       .then(r => r.json())
       .then(m => { ECHO.manifest = m; return m; })
       .catch(() => { ECHO.manifest = null; return null; });
   }
 
-  function echoSrc(id) {
-    if (ECHO.manifest && ECHO.manifest.views[id] && ECHO.manifest.views[id].src) {
-      return ECHO.manifest.views[id].src;
-    }
-    return 'clips/' + id + '.webm';
+  function viewSweep(id) {
+    const v = ECHO.manifest && ECHO.manifest.views[id];
+    if (v && Array.isArray(v.sweep) && v.sweep.length) return v.sweep;
+    return [(v && v.src) || ('clips/' + id + '.webm')];
+  }
+  function viewOptimal(id) {
+    const v = ECHO.manifest && ECHO.manifest.views[id];
+    const N = viewSweep(id).length;
+    return (v && typeof v.optimalIndex === 'number') ? v.optimalIndex : (N - 1) / 2;
+  }
+
+  // One <video> per sweep clip, so fanning the probe crossfades smoothly through
+  // the real clips of that window (the "slide" that trains fine dexterity).
+  function buildEchoLayers() {
+    if (ECHO.built) return;
+    const stack = $('#echoStack');
+    if (!stack) return;
+    const haze = $('#echoHaze');
+    PROBE_VIEW_IDS.forEach(id => {
+      ECHO.layers[id] = viewSweep(id).map((src, i) => {
+        const v = document.createElement('video');
+        v.className = 'echo-layer';
+        v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+        v.setAttribute('playsinline', '');
+        v.innerHTML = '<source src="' + src + '" type="video/webm">' +
+                      '<source src="' + src.replace(/\.webm$/, '.mp4') + '" type="video/mp4">';
+        v.style.opacity = '0';
+        ECHO.op[id + '#' + i] = 0;
+        ECHO.targetOp[id + '#' + i] = 0;
+        stack.insertBefore(v, haze || null);
+        return v;
+      });
+    });
+    ECHO.built = true;
   }
 
   function setupEchoVideos() {
-    PROBE_VIEW_IDS.forEach(id => {
-      const v = $('#echo-' + id);
-      if (!v) return;
-      ECHO.videos[id] = v;
-      ECHO.opacity[id] = 0;
-      ECHO.targetOp[id] = 0;
-      // Sources (webm + mp4) are declared statically in index.html for
-      // cross-browser playback; just ensure it's playing.
-      v.muted = true; v.loop = true; v.playsInline = true;
-      const p = v.play();
-      if (p && p.catch) p.catch(() => {});
-    });
-    renderEchoCredits();
+    // Ensure the manifest (with sweep arrays) is loaded BEFORE building layers,
+    // so we build all the sweep clips rather than a single-clip fallback.
+    return loadEchoManifest().then(function () { buildEchoLayers(); renderEchoCredits(); });
   }
 
   function renderEchoCredits() {
@@ -1030,14 +1115,46 @@
     if (lines.length) el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
   }
 
+  // Map a pose (view blend weights + fan angle) to a target opacity per clip.
+  function updateEchoFromPose(data) {
+    let sum = 0;
+    PROBE_VIEW_IDS.forEach(id => { sum += (data.blend && data.blend[id]) || 0; });
+    const w = {};
+    PROBE_VIEW_IDS.forEach(id => { const x = (data.blend && data.blend[id]) || 0; w[id] = sum > 0 ? x / sum : 0; });
+    const active = data.nearestId || data.matchId || data.target || null;
+    const fan = (typeof data.fan === 'number') ? data.fan : 0;
+
+    Object.keys(ECHO.targetOp).forEach(k => { ECHO.targetOp[k] = 0; });
+    PROBE_VIEW_IDS.forEach(id => {
+      const layers = ECHO.layers[id];
+      if (!layers || !layers.length) return;
+      const N = layers.length;
+      if (N === 1) { ECHO.targetOp[id + '#0'] = w[id]; return; }
+      const opt = viewOptimal(id);
+      let pos = (id === active)
+        ? opt + (fan / FAN_RANGE) * ((N - 1) / 2)  // fan sweeps around the optimal cut
+        : opt;                                     // inactive views rest at their best cut
+      pos = clampNum(pos, 0, N - 1);
+      const lo = Math.floor(pos), hi = Math.min(lo + 1, N - 1), frac = pos - lo;
+      ECHO.targetOp[id + '#' + lo] += w[id] * (1 - frac);
+      ECHO.targetOp[id + '#' + hi] += w[id] * frac;
+    });
+  }
+
   function startEchoLoop() {
     if (ECHO.raf) return;
     const tick = () => {
       PROBE_VIEW_IDS.forEach(id => {
-        const cur = ECHO.opacity[id], tgt = ECHO.targetOp[id];
-        ECHO.opacity[id] = cur + (tgt - cur) * 0.18;
-        const v = ECHO.videos[id];
-        if (v) v.style.opacity = ECHO.opacity[id].toFixed(3);
+        const layers = ECHO.layers[id]; if (!layers) return;
+        layers.forEach((v, i) => {
+          const key = id + '#' + i;
+          const cur = ECHO.op[key] || 0, tgt = ECHO.targetOp[key] || 0;
+          const nv = cur + (tgt - cur) * 0.2;
+          ECHO.op[key] = nv;
+          v.style.opacity = nv.toFixed(3);
+          if (nv > 0.02) { if (v.paused) { const p = v.play(); if (p && p.catch) p.catch(() => {}); } }
+          else if (!v.paused) { try { v.pause(); } catch (e) {} }
+        });
       });
       const acc = clampNum(ECHO.acc / 100, 0, 1);
       const stack = $('#echoStack');
@@ -1057,9 +1174,8 @@
   // Kept under the old name so renderStep() can pause the sim on screen exit.
   function stopPlaxSim() {
     if (ECHO.raf) { cancelAnimationFrame(ECHO.raf); ECHO.raf = null; }
-    Object.keys(ECHO.videos).forEach(id => {
-      const v = ECHO.videos[id];
-      if (v) { try { v.pause(); } catch (e) {} }
+    Object.keys(ECHO.layers).forEach(id => {
+      (ECHO.layers[id] || []).forEach(v => { try { v.pause(); } catch (e) {} });
     });
   }
 
@@ -1089,11 +1205,9 @@
      PROBE SIMULATOR
      ============================================================ */
   const PROBE = {
-    peer: null,
-    conn: null,
-    hostId: null,
+    ws: null,
+    sessionCode: null,
     connected: false,
-    lastViewId: undefined,
     toggleBound: false
   };
 
@@ -1104,9 +1218,9 @@
     if (label) label.textContent = text;
   }
 
-  function buildProbeUrl(hostId) {
+  function buildProbeUrl(sessionCode) {
     const base = location.href.replace(/[^/]*$/, '');
-    return base + 'probe.html?host=' + encodeURIComponent(hostId);
+    return base + 'probe.html?session=' + encodeURIComponent(sessionCode);
   }
 
   function renderQr(url) {
@@ -1146,21 +1260,16 @@
       if (connectCard) connectCard.style.display = 'none';
       if (scanCard) scanCard.style.display = '';
       renderProbeTargets(null);
-      setupEchoVideos();
+      setupEchoVideos().then(function () {
+        // Show a real view immediately so the display is never black before the
+        // first pose arrives (and as a fallback if a clip is slow to decode).
+        ECHO.targetOp['plax#0'] = 1;
+        ECHO.op['plax#0'] = 1;
+      });
       startEchoLoop();
-      // Show a real view immediately so the display is never black before the
-      // first pose arrives (and as a fallback if a clip is slow to decode).
-      ECHO.targetOp.plax = 1;
-      ECHO.opacity.plax = 1;
       setEchoState(null, 0, false, 'plax');
     } else if (data.type === 'pose') {
-      let sum = 0;
-      PROBE_VIEW_IDS.forEach(id => { sum += (data.blend && data.blend[id]) || 0; });
-      PROBE_VIEW_IDS.forEach(id => {
-        let w = (data.blend && data.blend[id]) || 0;
-        if (sum > 0) w = w / sum;
-        ECHO.targetOp[id] = w;
-      });
+      updateEchoFromPose(data);   // per-clip opacities: view blend + fan sweep
       ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
       const locked = !!data.locked;
       setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
@@ -1168,73 +1277,49 @@
     }
   }
 
-  // STUN + TURN (Open Relay) so the QR pairing works on locked-down networks
-  // (hospital WiFi, personal hotspots). When a direct peer-to-peer link is
-  // blocked, TURN relays the connection through ports 80/443 — which firewalls
-  // almost always allow — so the two devices can still reach each other.
-  const ICE_SERVERS = [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:openrelay.metered.ca:80' },
-    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
-  ];
+  // The phone pairs with this screen through a WebSocket RELAY on our own server
+  // (wss://…/ws). It rides port 443 like a normal web page, so it works on
+  // locked-down hospital WiFi where peer-to-peer WebRTC could not connect.
+  function wsRelayBase() {
+    return FOCUSFLOW_SERVER.replace(/^http/, 'ws') + '/ws';
+  }
 
-  function createProbePeer(attempt) {
-    attempt = attempt || 1;
-    if (attempt > 5) {
-      setProbeStatus('error', 'Could not start the connection. Check your internet connection, or skip this step.');
-      return;
-    }
-    if (typeof Peer === 'undefined') {
-      setProbeStatus('error', 'Could not load the connection library. Check your internet connection, or skip this step.');
+  function createProbePeer() {
+    if (!FOCUSFLOW_SERVER) {
+      setProbeStatus('error', 'The probe simulation is not configured yet. You can skip this step.');
       return;
     }
     setProbeStatus('busy', 'Starting connection…');
-    const id = 'focus-' + Math.random().toString(36).slice(2, 8);
-    const peer = new Peer(id, { debug: 0, config: { iceServers: ICE_SERVERS } });
-    PROBE.peer = peer;
+    let ws;
+    try { ws = new WebSocket(wsRelayBase() + '?role=host'); }
+    catch (e) { setProbeStatus('error', 'Connection error. You can skip this step and continue.'); return; }
+    PROBE.ws = ws;
 
-    peer.on('open', hostId => {
-      PROBE.hostId = hostId;
-      setProbeStatus('busy', 'Ready — scan the code with your phone');
-      const urlEl = $('#probeUrl');
-      const url = buildProbeUrl(hostId);
-      if (urlEl) urlEl.textContent = url;
-      renderQr(url);
-    });
-
-    peer.on('connection', conn => {
-      PROBE.conn = conn;
-      conn.on('open', () => {
+    ws.onmessage = ev => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch (e) { return; }
+      if (msg.type === 'session') {
+        PROBE.sessionCode = msg.code;
+        setProbeStatus('busy', 'Ready — scan the code with your phone');
+        const url = buildProbeUrl(msg.code);
+        const urlEl = $('#probeUrl');
+        if (urlEl) urlEl.textContent = url;
+        renderQr(url);
+      } else if (msg.type === 'probe-connected') {
         setProbeStatus('busy', 'Phone connected — calibrating…');
-      });
-      conn.on('data', handleProbeData);
-      conn.on('close', () => {
-        PROBE.conn = null;
+      } else if (msg.type === 'peer-disconnected') {
         PROBE.connected = false;
         const connectCard = $('#probeConnectCard');
         const scanCard = $('#probeScanCard');
         if (connectCard) connectCard.style.display = '';
         if (scanCard) scanCard.style.display = 'none';
         setProbeStatus('busy', 'Phone disconnected — scan the code again to reconnect');
-      });
-    });
-
-    peer.on('error', err => {
-      if (err && err.type === 'unavailable-id') {
-        peer.destroy();
-        createProbePeer(attempt + 1);
-        return;
+      } else {
+        handleProbeData(msg);   // relayed app messages: calibrating / ready / pose
       }
-      if (err && err.type === 'peer-unavailable') return;
-      setProbeStatus('error', 'Connection error. You can skip this step and continue.');
-    });
-
-    peer.on('disconnected', () => {
-      if (peer.destroyed) return;
-      peer.reconnect();
-    });
+    };
+    ws.onerror = () => setProbeStatus('error', 'Connection error. You can skip this step and continue.');
+    ws.onclose = () => { PROBE.ws = null; };
   }
 
   function initProbe() {
@@ -1254,7 +1339,7 @@
       ECHO.showCaption = toggle.checked;
       toggle.addEventListener('change', () => { ECHO.showCaption = toggle.checked; });
     }
-    if (PROBE.peer && !PROBE.peer.destroyed) return;
+    if (PROBE.ws && PROBE.ws.readyState <= 1) return;  // already connecting/open
     createProbePeer();
   }
 

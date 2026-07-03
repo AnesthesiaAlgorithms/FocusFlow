@@ -492,15 +492,8 @@
         <div class="view-display" id="probeDisplay">
           <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
           <div class="echo-stack" id="echoStack">
-            <video class="echo-layer" id="echo-plax" muted loop playsinline preload="auto">
-              <source src="clips/plax.webm" type="video/webm"><source src="clips/plax.mp4" type="video/mp4">
-            </video>
-            <video class="echo-layer" id="echo-a4c" muted loop playsinline preload="auto">
-              <source src="clips/a4c.webm" type="video/webm"><source src="clips/a4c.mp4" type="video/mp4">
-            </video>
-            <video class="echo-layer" id="echo-subcostal" muted loop playsinline preload="auto">
-              <source src="clips/subcostal.webm" type="video/webm"><source src="clips/subcostal.mp4" type="video/mp4">
-            </video>
+            <!-- Clip layers are built in JS from clips/manifest.json (one <video>
+                 per sweep clip) so the image can slide through the fan sequence. -->
             <div class="echo-haze" id="echoHaze"></div>
           </div>
           <div class="echo-hud">
@@ -547,9 +540,9 @@
       <div id="resultsContainer"></div>
     </div>
     <div class="card">
-      <h3 style="margin-top:0">Submit Your Results</h3>
-      <p class="muted">Tap the button below to download a results file (.json). Please share this file with the project lead as instructed (e.g., AirDrop, email attachment). No identifying information is included.</p>
-      <button class="btn-primary btn-block" id="btnDownload">Download Results File</button>
+      <h3 style="margin-top:0">Your Responses</h3>
+      <div id="submitStatus"><p class="muted">Finalizing&hellip;</p></div>
+      <button class="btn-primary btn-block" id="btnDownload" style="display:none;">Save a backup copy</button>
     </div>
     <div class="btn-row">
       <button class="btn-secondary btn-block" id="btnRestart">Start Over</button>
@@ -594,7 +587,6 @@
   <button id="devBarToggle" type="button" title="Dev tools">🛠</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="app.js"></script>
 </body>
