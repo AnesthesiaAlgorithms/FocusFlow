@@ -5,7 +5,7 @@
       "label": "PLAX",
       "name": "Parasternal Long-Axis",
       "structures": "RV, IVS, LV, posterior wall, aortic root, LA, mitral & aortic valves",
-      "status": "ready (temporary stopgap — replace with Ashley's own clip)",
+      "status": "ready",
       "citation": "CardioNetworks Foundation. (n.d.). Parasternal long axis (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Parasternal_long_axis (CC BY-SA)"
     },
     "a4c": {
@@ -14,15 +14,19 @@
       "name": "Apical 4-Chamber",
       "structures": "LV, RV, LA, RA, interventricular & interatrial septa, mitral & tricuspid valves",
       "status": "ready",
-      "citation": "CardioNetworks. (n.d.). A4C normal [Video]. ECHOpedia; Wikimedia Commons. https://commons.wikimedia.org/wiki/File:A4C_normal_(CardioNetworks_ECHOpedia).webm (CC BY-SA 4.0)"
+      "citation": "Author's own de-identified transthoracic echocardiography (2026).",
+      "sweep": ["clips/a4c_0.webm", "clips/a4c_1.webm", "clips/a4c_2.webm", "clips/a4c_3.webm", "clips/a4c_4.webm", "clips/a4c_5.webm", "clips/a4c_6.webm", "clips/a4c_7.webm", "clips/a4c_8.webm"],
+      "optimalIndex": 4
     },
     "subcostal": {
       "src": "clips/subcostal.webm",
       "label": "SUBCOSTAL",
       "name": "Subcostal 4-Chamber",
       "structures": "liver (near field), all 4 chambers, IVS, pericardium",
-      "status": "ready (temporary stopgap — replace with Ashley's own clip)",
-      "citation": "CardioNetworks Foundation. (n.d.). Subcostal view (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Subcostal_view (CC BY-SA)"
+      "status": "ready",
+      "citation": "Author's own de-identified transthoracic echocardiography (2026).",
+      "sweep": ["clips/subcostal_0.webm", "clips/subcostal_1.webm", "clips/subcostal_2.webm", "clips/subcostal_3.webm", "clips/subcostal_4.webm", "clips/subcostal_5.webm", "clips/subcostal_6.webm", "clips/subcostal_7.webm", "clips/subcostal_8.webm"],
+      "optimalIndex": 5
     }
   }
 }

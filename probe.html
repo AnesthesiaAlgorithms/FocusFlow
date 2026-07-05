@@ -63,6 +63,18 @@
   .pose-step{font-size:.82rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:1px; text-align:center;}
   .pose-label{font-size:1.7rem; font-weight:800; text-align:center; margin:4px 0 8px;}
   .countdown{font-size:2.4rem; font-weight:800; text-align:center; color:var(--accent); margin:6px 0;}
+  .win-row{display:flex; gap:8px; margin:2px 0 10px;}
+  .win-btn{flex:1; padding:13px 4px; border-radius:11px; border:2px solid #21425f; background:#0c1f31; color:var(--gray); font-weight:800; font-size:.82rem; cursor:pointer; letter-spacing:.3px;}
+  .win-btn.active{border-color:var(--green); color:var(--green); background:rgba(57,192,107,.12);}
+  .scan-instr{font-size:.92rem; color:var(--ink); text-align:center; margin:2px 0 10px; line-height:1.4;}
+  .scan-instr span{color:var(--accent); font-weight:700;}
+  .tilt-viz{display:flex; justify-content:center;}
+  .tilt-viz svg{width:min(58vw,240px); height:auto;}
+  .scrub{margin:6px 0 2px;}
+  .scrub-ends{display:flex; justify-content:space-between; font-size:.7rem; color:var(--gray); margin-bottom:5px;}
+  .scrub-track{position:relative; height:16px; background:#0c1c2c; border-radius:8px;}
+  .scrub-sweet{position:absolute; left:42%; width:16%; top:0; bottom:0; background:rgba(57,192,107,.28); border-radius:8px;}
+  .scrub-dot{position:absolute; top:50%; left:50%; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px rgba(107,174,214,.2); transition:left .07s linear, background .2s;}
 </style>
 </head>
 <body>
@@ -108,44 +120,41 @@
     <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
   </div>
 
-  <!-- Live compass -->
+  <!-- Live tilt-to-scrub -->
   <div id="screen-live" hidden>
-    <div class="compass-wrap">
-      <svg class="compass" viewBox="0 0 200 200" id="compass" aria-hidden="true">
-        <circle cx="100" cy="100" r="92" fill="#0c1f31" stroke="#21425f" stroke-width="1.5"/>
-        <circle cx="100" cy="100" r="62" fill="none" stroke="#1b3950" stroke-width="1"/>
-        <line x1="100" y1="14" x2="100" y2="30" stroke="#3a5d7d" stroke-width="2"/>
-        <line x1="100" y1="170" x2="100" y2="186" stroke="#3a5d7d" stroke-width="2"/>
-        <line x1="14" y1="100" x2="30" y2="100" stroke="#3a5d7d" stroke-width="2"/>
-        <line x1="170" y1="100" x2="186" y2="100" stroke="#3a5d7d" stroke-width="2"/>
-        <line x1="100" y1="40" x2="100" y2="160" stroke="#16304699" stroke-width="1"/>
-        <line x1="40" y1="100" x2="160" y2="100" stroke="#16304699" stroke-width="1"/>
-        <g id="probeGlyph">
-          <path id="probeArrow" d="M100,38 L116,74 L100,66 L84,74 Z" fill="#39C06B"/>
-          <rect x="90" y="70" width="20" height="46" rx="9" fill="#f3f6fa" stroke="#c4d2df" stroke-width="1.5"/>
-          <rect x="88" y="112" width="24" height="10" rx="3" fill="#2E6DA4"/>
+    <div class="win-row" id="winRow">
+      <button class="win-btn" data-view="plax">PLAX</button>
+      <button class="win-btn active" data-view="a4c">A4C</button>
+      <button class="win-btn" data-view="subcostal">SUBCOSTAL</button>
+    </div>
+    <p class="scan-instr">Slowly <b>tilt the phone forward &amp; back</b> to sweep through the <span id="scrubViewName">A4C</span> window. The middle is the optimized view.</p>
+
+    <div class="tilt-viz">
+      <svg viewBox="0 0 220 120" aria-hidden="true">
+        <line x1="16" y1="98" x2="204" y2="98" stroke="#2a4258" stroke-width="3"/>
+        <g id="probeTilt">
+          <rect x="100" y="34" width="20" height="54" rx="8" fill="#f3f6fa" stroke="#c4d2df" stroke-width="1.5"/>
+          <rect x="98" y="84" width="24" height="10" rx="3" fill="#2E6DA4"/>
         </g>
       </svg>
     </div>
 
-    <div class="readouts">
-      <div class="r"><div class="lbl" id="tiltLbl">Tilt<br>Anterior</div><div class="val" id="tiltVal">0&deg;</div></div>
-      <div class="r"><div class="lbl" id="rotLbl">Rotate<br>Clockwise</div><div class="val" id="rotVal">0&deg;</div></div>
-      <div class="r"><div class="lbl" id="rockLbl">Rock<br>Left</div><div class="val" id="rockVal">0&deg;</div></div>
+    <div class="scrub">
+      <div class="scrub-ends"><span>&#9664; tilt back</span><span>optimal</span><span>tilt forward &#9654;</span></div>
+      <div class="scrub-track"><div class="scrub-sweet"></div><div class="scrub-dot" id="scrubDot"></div></div>
     </div>
 
-    <div class="target-line">Target: <span id="targetName">PLAX</span></div>
-    <div class="acc-line">Accuracy: <b id="accVal">0%</b></div>
+    <div class="acc-line">Optimized: <b id="accVal">0%</b></div>
     <div class="pbar"><div id="accBar"></div></div>
     <div class="lock-toast" id="lockToast"></div>
 
     <div class="sens-row">
-      <label for="sensSlider">Sensitivity <span id="sensVal">5</span></label>
+      <label for="sensSlider">Tilt sensitivity <span id="sensVal">5</span></label>
       <input type="range" min="1" max="10" step="1" value="5" id="sensSlider">
-      <div class="sens-hint">Higher = smaller probe movements change the image more.</div>
+      <div class="sens-hint">Higher = less tilt needed to sweep the full window.</div>
     </div>
 
-    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Recalibrate</button>
+    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Re-center this window</button>
   </div>
 
 </div>
@@ -242,10 +251,10 @@
     var DOE=window.DeviceOrientationEvent;
     if (DOE && typeof DOE.requestPermission==='function'){
       DOE.requestPermission().then(function(res){
-        if (res==='granted'){ startOrientation(); beginCalibration(); }
+        if (res==='granted'){ startOrientation(); startScrub(); }
         else showPermErr('Motion access was not granted. Enable it in Settings ▸ Safari ▸ Motion & Orientation, then reload.');
       }).catch(function(){ showPermErr('Could not request motion access. Reload and try again.'); });
-    } else if (window.DeviceOrientationEvent){ startOrientation(); beginCalibration(); }
+    } else if (window.DeviceOrientationEvent){ startOrientation(); startScrub(); }
     else showPermErr('This device/browser does not support orientation sensors.');
   });
   function showPermErr(m){ var e=$('#permissionError'); e.hidden=false; e.textContent=m; }
@@ -303,123 +312,92 @@
       if (STATE.calibIndex<VIEWS.length) showCalibStep(); else finishCalibration();
     },1000);
   });
-  $('#btnRecalibrate').addEventListener('click', function(){ stopStreaming(); beginCalibration(); });
+  $('#btnRecalibrate').addEventListener('click', function(){ selectWindow(STATE.activeView, true); });
   $('#sensSlider').addEventListener('input', function(){
     var v = parseInt(this.value, 10);
-    SENS = v / 5;   // 5 = default (1.0); 10 = very sensitive (2.0); 1 = gentle (0.2)
+    SENS = v / 5;   // 5 = default (1.0); 10 = very sensitive; 1 = gentle
     $('#sensVal').textContent = v;
   });
 
-  function finishCalibration(){
-    send({type:'ready'}); setStatus('live','Streaming probe position');
-    STATE.smoothed=null; STATE.targetIndex=0; STATE.lockProgress=0;
-    showScreen('screen-live'); startStreaming();
+  // window buttons: pick which echo window you're sweeping
+  Array.prototype.forEach.call(document.querySelectorAll('.win-btn'), function(b){
+    b.addEventListener('click', function(){ selectWindow(b.getAttribute('data-view'), true); });
+  });
+  function updateWinButtons(){
+    var names={plax:'PLAX', a4c:'A4C', subcostal:'SUBCOSTAL'};
+    Array.prototype.forEach.call(document.querySelectorAll('.win-btn'), function(b){
+      b.classList.toggle('active', b.getAttribute('data-view')===STATE.activeView);
+    });
+    if ($('#scrubViewName')) $('#scrubViewName').textContent = names[STATE.activeView] || STATE.activeView;
+  }
+  function selectWindow(id, recenter){
+    STATE.activeView = id;
+    if (recenter || STATE.zeroBeta==null) STATE.zeroBeta = STATE.smoothed ? STATE.smoothed.beta : latest.beta;
+    STATE.lastLocked = null;
+    updateWinButtons();
   }
 
-  /* ---------- live streaming + compass ---------- */
-  var SMOOTH=0.20, TICK_MS=80;  // higher = snappier / more responsive
-  var ACC_RANGE=62;       // deg distance that maps accuracy 100->0 (wider = gentler)
-  var BLEND_RANGE=95;     // deg distance over which a view contributes to the glide (wider = smoother crossfade)
-  var YAW_W=0.9;          // twist (rotation) weighted heavily -> drives PLAX<->A4C, which is a ~90 deg probe rotation
-  var LOCK_ACC=84, LOCK_HOLD=1100; // %, ms to lock a target (easier to reach)
-  // Live sensitivity multiplier (1 = default). Higher = smaller probe movements
-  // produce bigger image change. Controlled by the on-screen slider.
-  var SENS = 1.0;
+  function finishCalibration(){}  // calibration flow no longer used (kept as a stub)
+
+  /* ---------- live tilt-to-scrub ---------- */
+  var SMOOTH=0.18, TICK_MS=60;   // beta smoothing + stream rate
+  var SCRUB_TILT=14;             // deg of tilt (at sensitivity 5) that spans the full window sweep
+  var SENS = 1.0;                // live sensitivity multiplier (slider)
 
   function startStreaming(){ stopStreaming(); STATE.streamTimer=setInterval(tick, TICK_MS); }
   function stopStreaming(){ if (STATE.streamTimer){ clearInterval(STATE.streamTimer); STATE.streamTimer=null; } }
 
-  function poseDist(s, cal){
-    var db=angleDiff(s.beta,cal.beta), dg=angleDiff(s.gamma,cal.gamma), dy=angleDiff(s.yaw,cal.yaw);
-    return Math.sqrt(db*db + dg*dg + YAW_W*dy*dy);
+  function startScrub(){
+    send({type:'ready'});
+    setStatus('live','Scanning — tilt to sweep');
+    STATE.smoothed=null; STATE.zeroBeta=null; STATE.activeView='a4c'; STATE.lastLocked=null;
+    updateWinButtons();
+    showScreen('screen-live');
+    startStreaming();
   }
 
   function tick(){
-    var cur={beta:latest.beta, gamma:latest.gamma, yaw:relYaw(latest.alpha)};
-    if (!STATE.smoothed) STATE.smoothed=cur;
-    else {
-      STATE.smoothed.beta += angleDiff(cur.beta, STATE.smoothed.beta)*SMOOTH;
-      STATE.smoothed.gamma+= angleDiff(cur.gamma,STATE.smoothed.gamma)*SMOOTH;
-      STATE.smoothed.yaw  += angleDiff(cur.yaw,  STATE.smoothed.yaw)*SMOOTH;
-    }
-    var s=STATE.smoothed;
+    var b=latest.beta;
+    if (STATE.smoothed==null) STATE.smoothed={beta:b};
+    else STATE.smoothed.beta += angleDiff(b, STATE.smoothed.beta)*SMOOTH;
+    if (STATE.zeroBeta==null) STATE.zeroBeta = STATE.smoothed.beta;
 
-    // distance + blend weight to every calibrated view
-    var blend={}, nearest=null, nearestDist=Infinity;
-    VIEWS.forEach(function(v){
-      var cal=STATE.calibration[v.id]; if(!cal) return;
-      var d=poseDist(s,cal);
-      var w=Math.max(0,1-d*SENS/BLEND_RANGE); w=w*w;
-      blend[v.id]=w;
-      if (d<nearestDist){ nearestDist=d; nearest=v.id; }
-    });
-    // normalize blend; never all-zero -> iPad never blanks
-    var sum=0; Object.keys(blend).forEach(function(k){ sum+=blend[k]; });
-    if (sum<=0.0001){ Object.keys(blend).forEach(function(k){ blend[k]=0; }); if(nearest) blend[nearest]=1; sum=1; }
-    Object.keys(blend).forEach(function(k){ blend[k]=blend[k]/sum; });
+    var view=STATE.activeView;
+    // fan = tilt away from the re-centered neutral, scaled by the sensitivity slider
+    var fan = angleDiff(STATE.smoothed.beta, STATE.zeroBeta) * SENS;
+    // scrub position 0..1 (0.5 = optimal center cut). SCRUB_TILT deg = half a sweep.
+    var pos = clamp(0.5 + fan/(2*SCRUB_TILT), 0, 1);
+    // "optimized" %: high across the whole sweep (cuts stay visible), peaks at centre
+    var acc = Math.round(clamp(100 - Math.abs(pos-0.5)*2*22, 78, 100));
+    // the display's sweep index is driven by hostFan (host FAN_RANGE=12 spans it)
+    var hostFan = (pos-0.5)*2*12;
 
-    // guided target + accuracy
-    var target=VIEWS[STATE.targetIndex];
-    var tcal=STATE.calibration[target.id];
-    var tdist = tcal? poseDist(s,tcal) : 999;
-    var accuracy = Math.round(clamp(100*(1-tdist*SENS/ACC_RANGE),0,100));
+    var blend={}; VIEWS.forEach(function(v){ blend[v.id]=(v.id===view)?1:0; });
+    var locked = acc>=96;
+    updateScrubUI(pos, acc, locked, view);
 
-    // readouts (deviation from current target)
-    var dB = tcal? angleDiff(s.beta, tcal.beta):0;
-    var dG = tcal? angleDiff(s.gamma,tcal.gamma):0;
-    var dY = tcal? angleDiff(s.yaw,  tcal.yaw):0;
-    updateCompass(dB,dG,dY,accuracy,target.label);
-
-    // lock + advance through the sequence
-    if (accuracy>=LOCK_ACC){ STATE.lockProgress+=TICK_MS; } else { STATE.lockProgress=0; }
-    var locked=false;
-    if (STATE.lockProgress>=LOCK_HOLD){
-      locked=true; STATE.lockProgress=0;
-      flashLock(target.label);
-      if (STATE.targetIndex<VIEWS.length-1) STATE.targetIndex++;
-    }
-
-    // fan = forward/back tilt relative to the NEAREST view's calibrated pose;
-    // the display uses it to slide through that window's clip sweep.
-    var ncal = STATE.calibration[nearest];
-    var fan = ncal ? angleDiff(s.beta, ncal.beta) * SENS : 0;
-
-    send({ type:'pose', target:target.id, matchId:(accuracy>=LOCK_ACC?target.id:nearest),
-           nearestId:nearest, fan:fan,
-           accuracy:accuracy, blend:blend, locked:locked,
-           tilt:dB, rock:dG, rotate:dY,
-           beta:s.beta, gamma:s.gamma, yaw:s.yaw });
+    send({ type:'pose', target:view, matchId:view, nearestId:view,
+           fan:hostFan, accuracy:acc, blend:blend, locked:locked,
+           tilt:angleDiff(STATE.smoothed.beta, STATE.zeroBeta), rock:0, rotate:0 });
   }
 
-  function updateCompass(dB,dG,dY,acc,label){
-    // probe glyph: rotate by yaw deviation, nudge by tilt/rock; green when close
-    var g=$('#probeGlyph');
-    var tx=clamp(dG*0.55,-38,38), ty=clamp(dB*0.55,-38,38), rot=clamp(dY*0.7,-70,70);
-    g.setAttribute('transform','translate('+tx.toFixed(1)+','+ty.toFixed(1)+') rotate('+rot.toFixed(1)+' 100 100)');
-    var col = acc>=LOCK_ACC?'#39C06B': acc>=55?'#F5A623':'#6BAED6';
-    $('#probeArrow').setAttribute('fill',col);
-
-    $('#tiltLbl').innerHTML = (dB>=0?'Tilt<br>Anterior':'Tilt<br>Posterior');
-    $('#rockLbl').innerHTML = (dG>=0?'Rock<br>Right':'Rock<br>Left');
-    $('#rotLbl').innerHTML  = (dY>=0?'Rotate<br>Clockwise':'Rotate<br>Counter-CW');
-    $('#tiltVal').textContent=Math.abs(Math.round(dB))+'°';
-    $('#rockVal').textContent=Math.abs(Math.round(dG))+'°';
-    $('#rotVal').textContent =Math.abs(Math.round(dY))+'°';
-    $('#targetName').textContent=label;
-    $('#accVal').textContent=acc+'%';
-    var bar=$('#accBar'); bar.style.width=Math.max(2,acc)+'%';
-    bar.style.background = acc>=90?'#39C06B': acc>=60?'#F5A623':'#2E6DA4';
+  function updateScrubUI(pos, acc, locked, view){
+    var dot=$('#scrubDot'); if(dot){ dot.style.left=(pos*100).toFixed(1)+'%'; dot.style.background=(acc>=96?'#39C06B':'#6BAED6'); }
+    var probe=$('#probeTilt'); if(probe){ var rot=clamp((pos-0.5)*2*32,-32,32); probe.setAttribute('transform','rotate('+rot.toFixed(1)+' 110 98)'); }
+    if ($('#accVal')) $('#accVal').textContent = acc+'%';
+    var bar=$('#accBar'); if(bar){ bar.style.width=Math.max(2,acc)+'%'; bar.style.background=(acc>=96?'#39C06B':'#2E6DA4'); }
+    if (locked && STATE.lastLocked!==view){ STATE.lastLocked=view; flashLock(view); }
+    else if (!locked){ STATE.lastLocked=null; }
   }
 
   var toastTimer=null;
-  function flashLock(label){
-    var t=$('#lockToast');
-    var next = STATE.targetIndex<VIEWS.length-1 ? '' : ' — sequence complete';
-    var nextLabel = STATE.targetIndex<VIEWS.length ? VIEWS[STATE.targetIndex].label : '';
-    t.textContent = '✓ '+label+' locked'+(next? next : '  •  next: '+nextLabel);
+  function flashLock(view){
+    var names={plax:'PLAX', a4c:'A4C', subcostal:'SUBCOSTAL 4CH'};
+    var t=$('#lockToast'); if(!t) return;
+    t.textContent = '✓ '+(names[view]||view)+' optimized';
     t.classList.add('show');
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 1800);
+    toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 1600);
   }
 
   /* ---------- init ---------- */
