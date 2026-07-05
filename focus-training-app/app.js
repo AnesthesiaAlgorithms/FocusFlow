@@ -1053,7 +1053,7 @@
     showCaption: true,
     acc: 0
   };
-  const FAN_RANGE = 18;  // degrees of fan/tilt that span a view's full clip sweep
+  const FAN_RANGE = 12;  // degrees of fan/tilt that span a view's full clip sweep (lower = more sensitive slide)
 
   function loadEchoManifest() {
     if (ECHO.manifest) return Promise.resolve(ECHO.manifest);

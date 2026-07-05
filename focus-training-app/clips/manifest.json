@@ -15,8 +15,8 @@
       "structures": "LV, RV, LA, RA, interventricular & interatrial septa, mitral & tricuspid valves",
       "status": "ready",
       "citation": "Author's own de-identified transthoracic echocardiography (2026).",
-      "sweep": ["clips/a4c_0.webm", "clips/a4c_1.webm", "clips/a4c_2.webm", "clips/a4c_3.webm", "clips/a4c_4.webm", "clips/a4c_5.webm", "clips/a4c_6.webm"],
-      "optimalIndex": 3
+      "sweep": ["clips/a4c_0.webm", "clips/a4c_1.webm", "clips/a4c_2.webm", "clips/a4c_3.webm", "clips/a4c_4.webm", "clips/a4c_5.webm", "clips/a4c_6.webm", "clips/a4c_7.webm", "clips/a4c_8.webm"],
+      "optimalIndex": 4
     },
     "subcostal": {
       "src": "clips/subcostal.webm",
@@ -25,8 +25,8 @@
       "structures": "liver (near field), all 4 chambers, IVS, pericardium",
       "status": "ready",
       "citation": "Author's own de-identified transthoracic echocardiography (2026).",
-      "sweep": ["clips/subcostal_0.webm", "clips/subcostal_1.webm", "clips/subcostal_2.webm", "clips/subcostal_3.webm", "clips/subcostal_4.webm", "clips/subcostal_5.webm", "clips/subcostal_6.webm"],
-      "optimalIndex": 3
+      "sweep": ["clips/subcostal_0.webm", "clips/subcostal_1.webm", "clips/subcostal_2.webm", "clips/subcostal_3.webm", "clips/subcostal_4.webm", "clips/subcostal_5.webm", "clips/subcostal_6.webm", "clips/subcostal_7.webm", "clips/subcostal_8.webm"],
+      "optimalIndex": 5
     }
   }
 }
