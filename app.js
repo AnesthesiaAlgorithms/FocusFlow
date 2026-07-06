@@ -1157,15 +1157,19 @@
         });
       });
       const acc = clampNum(ECHO.acc / 100, 0, 1);
+      // Focus curve: ease toward crisp — the image visibly sharpens as accuracy
+      // rises and "snaps" into focus near the optimal cut (like a real exam,
+      // where the picture cleans up as the probe angle is dialed in).
+      const focus = acc * acc; // 40%->0.16 hazy, 80%->0.64 clearing, 100%->1 crisp
       const stack = $('#echoStack');
       if (stack) {
         stack.style.filter =
-          'blur(' + ((1 - acc) * 2.2).toFixed(2) + 'px) ' +
-          'brightness(' + (0.55 + 0.45 * acc).toFixed(2) + ') ' +
-          'contrast(' + (0.9 + 0.2 * acc).toFixed(2) + ')';
+          'blur(' + ((1 - focus) * 4.0).toFixed(2) + 'px) ' +
+          'brightness(' + (0.55 + 0.45 * focus).toFixed(2) + ') ' +
+          'contrast(' + (0.85 + 0.25 * focus).toFixed(2) + ')';
       }
       const haze = $('#echoHaze');
-      if (haze) haze.style.opacity = ((1 - acc) * 0.55).toFixed(2);
+      if (haze) haze.style.opacity = ((1 - focus) * 0.5).toFixed(2);
       ECHO.raf = requestAnimationFrame(tick);
     };
     ECHO.raf = requestAnimationFrame(tick);

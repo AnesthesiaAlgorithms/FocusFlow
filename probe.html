@@ -367,8 +367,9 @@
     var fan = angleDiff(STATE.smoothed.beta, STATE.zeroBeta) * SENS;
     // scrub position 0..1 (0.5 = optimal center cut). SCRUB_TILT deg = half a sweep.
     var pos = clamp(0.5 + fan/(2*SCRUB_TILT), 0, 1);
-    // "optimized" %: high across the whole sweep (cuts stay visible), peaks at centre
-    var acc = Math.round(clamp(100 - Math.abs(pos-0.5)*2*22, 78, 100));
+    // "optimized" %: peaks at the centre cut, falls off toward the sweep edges —
+    // the display sharpens into focus as this rises (edges stay visible but hazy)
+    var acc = Math.round(clamp(100 - Math.abs(pos-0.5)*2*60, 40, 100));
     // the display's sweep index is driven by hostFan (host FAN_RANGE=12 spans it)
     var hostFan = (pos-0.5)*2*12;
 
