@@ -385,29 +385,41 @@
     }
     var sb=STATE.smoothed.beta, sg=STATE.smoothed.gamma;
 
-    // Gaussian distance from each calibrated pose -> view blend weights.
-    var blend={}, best=null, bestW=-1, bestCal=null;
+    // Project the phone's orientation onto the calibrated scan PATH
+    // (plax -> a4c -> subcostal) to get ONE continuous scan position (0..1) that
+    // scrubs the montage — moving the phone scrolls through the real views.
+    var scan = projectScan(sb, sg);
+
+    // Accuracy peaks when you settle exactly ON a calibrated window (Gaussian to
+    // the nearest anchor) — so you still have to MOVE to a view to optimize it.
+    var best=null, bestD=1e9;
     VIEWS.forEach(function(v){
       var c=STATE.calibration[v.id];
       var d=Math.hypot(angleDiff(sb,c.beta), angleDiff(sg,c.gamma));
-      var w=Math.exp(-0.5*(d/SIGMA)*(d/SIGMA));
-      blend[v.id]=w;
-      if (w>bestW){ bestW=w; best=v.id; bestCal=c; }
+      if (d<bestD){ bestD=d; best=v.id; }
     });
-    var acc=Math.round(clamp(bestW*100, 8, 100));
+    var acc=Math.round(clamp(100*Math.exp(-0.5*(bestD/SIGMA)*(bestD/SIGMA)), 6, 100));
     var locked=acc>=90;
-    // fine sweep: small offset from the nearest pose pans the real image
-    var fan  = angleDiff(sb, bestCal.beta);
-    var rock = angleDiff(sg, bestCal.gamma);
-
-    // continuous "look" direction for the 3D heart (offset from the radar center)
-    var lookX = angleDiff(sg, GEO.cG);   // rock  -> heart yaw
-    var lookY = angleDiff(sb, GEO.cB);   // tilt  -> heart pitch
 
     updateLiveUI(best, acc, locked, sb, sg);
-    send({ type:'pose', target:best, matchId:(locked?best:null), nearestId:best,
-           fan:fan, rock:rock, accuracy:acc, blend:blend, locked:locked,
-           lookX:lookX, lookY:lookY });
+    send({ type:'pose', scanPos:scan.p, nearestId:best, accuracy:acc, locked:locked });
+  }
+
+  // Closest-point projection onto the polyline through the 3 calibrated anchors,
+  // returning the scan position in [0,1] (plax=0, a4c=0.5, subcostal=1).
+  function projectScan(sb, sg){
+    var A=VIEWS.map(function(v){ return STATE.calibration[v.id]; });
+    var P=[0, 0.5, 1];
+    var bp=0, bperp=1e9;
+    for (var k=0; k<A.length-1; k++){
+      var vb=angleDiff(A[k+1].beta,A[k].beta), vg=angleDiff(A[k+1].gamma,A[k].gamma);
+      var wb=angleDiff(sb,A[k].beta),         wg=angleDiff(sg,A[k].gamma);
+      var vv=vb*vb+vg*vg;
+      var t=vv>0 ? clamp((wb*vb+wg*vg)/vv, 0, 1) : 0;
+      var perp=Math.hypot(wb-vb*t, wg-vg*t);
+      if (perp<bperp){ bperp=perp; bp=P[k] + t*(P[k+1]-P[k]); }
+    }
+    return { p:bp, perp:bperp };
   }
 
   function updateLiveUI(near, acc, locked, sb, sg){

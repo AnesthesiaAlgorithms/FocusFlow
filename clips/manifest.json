@@ -8,6 +8,14 @@
       "status": "ready",
       "citation": "CardioNetworks Foundation. (n.d.). Parasternal long axis (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Parasternal_long_axis (CC BY-SA)"
     },
+    "a5c": {
+      "src": "clips/a5c.webm",
+      "label": "A5CH",
+      "name": "Apical 5-Chamber",
+      "structures": "LV, RV, LA, RA plus the LV outflow tract and aortic valve in the center",
+      "status": "ready",
+      "citation": "CardioNetworks Foundation. (n.d.). Apical 5-chamber (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC. https://commons.wikimedia.org/wiki/File:A5Cnormal_(CardioNetworks_ECHOpedia).webm (CC BY-SA)"
+    },
     "a4c": {
       "src": "clips/a4c.webm",
       "label": "A4CH",
@@ -15,6 +23,22 @@
       "structures": "LV, RV, LA, RA, interventricular & interatrial septa, mitral & tricuspid valves",
       "status": "ready",
       "citation": "CardioNetworks Foundation. (n.d.). Apical 4-chamber (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Apical_4_chamber (CC BY-SA)"
+    },
+    "a3c": {
+      "src": "clips/a3c.webm",
+      "label": "A3CH",
+      "name": "Apical 3-Chamber",
+      "structures": "LV, LA, mitral valve, LV outflow tract, aortic valve and posterior wall",
+      "status": "ready",
+      "citation": "CardioNetworks Foundation. (n.d.). Apical 3-chamber (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC. https://commons.wikimedia.org/wiki/File:A3Cnormal_(CardioNetworks_ECGpedia).avi.webm (CC BY-SA)"
+    },
+    "a2c": {
+      "src": "clips/a2c.webm",
+      "label": "A2CH",
+      "name": "Apical 2-Chamber",
+      "structures": "LV, LA, mitral valve; anterior and inferior LV walls",
+      "status": "ready",
+      "citation": "CardioNetworks Foundation. (n.d.). Apical 2-chamber (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC. https://commons.wikimedia.org/wiki/File:A2Cnormal_(CardioNetworks_ECGpedia).avi.webm (CC BY-SA)"
     },
     "subcostal": {
       "src": "clips/subcostal.webm",
@@ -24,5 +48,13 @@
       "status": "ready",
       "citation": "CardioNetworks Foundation. (n.d.). Subcostal (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Subcostal (CC BY-SA)"
     }
-  }
+  },
+  "montage": [
+    { "id": "plax", "pos": 0.0, "anchor": true },
+    { "id": "a5c", "pos": 0.25 },
+    { "id": "a4c", "pos": 0.5, "anchor": true },
+    { "id": "a3c", "pos": 0.67 },
+    { "id": "a2c", "pos": 0.83 },
+    { "id": "subcostal", "pos": 1.0, "anchor": true }
+  ]
 }

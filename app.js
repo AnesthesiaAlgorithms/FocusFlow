@@ -1086,15 +1086,18 @@
      ============================================================ */
   const ECHO = {
     manifest: null,
-    layers: {},        // view id -> array of <video> (one per sweep clip)
-    op: {},            // "id#idx" -> current opacity
-    targetOp: {},      // "id#idx" -> target opacity
+    montage: [],       // [{id,pos,anchor,el}] real loops laid along the scan axis
+    op: {},            // view id -> current opacity
     built: false,
     raf: null,
     showCaption: true,
-    acc: 0
+    acc: 0,
+    p: 0, pTarget: 0,  // eased scan position (0..1) that scrubs the montage
+    lastId: null
   };
-  const FAN_RANGE = 12;  // degrees of fan/tilt that span a view's full clip sweep (lower = more sensitive slide)
+  const SCROLL_W = 0.20;    // scan-units a view stays visible either side of its slot
+  const SCROLL_SLIDE = 450; // % translateX per scan unit — the horizontal "pan"
+  const FOCUS_SIG = 0.085;  // scan-distance over which a view falls out of focus
 
   function loadEchoManifest() {
     if (ECHO.manifest) return Promise.resolve(ECHO.manifest);
@@ -1105,38 +1108,33 @@
       .catch(() => { ECHO.manifest = null; return null; });
   }
 
-  function viewSweep(id) {
-    const v = ECHO.manifest && ECHO.manifest.views[id];
-    if (v && Array.isArray(v.sweep) && v.sweep.length) return v.sweep;
-    return [(v && v.src) || ('clips/' + id + '.webm')];
-  }
-  function viewOptimal(id) {
-    const v = ECHO.manifest && ECHO.manifest.views[id];
-    const N = viewSweep(id).length;
-    return (v && typeof v.optimalIndex === 'number') ? v.optimalIndex : (N - 1) / 2;
+  function montageList() {
+    const m = ECHO.manifest;
+    if (m && Array.isArray(m.montage) && m.montage.length) return m.montage;
+    return [{id:'plax',pos:0,anchor:true},{id:'a4c',pos:0.5,anchor:true},{id:'subcostal',pos:1,anchor:true}];
   }
 
-  // One <video> per sweep clip, so fanning the probe crossfades smoothly through
-  // the real clips of that window (the "slide" that trains fine dexterity).
+  // One <video> per montage view, laid out along a horizontal scan axis. Scrubbing
+  // the phone slides + crossfades them so the real loops read as ONE continuous
+  // sweep through the heart — and every loop keeps beating.
   function buildEchoLayers() {
     if (ECHO.built) return;
     const stack = $('#echoStack');
     if (!stack) return;
     const haze = $('#echoHaze');
-    PROBE_VIEW_IDS.forEach(id => {
-      ECHO.layers[id] = viewSweep(id).map((src, i) => {
-        const v = document.createElement('video');
-        v.className = 'echo-layer';
-        v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
-        v.setAttribute('playsinline', '');
-        v.innerHTML = '<source src="' + src + '" type="video/webm">' +
-                      '<source src="' + src.replace(/\.webm$/, '.mp4') + '" type="video/mp4">';
-        v.style.opacity = '0';
-        ECHO.op[id + '#' + i] = 0;
-        ECHO.targetOp[id + '#' + i] = 0;
-        stack.insertBefore(v, haze || null);
-        return v;
-      });
+    ECHO.montage = montageList().map(entry => {
+      const view = ECHO.manifest && ECHO.manifest.views[entry.id];
+      const src = (view && view.src) || ('clips/' + entry.id + '.webm');
+      const v = document.createElement('video');
+      v.className = 'echo-layer';
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+      v.setAttribute('playsinline', '');
+      v.innerHTML = '<source src="' + src + '" type="video/webm">' +
+                    '<source src="' + src.replace(/\.webm$/, '.mp4') + '" type="video/mp4">';
+      v.style.opacity = '0';
+      ECHO.op[entry.id] = 0;
+      stack.insertBefore(v, haze || null);
+      return { id: entry.id, pos: entry.pos, anchor: !!entry.anchor, el: v };
     });
     ECHO.built = true;
   }
@@ -1150,85 +1148,69 @@
   function renderEchoCredits() {
     const el = $('#echoCredits');
     if (!el || !ECHO.manifest) return;
-    const lines = PROBE_VIEW_IDS
-      .map(id => ECHO.manifest.views[id] && ECHO.manifest.views[id].citation)
-      .filter(Boolean);
-    lines.push('3D heart model: "Realistic Human Heart" by neshallads, licensed under CC BY 4.0, via Wikimedia Commons.');
-    el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
+    const seen = {}, lines = [];
+    ECHO.montage.forEach(e => {
+      const c = ECHO.manifest.views[e.id] && ECHO.manifest.views[e.id].citation;
+      if (c && !seen[c]) { seen[c] = 1; lines.push(c); }
+    });
+    if (lines.length) el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
   }
 
-  // Map a pose (view blend weights + fan angle) to a target opacity per clip.
+  // The phone streams a single continuous scan position (0..1); ease toward it.
   function updateEchoFromPose(data) {
-    // RAW proximity weights (not normalized): near a window a weight approaches 1
-    // and the real echo covers the display; far from every window all weights fall
-    // to ~0 so the echo dissolves and the continuous 3D heart shows through.
-    const w = {};
-    let present = 0;
-    PROBE_VIEW_IDS.forEach(id => {
-      w[id] = clampNum((data.blend && data.blend[id]) || 0, 0, 1);
-      if (w[id] > present) present = w[id];
-    });
-    ECHO.present = present;
-    const active = data.nearestId || data.matchId || data.target || null;
-    const fan = (typeof data.fan === 'number') ? data.fan : 0;
+    if (typeof data.scanPos === 'number') ECHO.pTarget = clampNum(data.scanPos, 0, 1);
+  }
 
-    Object.keys(ECHO.targetOp).forEach(k => { ECHO.targetOp[k] = 0; });
-    PROBE_VIEW_IDS.forEach(id => {
-      const layers = ECHO.layers[id];
-      if (!layers || !layers.length) return;
-      const N = layers.length;
-      if (N === 1) { ECHO.targetOp[id + '#0'] = w[id]; return; }
-      const opt = viewOptimal(id);
-      let pos = (id === active)
-        ? opt + (fan / FAN_RANGE) * ((N - 1) / 2)  // fan sweeps around the optimal cut
-        : opt;                                     // inactive views rest at their best cut
-      pos = clampNum(pos, 0, N - 1);
-      const lo = Math.floor(pos), hi = Math.min(lo + 1, N - 1), frac = pos - lo;
-      ECHO.targetOp[id + '#' + lo] += w[id] * (1 - frac);
-      ECHO.targetOp[id + '#' + hi] += w[id] * frac;
-    });
+  function nearestFrame(p) {
+    let best = 1e9, idx = 0;
+    ECHO.montage.forEach((e, i) => { const d = Math.abs(e.pos - p); if (d < best) { best = d; idx = i; } });
+    return { entry: ECHO.montage[idx] || null, dist: best };
   }
 
   function startEchoLoop() {
     if (ECHO.raf) return;
     const tick = () => {
-      PROBE_VIEW_IDS.forEach(id => {
-        const layers = ECHO.layers[id]; if (!layers) return;
-        layers.forEach((v, i) => {
-          const key = id + '#' + i;
-          const cur = ECHO.op[key] || 0, tgt = ECHO.targetOp[key] || 0;
-          const nv = cur + (tgt - cur) * 0.2;
-          ECHO.op[key] = nv;
-          v.style.opacity = nv.toFixed(3);
-          if (nv > 0.02) { if (v.paused) { const p = v.play(); if (p && p.catch) p.catch(() => {}); } }
-          else if (!v.paused) { try { v.pause(); } catch (e) {} }
-        });
+      // Ease the scan position so streamed poses glide instead of stepping.
+      ECHO.p += (ECHO.pTarget - ECHO.p) * 0.22;
+      const p = ECHO.p;
+
+      // Slide + crossfade the real loops so the strip scrolls like one sweep.
+      ECHO.montage.forEach(e => {
+        const d = e.pos - p;
+        const wgt = Math.max(0, 1 - Math.abs(d) / SCROLL_W);
+        const cur = ECHO.op[e.id] || 0;
+        const nv = cur + (wgt - cur) * 0.25;
+        ECHO.op[e.id] = nv;
+        const tx = clampNum(d * SCROLL_SLIDE, -170, 170);
+        e.el.style.opacity = nv.toFixed(3);
+        e.el.style.transform = 'translateX(' + tx.toFixed(1) + '%)';
+        if (nv > 0.02) { if (e.el.paused) { const pr = e.el.play(); if (pr && pr.catch) pr.catch(() => {}); } }
+        else if (!e.el.paused) { try { e.el.pause(); } catch (err) {} }
       });
-      const acc = clampNum(ECHO.acc / 100, 0, 1);
-      // Focus curve: ease toward crisp — the image visibly sharpens as accuracy
-      // rises and "snaps" into focus near the optimal cut (like a real exam,
-      // where the picture cleans up as the probe angle is dialed in).
-      const focus = acc * acc; // 40%->0.16 hazy, 80%->0.64 clearing, 100%->1 crisp
+
+      // Focus: each real view sharpens as you settle on it and softens through the
+      // transitions between views (like losing contact mid-slide).
+      const nf = nearestFrame(p);
+      const focus = Math.exp(-0.5 * (nf.dist / FOCUS_SIG) * (nf.dist / FOCUS_SIG));
+      ECHO.acc = Math.round(focus * 100);
       const stack = $('#echoStack');
       if (stack) {
         stack.style.filter =
-          'blur(' + ((1 - focus) * 4.0).toFixed(2) + 'px) ' +
-          'brightness(' + (0.55 + 0.45 * focus).toFixed(2) + ') ' +
-          'contrast(' + (0.85 + 0.25 * focus).toFixed(2) + ')';
-        // Fine sweep: rock pans the beam left/right, fan pans up/down, and a small
-        // zoom-in as you approach the sweet spot — so tiny probe moves visibly
-        // adjust the picture even though each window is a single real loop.
-        const fan = ECHO.fan || 0, rock = ECHO.rock || 0;
-        const px = clampNum(rock * 0.9, -14, 14);
-        const py = clampNum(-fan * 0.9, -14, 14);
-        const zoom = 1.02 + 0.05 * focus;
-        stack.style.transform =
-          'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) scale(' + zoom.toFixed(3) + ')';
+          'blur(' + ((1 - focus) * 3.4).toFixed(2) + 'px) ' +
+          'brightness(' + (0.6 + 0.4 * focus).toFixed(2) + ') ' +
+          'contrast(' + (0.88 + 0.22 * focus).toFixed(2) + ')';
       }
-      // Haze/vignette belongs to the real echo image — fade it with echo presence
-      // so it doesn't darken the 3D heart while you're searching between windows.
       const haze = $('#echoHaze');
-      if (haze) haze.style.opacity = ((1 - focus) * 0.5 * (ECHO.present || 0)).toFixed(2);
+      if (haze) haze.style.opacity = ((1 - focus) * 0.35).toFixed(2);
+
+      // Name whichever real view you're sitting on (updates as you scroll).
+      const id = nf.entry ? nf.entry.id : null;
+      if ($('#echoAcc')) $('#echoAcc').textContent = ECHO.acc ? (ECHO.acc + '%') : '';
+      if (id !== ECHO.lastId) {
+        ECHO.lastId = id;
+        setEchoState(id, ECHO.acc, focus > 0.9 && nf.entry && nf.entry.anchor, id);
+        renderProbeTargets(nf.entry && nf.entry.anchor ? id : null);
+      }
       ECHO.raf = requestAnimationFrame(tick);
     };
     ECHO.raf = requestAnimationFrame(tick);
@@ -1237,9 +1219,7 @@
   // Kept under the old name so renderStep() can pause the sim on screen exit.
   function stopPlaxSim() {
     if (ECHO.raf) { cancelAnimationFrame(ECHO.raf); ECHO.raf = null; }
-    Object.keys(ECHO.layers).forEach(id => {
-      (ECHO.layers[id] || []).forEach(v => { try { v.pause(); } catch (e) {} });
-    });
+    ECHO.montage.forEach(e => { try { e.el.pause(); } catch (err) {} });
   }
 
   function setEchoState(matchId, acc, locked, targetId) {
@@ -1249,15 +1229,18 @@
     const subEl = $('#probeViewSub');
     const capEl = $('#echoCaption');
     const id = matchId || targetId || null;
-    const view = id ? getViewById(id) : null;
+    // Prefer the manifest (it has all 6 montage views); fall back to the module list.
     const info = (ECHO.manifest && id) ? ECHO.manifest.views[id] : null;
-    if (labelEl) labelEl.textContent = view ? probeShortLabel(view) : 'SEARCHING…';
+    const view = id ? getViewById(id) : null;
+    const label = info ? info.label : (view ? probeShortLabel(view) : null);
+    const name = info ? info.name : (view ? view.name : null);
+    if (labelEl) labelEl.textContent = label || 'SEARCHING…';
     if (accEl) accEl.textContent = acc ? (acc + '%') : '';
     if (stEl) {
       stEl.textContent = locked ? 'LOCKED' : (acc >= 60 ? 'ACQUIRING' : 'SEARCHING');
       stEl.className = 'echo-state' + (locked ? ' locked' : '');
     }
-    if (subEl) subEl.textContent = view ? ('Target: ' + view.name) : 'Move your phone to a probe position.';
+    if (subEl) subEl.textContent = name ? (name) : 'Move your phone to a probe position.';
     if (capEl) {
       if (ECHO.showCaption && info && info.structures) { capEl.hidden = false; capEl.textContent = info.structures; }
       else capEl.hidden = true;
@@ -1323,26 +1306,13 @@
       if (connectCard) connectCard.style.display = 'none';
       if (scanCard) scanCard.style.display = '';
       renderProbeTargets(null);
-      // The continuous 3D heart is the default "look-around" layer; real echo
-      // crossfades in on top only when you steer onto a window. So we DON'T force
-      // a clip on — the heart fills the display until a real view is acquired.
-      if (window.Heart3D) { try { Heart3D.start(); } catch (e) {} }
       setupEchoVideos();
       startEchoLoop();
       setEchoState(null, 0, false, null);
     } else if (data.type === 'pose') {
-      updateEchoFromPose(data);   // per-clip opacities: view blend + fan sweep
-      ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
-      // Fine-adjustment feel: with single-loop views, small tilt/rock still nudge
-      // the image (subtle pan/zoom) so dialing in the sweet spot feels tactile.
-      ECHO.fan = (typeof data.fan === 'number') ? data.fan : 0;
-      ECHO.rock = (typeof data.rock === 'number') ? data.rock : 0;
-      // Drive the continuous 3D heart from the phone's look direction (tilt/rock
-      // offsets from the calibration center) — the "keep looking" layer.
-      if (window.Heart3D && typeof data.lookX === 'number') Heart3D.setLook(data.lookX, data.lookY);
-      const locked = !!data.locked;
-      setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
-      renderProbeTargets(locked ? data.matchId : (data.target || null));
+      // The phone streams one continuous scan position; the render loop turns it
+      // into the sliding montage + focus + live view label.
+      updateEchoFromPose(data);
     }
   }
 

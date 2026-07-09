@@ -194,19 +194,11 @@
   .view-display canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;
   }
-  /* Continuous 3D heart (star-app "look around" layer, behind the real echo) */
-  #heart3d{
-    position:absolute; inset:0; width:100%; height:100%; z-index:0; display:block;
-    background:radial-gradient(circle at 50% 42%, #14324a 0%, #0a1a28 60%, #050d15 100%);
-    /* soften the model toward scanned-tissue tone so it reads inside the beam */
-    filter:saturate(.62) brightness(.9) contrast(1.06);
-  }
-  /* Ultrasound sector "beam" overlay — the fan, scan lines, depth arcs, sweep,
-     speckle. Masks everything outside the beam to black so it reads as scanning. */
+  /* Ultrasound sector "beam" overlay — the fan, faint depth arcs, sweep, speckle.
+     Masks everything outside the beam to black so it reads as a real scan. */
   #usSector{position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none;}
-  #usSector .us-line{stroke:#6fd0ff; stroke-width:.25; opacity:.16;}
-  #usSector .us-arc{fill:none; stroke:#6fd0ff; stroke-width:.3; opacity:.14;}
-  #usSector .us-edge{fill:none; stroke:#3f6f8f; stroke-width:.6; opacity:.8;}
+  #usSector .us-arc{fill:none; stroke:#aebfca; stroke-width:.3; opacity:.1;}
+  #usSector .us-edge{fill:none; stroke:#5c7789; stroke-width:.6; opacity:.7;}
   /* Real echo cine-loop engine (crossfading video layers) */
   .echo-stack{position:absolute; inset:0; z-index:1; overflow:hidden; transition:filter .15s;}
   .echo-layer{
@@ -512,7 +504,6 @@
           </label>
         </div>
         <div class="view-display" id="probeDisplay">
-          <canvas id="heart3d"></canvas>
           <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
           <div class="echo-stack" id="echoStack">
             <!-- Clip layers are built in JS from clips/manifest.json (one <video>
@@ -523,8 +514,8 @@
             <defs>
               <clipPath id="usClip"><path d="M50,5 L101.4,81.3 A92,92 0 0 1 -1.4,81.3 Z"/></clipPath>
               <linearGradient id="usSweepGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#bfe8ff" stop-opacity=".45"/>
-                <stop offset="1" stop-color="#bfe8ff" stop-opacity="0"/>
+                <stop offset="0" stop-color="#e6eef4" stop-opacity=".3"/>
+                <stop offset="1" stop-color="#e6eef4" stop-opacity="0"/>
               </linearGradient>
               <filter id="usSpeckle" x="0" y="0" width="100%" height="100%">
                 <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" stitchTiles="stitch"/>
@@ -536,9 +527,6 @@
               <path class="us-arc" d="M32.1,31.5 A32,32 0 0 1 67.9,31.5"/>
               <path class="us-arc" d="M18.7,51.4 A56,56 0 0 1 81.3,51.4"/>
               <path class="us-arc" d="M5.3,71.3 A80,80 0 0 1 94.7,71.3"/>
-              <line class="us-line" x1="50" y1="5" x2="23.1" y2="92"/>
-              <line class="us-line" x1="50" y1="5" x2="50" y2="97"/>
-              <line class="us-line" x1="50" y1="5" x2="76.9" y2="92"/>
               <g>
                 <line x1="50" y1="5" x2="50" y2="96" stroke="url(#usSweepGrad)" stroke-width="7"/>
                 <animateTransform attributeName="transform" type="rotate"
@@ -641,13 +629,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-}}
-</script>
-<script type="module" src="heart3d.js?v=20260709b"></script>
-<script src="app.js?v=20260709b"></script>
+<script src="app.js?v=20260709c"></script>
 </body>
 </html>
