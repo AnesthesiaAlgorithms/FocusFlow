@@ -198,7 +198,15 @@
   #heart3d{
     position:absolute; inset:0; width:100%; height:100%; z-index:0; display:block;
     background:radial-gradient(circle at 50% 42%, #14324a 0%, #0a1a28 60%, #050d15 100%);
+    /* soften the model toward scanned-tissue tone so it reads inside the beam */
+    filter:saturate(.62) brightness(.9) contrast(1.06);
   }
+  /* Ultrasound sector "beam" overlay — the fan, scan lines, depth arcs, sweep,
+     speckle. Masks everything outside the beam to black so it reads as scanning. */
+  #usSector{position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none;}
+  #usSector .us-line{stroke:#6fd0ff; stroke-width:.25; opacity:.16;}
+  #usSector .us-arc{fill:none; stroke:#6fd0ff; stroke-width:.3; opacity:.14;}
+  #usSector .us-edge{fill:none; stroke:#3f6f8f; stroke-width:.6; opacity:.8;}
   /* Real echo cine-loop engine (crossfading video layers) */
   .echo-stack{position:absolute; inset:0; z-index:1; overflow:hidden; transition:filter .15s;}
   .echo-layer{
@@ -511,6 +519,36 @@
                  per sweep clip) so the image can slide through the fan sequence. -->
             <div class="echo-haze" id="echoHaze"></div>
           </div>
+          <svg id="usSector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <clipPath id="usClip"><path d="M50,5 L101.4,81.3 A92,92 0 0 1 -1.4,81.3 Z"/></clipPath>
+              <linearGradient id="usSweepGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#bfe8ff" stop-opacity=".45"/>
+                <stop offset="1" stop-color="#bfe8ff" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="usSpeckle" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" stitchTiles="stitch"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 .78  0 0 0 0 .88  0 0 0 0 1  0 0 0 .55 0"/>
+              </filter>
+            </defs>
+            <g clip-path="url(#usClip)">
+              <rect x="0" y="0" width="100" height="100" filter="url(#usSpeckle)" opacity=".1"/>
+              <path class="us-arc" d="M32.1,31.5 A32,32 0 0 1 67.9,31.5"/>
+              <path class="us-arc" d="M18.7,51.4 A56,56 0 0 1 81.3,51.4"/>
+              <path class="us-arc" d="M5.3,71.3 A80,80 0 0 1 94.7,71.3"/>
+              <line class="us-line" x1="50" y1="5" x2="23.1" y2="92"/>
+              <line class="us-line" x1="50" y1="5" x2="50" y2="97"/>
+              <line class="us-line" x1="50" y1="5" x2="76.9" y2="92"/>
+              <g>
+                <line x1="50" y1="5" x2="50" y2="96" stroke="url(#usSweepGrad)" stroke-width="7"/>
+                <animateTransform attributeName="transform" type="rotate"
+                  values="-32 50 5; 32 50 5; -32 50 5" dur="4.2s" repeatCount="indefinite"/>
+              </g>
+            </g>
+            <path d="M0,0 H100 V100 H0 Z M50,5 L101.4,81.3 A92,92 0 0 1 -1.4,81.3 Z"
+                  fill="#04080c" fill-rule="evenodd"/>
+            <path class="us-edge" d="M50,5 L101.4,81.3 A92,92 0 0 1 -1.4,81.3 Z"/>
+          </svg>
           <div class="echo-hud">
             <span class="echo-state" id="echoState">SEARCHING</span>
             <span class="echo-acc" id="echoAcc"></span>
