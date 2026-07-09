@@ -120,20 +120,14 @@
     <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
   </div>
 
-  <!-- Live tilt-to-scrub -->
+  <!-- Live: move-to-find radar (accelerometer calibration) -->
   <div id="screen-live" hidden>
-    <div class="win-row" id="winRow">
-      <button class="win-btn" data-view="plax">PLAX</button>
-      <button class="win-btn active" data-view="a4c">A4C</button>
-      <button class="win-btn" data-view="subcostal">SUBCOSTAL</button>
-    </div>
-    <p class="scan-instr">Move the phone like a probe on the <span id="scrubViewName">A4C</span> window &mdash; <b>tilt &amp; rock</b> to hunt for the optimized view at the center.</p>
+    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>steer onto a window</b>. Line the probe up on a target ring to bring that real view into focus.</p>
 
     <div class="compass-wrap">
       <svg class="compass" viewBox="0 0 200 200" aria-hidden="true">
         <circle cx="100" cy="100" r="92" fill="#0c1f31" stroke="#21425f" stroke-width="1.5"/>
         <circle cx="100" cy="100" r="60" fill="none" stroke="#1b3950" stroke-width="1"/>
-        <circle cx="100" cy="100" r="26" fill="none" stroke="#2b7a4b" stroke-width="1.5" stroke-dasharray="4 3"/>
         <line x1="100" y1="14" x2="100" y2="30" stroke="#3a5d7d" stroke-width="2"/>
         <line x1="100" y1="170" x2="100" y2="186" stroke="#3a5d7d" stroke-width="2"/>
         <line x1="14" y1="100" x2="30" y2="100" stroke="#3a5d7d" stroke-width="2"/>
@@ -144,6 +138,7 @@
         <text x="100" y="182" text-anchor="middle" font-size="9" fill="#5d7c98">TILT BACK</text>
         <text x="30" y="96" text-anchor="middle" font-size="9" fill="#5d7c98">ROCK L</text>
         <text x="170" y="96" text-anchor="middle" font-size="9" fill="#5d7c98">ROCK R</text>
+        <g id="targetDots"></g>
         <g id="probeGlyph">
           <path id="probeArrow" d="M100,52 L112,80 L100,74 L88,80 Z" fill="#6BAED6"/>
           <rect x="91" y="76" width="18" height="40" rx="8" fill="#f3f6fa" stroke="#c4d2df" stroke-width="1.5"/>
@@ -152,22 +147,18 @@
       </svg>
     </div>
 
-    <div class="scrub">
-      <div class="scrub-ends"><span>&#9664; tilt back</span><span>optimal</span><span>tilt forward &#9654;</span></div>
-      <div class="scrub-track"><div class="scrub-sweet"></div><div class="scrub-dot" id="scrubDot"></div></div>
-    </div>
-
+    <div class="target-line">Nearest: <span id="nearView">&mdash;</span></div>
     <div class="acc-line">Optimized: <b id="accVal">0%</b></div>
     <div class="pbar"><div id="accBar"></div></div>
     <div class="lock-toast" id="lockToast"></div>
 
     <div class="sens-row">
-      <label for="sensSlider">Tilt sensitivity <span id="sensVal">5</span></label>
+      <label for="sensSlider">Sweet-spot size <span id="sensVal">5</span></label>
       <input type="range" min="1" max="10" step="1" value="5" id="sensSlider">
-      <div class="sens-hint">Higher = less tilt needed to sweep the full window.</div>
+      <div class="sens-hint">Lower = smaller sweet spot (aim more precisely).</div>
     </div>
 
-    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Re-center this window</button>
+    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Re-calibrate the 3 windows</button>
   </div>
 
 </div>
@@ -264,10 +255,10 @@
     var DOE=window.DeviceOrientationEvent;
     if (DOE && typeof DOE.requestPermission==='function'){
       DOE.requestPermission().then(function(res){
-        if (res==='granted'){ startOrientation(); startScrub(); }
+        if (res==='granted'){ startOrientation(); beginCalibration(); }
         else showPermErr('Motion access was not granted. Enable it in Settings ▸ Safari ▸ Motion & Orientation, then reload.');
       }).catch(function(){ showPermErr('Could not request motion access. Reload and try again.'); });
-    } else if (window.DeviceOrientationEvent){ startOrientation(); startScrub(); }
+    } else if (window.DeviceOrientationEvent){ startOrientation(); beginCalibration(); }
     else showPermErr('This device/browser does not support orientation sensors.');
   });
   function showPermErr(m){ var e=$('#permissionError'); e.hidden=false; e.textContent=m; }
@@ -325,98 +316,115 @@
       if (STATE.calibIndex<VIEWS.length) showCalibStep(); else finishCalibration();
     },1000);
   });
-  $('#btnRecalibrate').addEventListener('click', function(){ selectWindow(STATE.activeView, true); });
+  $('#btnRecalibrate').addEventListener('click', function(){ stopStreaming(); beginCalibration(); });
   $('#sensSlider').addEventListener('input', function(){
     var v = parseInt(this.value, 10);
-    SENS = v / 5;   // 5 = default (1.0); 10 = very sensitive; 1 = gentle
+    SIGMA = 24 - v * 1.8;   // 5 -> 15° sweet spot; 10 -> 6° (tight); 1 -> 22° (forgiving)
     $('#sensVal').textContent = v;
   });
 
-  // window buttons: pick which echo window you're sweeping
-  Array.prototype.forEach.call(document.querySelectorAll('.win-btn'), function(b){
-    b.addEventListener('click', function(){ selectWindow(b.getAttribute('data-view'), true); });
-  });
-  function updateWinButtons(){
-    var names={plax:'PLAX', a4c:'A4C', subcostal:'SUBCOSTAL'};
-    Array.prototype.forEach.call(document.querySelectorAll('.win-btn'), function(b){
-      b.classList.toggle('active', b.getAttribute('data-view')===STATE.activeView);
-    });
-    if ($('#scrubViewName')) $('#scrubViewName').textContent = names[STATE.activeView] || STATE.activeView;
-  }
-  function selectWindow(id, recenter){
-    STATE.activeView = id;
-    if (recenter || STATE.zeroBeta==null){
-      STATE.zeroBeta  = STATE.smoothed ? STATE.smoothed.beta  : latest.beta;
-      STATE.zeroGamma = STATE.smoothed ? STATE.smoothed.gamma : latest.gamma;
-    }
-    STATE.lastLocked = null;
-    updateWinButtons();
-  }
-
-  function finishCalibration(){}  // calibration flow no longer used (kept as a stub)
-
-  /* ---------- live tilt-to-scrub ---------- */
-  var SMOOTH=0.18, TICK_MS=60;   // beta smoothing + stream rate
-  var SCRUB_TILT=14;             // deg of tilt (at sensitivity 5) that spans the full window sweep
-  var SENS = 1.0;                // live sensitivity multiplier (slider)
+  /* ---------- live: accelerometer calibration matching ----------
+     Each of the 3 windows is a calibrated (beta,gamma) pose — beta = tilt
+     fwd/back, gamma = rock left/right — captured from the STABLE accelerometer
+     axes only (no magnetometer, so it never drifts or jitters). Moving the phone
+     changes your distance to each pose; the nearest one crossfades into focus.
+     You must physically MOVE to a pose to score — resting in place is not 100%. */
+  var SMOOTH=0.16, TICK_MS=60;
+  var SIGMA=15;             // sweet-spot radius in degrees (set by the slider)
+  var GEO=null;            // {cB,cG,scale,dots:[{id,ox,oy}]} radar geometry
 
   function startStreaming(){ stopStreaming(); STATE.streamTimer=setInterval(tick, TICK_MS); }
   function stopStreaming(){ if (STATE.streamTimer){ clearInterval(STATE.streamTimer); STATE.streamTimer=null; } }
 
-  function startScrub(){
+  function finishCalibration(){
+    // Build a 2D radar of the 3 calibrated poses, centered on their average.
+    var betas=VIEWS.map(function(v){return STATE.calibration[v.id].beta;});
+    var gammas=VIEWS.map(function(v){return STATE.calibration[v.id].gamma;});
+    var cB=circMean(betas), cG=circMean(gammas);
+    var dots=VIEWS.map(function(v){
+      var c=STATE.calibration[v.id];
+      return { id:v.id, oy:angleDiff(c.beta,cB), ox:angleDiff(c.gamma,cG) };
+    });
+    var maxR=1; dots.forEach(function(d){ maxR=Math.max(maxR, Math.hypot(d.ox,d.oy)); });
+    GEO={ cB:cB, cG:cG, scale:clamp(60/maxR, 1.4, 6), dots:dots };
+    drawTargetDots();
+
     send({type:'ready'});
-    setStatus('live','Scanning — tilt to sweep');
-    STATE.smoothed=null; STATE.zeroBeta=null; STATE.activeView='a4c'; STATE.lastLocked=null;
-    updateWinButtons();
+    setStatus('live','Scanning — move to find a window');
+    STATE.smoothed=null; STATE.lastLocked=null;
     showScreen('screen-live');
     startStreaming();
   }
 
+  function drawTargetDots(){
+    var g=$('#targetDots'); if(!g||!GEO) return;
+    var ns='http://www.w3.org/2000/svg'; g.textContent='';
+    var labels={plax:'PLAX', a4c:'A4C', subcostal:'SUB'};
+    GEO.dots.forEach(function(d){
+      var x=100+clamp(d.ox*GEO.scale,-74,74), y=100-clamp(d.oy*GEO.scale,-74,74);
+      var ring=document.createElementNS(ns,'circle');
+      ring.setAttribute('cx',x); ring.setAttribute('cy',y); ring.setAttribute('r',15);
+      ring.setAttribute('fill','none'); ring.setAttribute('stroke','#2b7a4b');
+      ring.setAttribute('stroke-width','1.5'); ring.setAttribute('stroke-dasharray','4 3');
+      ring.setAttribute('id','dot-'+d.id);
+      var t=document.createElementNS(ns,'text');
+      t.setAttribute('x',x); t.setAttribute('y',y+3); t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','8'); t.setAttribute('font-weight','800'); t.setAttribute('fill','#7d99b3');
+      t.textContent=labels[d.id]||d.id;
+      g.appendChild(ring); g.appendChild(t);
+    });
+  }
+
   function tick(){
+    if (!GEO) return;
     var b=latest.beta, g=latest.gamma;
     if (STATE.smoothed==null) STATE.smoothed={beta:b, gamma:g};
     else {
       STATE.smoothed.beta  += angleDiff(b, STATE.smoothed.beta)*SMOOTH;
       STATE.smoothed.gamma += angleDiff(g, STATE.smoothed.gamma)*SMOOTH;
     }
-    if (STATE.zeroBeta==null){ STATE.zeroBeta = STATE.smoothed.beta; STATE.zeroGamma = STATE.smoothed.gamma; }
+    var sb=STATE.smoothed.beta, sg=STATE.smoothed.gamma;
 
-    var view=STATE.activeView;
-    // fan = tilt away from the re-centered neutral; rock = side-to-side lean.
-    // Both come from the stable accelerometer axes (no magnetometer).
-    var fan  = angleDiff(STATE.smoothed.beta,  STATE.zeroBeta)  * SENS;
-    var rock = angleDiff(STATE.smoothed.gamma, STATE.zeroGamma) * SENS;
-    // scrub position 0..1 (0.5 = optimal center cut). SCRUB_TILT deg = half a sweep.
-    var pos = clamp(0.5 + fan/(2*SCRUB_TILT), 0, 1);
-    // "optimized" %: peaks when the probe is centered on BOTH axes — tilt sets the
-    // cut, rocking off-axis degrades the picture (like sliding off the window).
-    var offAxis = clamp(Math.abs(rock)/SCRUB_TILT, 0, 1);
-    var acc = Math.round(clamp(100 - Math.abs(pos-0.5)*2*60 - offAxis*22, 35, 100));
-    // the display's sweep index is driven by hostFan (host FAN_RANGE=12 spans it)
-    var hostFan = (pos-0.5)*2*12;
+    // Gaussian distance from each calibrated pose -> view blend weights.
+    var blend={}, best=null, bestW=-1, bestCal=null;
+    VIEWS.forEach(function(v){
+      var c=STATE.calibration[v.id];
+      var d=Math.hypot(angleDiff(sb,c.beta), angleDiff(sg,c.gamma));
+      var w=Math.exp(-0.5*(d/SIGMA)*(d/SIGMA));
+      blend[v.id]=w;
+      if (w>bestW){ bestW=w; best=v.id; bestCal=c; }
+    });
+    var acc=Math.round(clamp(bestW*100, 8, 100));
+    var locked=acc>=90;
+    // fine sweep: small offset from the nearest pose pans the real image
+    var fan  = angleDiff(sb, bestCal.beta);
+    var rock = angleDiff(sg, bestCal.gamma);
 
-    var blend={}; VIEWS.forEach(function(v){ blend[v.id]=(v.id===view)?1:0; });
-    var locked = acc>=96;
-    updateScrubUI(pos, acc, locked, view, fan, rock);
-
-    send({ type:'pose', target:view, matchId:view, nearestId:view,
-           fan:hostFan, accuracy:acc, blend:blend, locked:locked,
-           tilt:fan, rock:rock, rotate:0 });
+    updateLiveUI(best, acc, locked, sb, sg);
+    send({ type:'pose', target:best, matchId:(locked?best:null), nearestId:best,
+           fan:fan, rock:rock, accuracy:acc, blend:blend, locked:locked });
   }
 
-  function updateScrubUI(pos, acc, locked, view, fan, rock){
-    var dot=$('#scrubDot'); if(dot){ dot.style.left=(pos*100).toFixed(1)+'%'; dot.style.background=(acc>=96?'#39C06B':'#6BAED6'); }
-    // compass glyph: glides in 2D — up/down with tilt (fan), left/right with rock —
-    // and leans into the rock. Green inside the sweet-spot ring.
+  function updateLiveUI(near, acc, locked, sb, sg){
+    var names={plax:'PLAX', a4c:'A4C', subcostal:'SUBCOSTAL 4CH'};
+    if ($('#nearView')) $('#nearView').textContent = names[near]||near;
     var g=$('#probeGlyph');
-    if (g){
-      var tx=clamp((rock||0)*2.4,-58,58), ty=clamp(-(fan||0)*2.4,-58,58), rot=clamp((rock||0)*1.1,-38,38);
-      g.setAttribute('transform','translate('+tx.toFixed(1)+','+ty.toFixed(1)+') rotate('+rot.toFixed(1)+' 100 96)');
-      var ar=$('#probeArrow'); if(ar) ar.setAttribute('fill', acc>=96?'#39C06B': acc>=70?'#F5A623':'#6BAED6');
+    if (g && GEO){
+      var gx=clamp(angleDiff(sg,GEO.cG)*GEO.scale,-80,80);
+      var gy=clamp(angleDiff(sb,GEO.cB)*GEO.scale,-80,80);
+      var rot=clamp(angleDiff(sg,GEO.cG)*0.8,-30,30);
+      g.setAttribute('transform','translate('+gx.toFixed(1)+','+(-gy).toFixed(1)+') rotate('+rot.toFixed(1)+' 100 96)');
+      var ar=$('#probeArrow'); if(ar) ar.setAttribute('fill', acc>=90?'#39C06B': acc>=65?'#F5A623':'#6BAED6');
     }
+    VIEWS.forEach(function(v){
+      var r=$('#dot-'+v.id); if(!r) return;
+      var on=(v.id===near && acc>=65);
+      r.setAttribute('stroke', on?'#39C06B':'#2b7a4b');
+      r.setAttribute('stroke-width', v.id===near?'2.5':'1.5');
+    });
     if ($('#accVal')) $('#accVal').textContent = acc+'%';
-    var bar=$('#accBar'); if(bar){ bar.style.width=Math.max(2,acc)+'%'; bar.style.background=(acc>=96?'#39C06B':'#2E6DA4'); }
-    if (locked && STATE.lastLocked!==view){ STATE.lastLocked=view; flashLock(view); }
+    var bar=$('#accBar'); if(bar){ bar.style.width=Math.max(2,acc)+'%'; bar.style.background=(acc>=90?'#39C06B':'#2E6DA4'); }
+    if (locked && STATE.lastLocked!==near){ STATE.lastLocked=near; flashLock(near); }
     else if (!locked){ STATE.lastLocked=null; }
   }
 

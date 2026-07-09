@@ -1208,6 +1208,15 @@
           'blur(' + ((1 - focus) * 4.0).toFixed(2) + 'px) ' +
           'brightness(' + (0.55 + 0.45 * focus).toFixed(2) + ') ' +
           'contrast(' + (0.85 + 0.25 * focus).toFixed(2) + ')';
+        // Fine sweep: rock pans the beam left/right, fan pans up/down, and a small
+        // zoom-in as you approach the sweet spot — so tiny probe moves visibly
+        // adjust the picture even though each window is a single real loop.
+        const fan = ECHO.fan || 0, rock = ECHO.rock || 0;
+        const px = clampNum(rock * 0.9, -14, 14);
+        const py = clampNum(-fan * 0.9, -14, 14);
+        const zoom = 1.02 + 0.05 * focus;
+        stack.style.transform =
+          'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) scale(' + zoom.toFixed(3) + ')';
       }
       const haze = $('#echoHaze');
       if (haze) haze.style.opacity = ((1 - focus) * 0.5).toFixed(2);
@@ -1316,6 +1325,10 @@
     } else if (data.type === 'pose') {
       updateEchoFromPose(data);   // per-clip opacities: view blend + fan sweep
       ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
+      // Fine-adjustment feel: with single-loop views, small tilt/rock still nudge
+      // the image (subtle pan/zoom) so dialing in the sweet spot feels tactile.
+      ECHO.fan = (typeof data.fan === 'number') ? data.fan : 0;
+      ECHO.rock = (typeof data.rock === 'number') ? data.rock : 0;
       const locked = !!data.locked;
       setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
       renderProbeTargets(locked ? data.matchId : (data.target || null));
