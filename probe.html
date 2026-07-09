@@ -400,9 +400,14 @@
     var fan  = angleDiff(sb, bestCal.beta);
     var rock = angleDiff(sg, bestCal.gamma);
 
+    // continuous "look" direction for the 3D heart (offset from the radar center)
+    var lookX = angleDiff(sg, GEO.cG);   // rock  -> heart yaw
+    var lookY = angleDiff(sb, GEO.cB);   // tilt  -> heart pitch
+
     updateLiveUI(best, acc, locked, sb, sg);
     send({ type:'pose', target:best, matchId:(locked?best:null), nearestId:best,
-           fan:fan, rock:rock, accuracy:acc, blend:blend, locked:locked });
+           fan:fan, rock:rock, accuracy:acc, blend:blend, locked:locked,
+           lookX:lookX, lookY:lookY });
   }
 
   function updateLiveUI(near, acc, locked, sb, sg){

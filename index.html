@@ -194,6 +194,11 @@
   .view-display canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;
   }
+  /* Continuous 3D heart (star-app "look around" layer, behind the real echo) */
+  #heart3d{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0; display:block;
+    background:radial-gradient(circle at 50% 42%, #14324a 0%, #0a1a28 60%, #050d15 100%);
+  }
   /* Real echo cine-loop engine (crossfading video layers) */
   .echo-stack{position:absolute; inset:0; z-index:1; overflow:hidden; transition:filter .15s;}
   .echo-layer{
@@ -499,6 +504,7 @@
           </label>
         </div>
         <div class="view-display" id="probeDisplay">
+          <canvas id="heart3d"></canvas>
           <div class="view-label" id="probeViewLabel">SEARCHING&hellip;</div>
           <div class="echo-stack" id="echoStack">
             <!-- Clip layers are built in JS from clips/manifest.json (one <video>
@@ -597,6 +603,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module" src="heart3d.js?v=20260709b"></script>
 <script src="app.js?v=20260709b"></script>
 </body>
 </html>

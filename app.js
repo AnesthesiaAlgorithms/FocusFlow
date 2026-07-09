@@ -1153,15 +1153,22 @@
     const lines = PROBE_VIEW_IDS
       .map(id => ECHO.manifest.views[id] && ECHO.manifest.views[id].citation)
       .filter(Boolean);
-    if (lines.length) el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
+    lines.push('3D heart model: "Realistic Human Heart" by neshallads, licensed under CC BY 4.0, via Wikimedia Commons.');
+    el.innerHTML = '<b>Image credits</b><br>' + lines.join('<br>');
   }
 
   // Map a pose (view blend weights + fan angle) to a target opacity per clip.
   function updateEchoFromPose(data) {
-    let sum = 0;
-    PROBE_VIEW_IDS.forEach(id => { sum += (data.blend && data.blend[id]) || 0; });
+    // RAW proximity weights (not normalized): near a window a weight approaches 1
+    // and the real echo covers the display; far from every window all weights fall
+    // to ~0 so the echo dissolves and the continuous 3D heart shows through.
     const w = {};
-    PROBE_VIEW_IDS.forEach(id => { const x = (data.blend && data.blend[id]) || 0; w[id] = sum > 0 ? x / sum : 0; });
+    let present = 0;
+    PROBE_VIEW_IDS.forEach(id => {
+      w[id] = clampNum((data.blend && data.blend[id]) || 0, 0, 1);
+      if (w[id] > present) present = w[id];
+    });
+    ECHO.present = present;
     const active = data.nearestId || data.matchId || data.target || null;
     const fan = (typeof data.fan === 'number') ? data.fan : 0;
 
@@ -1218,8 +1225,10 @@
         stack.style.transform =
           'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) scale(' + zoom.toFixed(3) + ')';
       }
+      // Haze/vignette belongs to the real echo image — fade it with echo presence
+      // so it doesn't darken the 3D heart while you're searching between windows.
       const haze = $('#echoHaze');
-      if (haze) haze.style.opacity = ((1 - focus) * 0.5).toFixed(2);
+      if (haze) haze.style.opacity = ((1 - focus) * 0.5 * (ECHO.present || 0)).toFixed(2);
       ECHO.raf = requestAnimationFrame(tick);
     };
     ECHO.raf = requestAnimationFrame(tick);
@@ -1314,14 +1323,13 @@
       if (connectCard) connectCard.style.display = 'none';
       if (scanCard) scanCard.style.display = '';
       renderProbeTargets(null);
-      setupEchoVideos().then(function () {
-        // Show a real view immediately so the display is never black before the
-        // first pose arrives (and as a fallback if a clip is slow to decode).
-        ECHO.targetOp['plax#0'] = 1;
-        ECHO.op['plax#0'] = 1;
-      });
+      // The continuous 3D heart is the default "look-around" layer; real echo
+      // crossfades in on top only when you steer onto a window. So we DON'T force
+      // a clip on — the heart fills the display until a real view is acquired.
+      if (window.Heart3D) { try { Heart3D.start(); } catch (e) {} }
+      setupEchoVideos();
       startEchoLoop();
-      setEchoState(null, 0, false, 'plax');
+      setEchoState(null, 0, false, null);
     } else if (data.type === 'pose') {
       updateEchoFromPose(data);   // per-clip opacities: view blend + fan sweep
       ECHO.acc = (typeof data.accuracy === 'number') ? data.accuracy : 0;
@@ -1329,6 +1337,9 @@
       // the image (subtle pan/zoom) so dialing in the sweet spot feels tactile.
       ECHO.fan = (typeof data.fan === 'number') ? data.fan : 0;
       ECHO.rock = (typeof data.rock === 'number') ? data.rock : 0;
+      // Drive the continuous 3D heart from the phone's look direction (tilt/rock
+      // offsets from the calibration center) — the "keep looking" layer.
+      if (window.Heart3D && typeof data.lookX === 'number') Heart3D.setLook(data.lookX, data.lookY);
       const locked = !!data.locked;
       setEchoState(data.matchId || null, ECHO.acc, locked, data.target || null);
       renderProbeTargets(locked ? data.matchId : (data.target || null));
