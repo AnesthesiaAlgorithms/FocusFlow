@@ -336,6 +336,23 @@
 
   // Views used by the virtual probe simulator (matches blueprint: PLAX, A4C, Subcostal 4CH)
   const PROBE_VIEW_IDS = ['plax', 'a4c', 'subcostal'];
+
+  // Where to place the probe for each window (shown in the clickable view explorer).
+  const VIEW_PLACEMENT = {
+    plax: {
+      where: "Left of the breastbone, in the 3rd–4th intercostal space (rib gap), with the patient supine or slightly left-side down.",
+      marker: "Probe marker toward the patient's RIGHT shoulder (~10–11 o'clock)."
+    },
+    a4c: {
+      where: "At the cardiac apex — lower-left chest, around the 5th–6th intercostal space near the nipple line (where you feel the strongest heartbeat).",
+      marker: "Marker toward the patient's LEFT (~2–3 o'clock); aim the beam up toward the right shoulder."
+    },
+    subcostal: {
+      where: "Just below the tip of the breastbone (subxiphoid), probe laid nearly FLAT against the upper abdomen.",
+      marker: "Marker toward the patient's LEFT; angle the beam up under the ribs toward the heart, using the liver as a window."
+    }
+  };
+
   function getViewById(id) { return VIEWS.find(v => v.id === id); }
   function probeShortLabel(v) {
     if (v.id === 'subcostal') return 'SUBCOSTAL 4CH';
@@ -371,17 +388,11 @@
     {
       title: "Module 2 of 5: Core FoCUS Views",
       html: `
-        <p>This training focuses on three core windows. For each, note the probe position on the body diagram and the real echo loop of that window. Tap the toggle to compare with the labeled structures.</p>
-        ${VIEWS.map(v => `
-          <div class="view-card">
-            <h4>${v.name}</h4>
-            <div class="view-grid">
-              <div>${v.probe}</div>
-              <div>${v.view}</div>
-            </div>
-            <p style="margin-bottom:0;">${v.assesses}</p>
-          </div>
-        `).join('')}
+        <p>This training focuses on three core windows. <b>Tap a view below</b> to see exactly where to place the probe and the real echo it produces.</p>
+        <div class="ve-tabs" id="veTabs">
+          ${VIEWS.map((v, i) => `<button class="ve-tab${i === 0 ? ' active' : ''}" data-ve="${v.id}">${probeShortLabel(v)}</button>`).join('')}
+        </div>
+        <div id="veContent"></div>
       `
     },
     {
@@ -648,10 +659,35 @@
      RENDER: MODULES
      ============================================================ */
 
+  let currentVeView = 'plax';
+  function renderViewExplorer(id) {
+    const host = $('#veContent');
+    if (!host) return;
+    const v = getViewById(id);
+    const p = VIEW_PLACEMENT[id] || {};
+    currentVeView = id;
+    $$('.ve-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-ve') === id));
+    host.innerHTML = `
+      <div class="view-card" style="margin-bottom:0;">
+        <h4>${v.name}</h4>
+        <div class="ve-place">
+          <div><span class="ve-pin">📍 Where</span> ${p.where || ''}</div>
+          <div><span class="ve-pin">↗ Marker</span> ${p.marker || ''}</div>
+        </div>
+        <div class="view-grid">
+          <div>${v.probe}</div>
+          <div>${v.view}</div>
+        </div>
+        <p style="margin-bottom:0;"><b>What it shows:</b> ${v.assesses}</p>
+      </div>`;
+    playEchoLoops(host);
+  }
+
   function renderModule(index) {
     $('#moduleTitle').textContent = MODULES[index].title;
     $('#moduleContainer').innerHTML = MODULES[index].html;
     playEchoLoops($('#moduleContainer'));
+    if ($('#veContent')) renderViewExplorer(currentVeView);  // clickable view explorer
     $('#modDots').innerHTML = MODULES.map((_, i) =>
       `<div class="mod-dot ${i === index ? 'active' : ''}"></div>`
     ).join('');
@@ -925,6 +961,11 @@
   // Module nav
   $('#btnModuleBack').addEventListener('click', prevStep);
   $('#btnModuleNext').addEventListener('click', nextStep);
+  // Clickable view explorer tabs (Module 2)
+  document.addEventListener('click', e => {
+    const tab = e.target.closest && e.target.closest('.ve-tab');
+    if (tab && tab.getAttribute('data-ve')) renderViewExplorer(tab.getAttribute('data-ve'));
+  });
 
   // Probe nav
   $('#btnProbeBack').addEventListener('click', prevStep);

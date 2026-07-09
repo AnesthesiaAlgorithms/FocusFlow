@@ -255,6 +255,15 @@
   .view-card h4{color:var(--navy); margin:0 0 6px; font-size:1.02rem;}
   .view-grid{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start; justify-content:center;}
   .view-grid > div{flex:1; min-width:160px;}
+  /* Clickable view explorer (Module 2) */
+  .ve-tabs{display:flex; gap:8px; margin:12px 0 14px;}
+  .ve-tab{flex:1; padding:12px 6px; border-radius:10px; border:2px solid #d6e0ea; background:#fff;
+    color:var(--blue); font-weight:700; font-size:.9rem; cursor:pointer; transition:all .15s;}
+  .ve-tab:hover{border-color:var(--accent);}
+  .ve-tab.active{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .ve-place{background:var(--lightblue); border-radius:10px; padding:12px 14px; margin-bottom:12px; font-size:.92rem; line-height:1.5;}
+  .ve-place > div{margin:3px 0;}
+  .ve-pin{display:inline-block; min-width:78px; font-weight:700; color:var(--navy);}
   ul.content-list{padding-left:20px; font-size:.92rem; line-height:1.65; margin:8px 0;}
   ul.content-list li{margin-bottom:5px;}
   .assess-tag{
@@ -588,6 +597,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=20260709"></script>
 </body>
 </html>
