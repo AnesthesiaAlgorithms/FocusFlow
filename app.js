@@ -374,8 +374,8 @@
     submitted: false,
     participantNumber: null,
     demo: { role: null, yearsExp: null, pocusTraining: null, focusExp: null, comfortBaseline: null },
-    pre: { knowledge: {}, confidence: {}, cases: {} },
-    post: { knowledge: {}, confidence: {}, cases: {} },
+    pre: { knowledge: {}, confidence: {}, cases: {}, barriers: '' },
+    post: { knowledge: {}, confidence: {}, cases: {}, barriers: '' },
     usability: {},
     // Post-only hands-on experience (conditional on what the participant did)
     experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null, wouldChooseAll: null, whyNot: '' },
@@ -516,6 +516,7 @@
       </div>
     `).join('');
     $('#confidenceContainer').innerHTML = html;
+    if ($('#barriersField')) $('#barriersField').value = STATE[phase].barriers || '';
     updateConfidenceNext(phase);
   }
 
@@ -839,6 +840,7 @@
         pre: { answers: STATE.pre.cases, ...cPre },
         post: { answers: STATE.post.cases, ...cPost }
       },
+      barriersToFocus: { pre: STATE.pre.barriers, post: STATE.post.barriers },
       usability: STATE.usability,
       experience: STATE.experience,
       openFeedback: STATE.openFeedback
@@ -942,6 +944,11 @@
   // Confidence nav
   $('#btnConfidenceBack').addEventListener('click', prevStep);
   $('#btnConfidenceNext').addEventListener('click', () => { if (!$('#btnConfidenceNext').disabled) nextStep(); });
+  // Open "barriers" question — asked in both pre and post; stored per phase.
+  $('#barriersField').addEventListener('input', e => {
+    const step = FLOW[currentStep];
+    if (step && step.phase) STATE[step.phase].barriers = e.target.value;
+  });
 
   // Cases nav
   $('#btnCasesBack').addEventListener('click', prevStep);
@@ -988,8 +995,8 @@
       submitted: false,
       participantNumber: null,
       demo: { role: null, yearsExp: null, pocusTraining: null, focusExp: null, comfortBaseline: null },
-      pre: { knowledge: {}, confidence: {}, cases: {} },
-      post: { knowledge: {}, confidence: {}, cases: {} },
+      pre: { knowledge: {}, confidence: {}, cases: {}, barriers: '' },
+      post: { knowledge: {}, confidence: {}, cases: {}, barriers: '' },
       usability: {},
       experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null, wouldChooseAll: null, whyNot: '' },
       openFeedback: ''
