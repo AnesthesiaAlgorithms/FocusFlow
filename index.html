@@ -6,14 +6,15 @@
 <title>Focused Preoperative Cardiac Ultrasound (FoCUS) Training</title>
 <style>
   :root{
-    --navy:#1A3A5C;
-    --blue:#2E6DA4;
-    --lightblue:#EBF3FB;
-    --accent:#6BAED6;
-    --green:#3C9A5F;
-    --red:#C0392B;
+    /* Barry University red palette */
+    --navy:#8B1E2D;      /* deep brand red — header + section titles */
+    --blue:#B31B34;      /* primary red — buttons, headings, key accents */
+    --lightblue:#F9EBED; /* soft red tint — pills, selected rows, vignette bg */
+    --accent:#C8102E;    /* bright Barry red — underlines, progress, highlights */
+    --green:#3C9A5F;     /* kept for "correct" / proceed */
+    --red:#A31220;       /* red-flag / alert */
     --gray:#6b7280;
-    --bg:#F4F7FA;
+    --bg:#F6F1F2;        /* faint warm ground */
   }
   *{box-sizing:border-box;}
   body{
@@ -74,7 +75,7 @@
     border:1px solid #e2e8f0; border-radius:8px; margin-bottom:6px;
     cursor:pointer; transition:border-color .15s, background .15s;
   }
-  .radio-row:hover, .check-row:hover{border-color:var(--accent); background:#f8fbfe;}
+  .radio-row:hover, .check-row:hover{border-color:var(--accent); background:var(--lightblue);}
   .radio-row input, .check-row input{flex:0 0 auto; width:18px; height:18px;}
   .radio-row.selected, .check-row.selected{border-color:var(--blue); background:var(--lightblue);}
   .radio-row span, .check-row span{font-size:.92rem;}
@@ -98,7 +99,7 @@
   .seg-row{display:flex; gap:8px;}
   .seg-opt{flex:1; text-align:center; padding:11px 6px; border:1px solid #cbd5e1; border-radius:8px;
     background:#fff; color:var(--navy); font-size:.85rem; font-weight:600; cursor:pointer;}
-  .seg-opt.selected{border-color:var(--accent); background:#eef6fc; color:var(--blue);}
+  .seg-opt.selected{border-color:var(--accent); background:var(--lightblue); color:var(--blue);}
   .seg-row-3 .seg-opt{font-size:.8rem;}
 
   /* Buttons */
@@ -110,7 +111,7 @@
   button:active{transform:scale(.98);}
   .btn-primary{background:var(--blue); color:#fff; flex:1;}
   .btn-secondary{background:#e2e8f0; color:#334155;}
-  .btn-primary:disabled{background:#a8c4dd; cursor:not-allowed;}
+  .btn-primary:disabled{background:#d7a9af; cursor:not-allowed;}
   .btn-block{width:100%;}
 
   /* Progress bar */
@@ -167,7 +168,8 @@
     border-top:1px solid #e5e9ef; padding:10px 16px;
     padding-bottom:max(10px, env(safe-area-inset-bottom));
   }
-  footer.appfoot .inner{max-width:760px; margin:0 auto; display:flex; gap:10px;}
+  footer.appfoot .inner{max-width:760px; margin:0 auto; display:flex; gap:12px; align-items:center;}
+  .foot-logo{height:22px; width:auto; flex:0 0 auto; opacity:.92;}
 
   .center{text-align:center;}
   .id-badge{
@@ -350,12 +352,12 @@
   <section class="screen active" id="screen-welcome">
     <div class="card">
       <img src="assets/barry-logo.jpg" alt="Barry University" class="brand-logo">
-      <span class="pill">DNP Quality Improvement Pilot</span>
+      <span class="pill">DNP Educational Research</span>
       <h2 class="section-title">Focused Preoperative Cardiac Ultrasound (FoCUS) Training</h2>
       <p class="muted" style="margin-top:0">Informed Consent for an Adult to Participate in Research. Please read this information carefully before you begin.</p>
 
       <h3>Invitation to be part of a research study</h3>
-      <p style="margin-top:0">You are invited to participate in a DNP quality improvement pilot entitled: <b>Focused Preoperative Cardiac Ultrasound (FoCUS) Training</b>.</p>
+      <p style="margin-top:0">You are invited to participate in an educational research study entitled: <b>Focused Preoperative Cardiac Ultrasound (FoCUS) Training</b>.</p>
 
       <h3>Study details</h3>
       <p style="margin-top:0">The purpose of the study is to develop and evaluate a free, online focused cardiac ultrasound (FoCUS) simulation training platform for anesthesia providers, and to measure whether the training improves providers&rsquo; knowledge, clinical decision-making, and confidence in performing a basic preoperative FoCUS examination. Focused cardiac ultrasound is a brief, limited ultrasound look at the heart performed at the bedside.</p>
@@ -628,6 +630,7 @@
   <!-- ============ SCREEN: RESULTS ============ -->
   <section class="screen" id="screen-results">
     <div class="card">
+      <img src="assets/barry-logo.jpg" alt="Barry University" class="brand-logo">
       <span class="pill">Complete</span>
       <h2 class="section-title">Thank You</h2>
       <p>Here is a summary of your pre- and post-training results.</p>
@@ -650,6 +653,7 @@
     <div class="progress-wrap" style="flex:1; align-self:center;">
       <div class="progress-bar" id="progressBar" style="width:2%"></div>
     </div>
+    <img src="assets/barry-logo.jpg" alt="Barry University" class="foot-logo">
   </div>
 </footer>
 
@@ -682,6 +686,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="app.js?v=20260913b"></script>
+<script src="app.js?v=20260913c"></script>
 </body>
 </html>

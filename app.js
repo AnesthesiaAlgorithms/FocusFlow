@@ -1150,6 +1150,9 @@
   // The phone streams a single continuous scan position (0..1); ease toward it.
   function updateEchoFromPose(data) {
     if (typeof data.scanPos === 'number') ECHO.pTarget = clampNum(data.scanPos, 0, 1);
+    if (typeof data.accuracy === 'number') ECHO.accTarget = data.accuracy;
+    ECHO.fan = (typeof data.fan === 'number') ? data.fan : 0;
+    ECHO.rock = (typeof data.rock === 'number') ? data.rock : 0;
   }
 
   function nearestFrame(p) {
@@ -1161,45 +1164,54 @@
   function startEchoLoop() {
     if (ECHO.raf) return;
     const tick = () => {
-      // Ease the scan position so streamed poses glide instead of stepping.
+      // Ease the scan position + the alignment accuracy so streamed poses glide.
       ECHO.p += (ECHO.pTarget - ECHO.p) * 0.22;
+      ECHO.acc += ((ECHO.accTarget || 0) - ECHO.acc) * 0.2;
       const p = ECHO.p;
 
-      // Slide + crossfade the real loops so the strip scrolls like one sweep.
+      // Position the real loop(s). With a single PLAX window this simply keeps the
+      // loop centered; the multi-view slide is retained for completeness.
       ECHO.montage.forEach(e => {
         const d = e.pos - p;
-        const wgt = Math.max(0, 1 - Math.abs(d) / SCROLL_W);
+        const wgt = ECHO.montage.length > 1 ? Math.max(0, 1 - Math.abs(d) / SCROLL_W) : 1;
         const cur = ECHO.op[e.id] || 0;
         const nv = cur + (wgt - cur) * 0.25;
         ECHO.op[e.id] = nv;
-        const tx = clampNum(d * SCROLL_SLIDE, -170, 170);
+        const tx = ECHO.montage.length > 1 ? clampNum(d * SCROLL_SLIDE, -170, 170) : 0;
         e.el.style.opacity = nv.toFixed(3);
         e.el.style.transform = 'translateX(' + tx.toFixed(1) + '%)';
         if (nv > 0.02) { if (e.el.paused) { const pr = e.el.play(); if (pr && pr.catch) pr.catch(() => {}); } }
         else if (!e.el.paused) { try { e.el.pause(); } catch (err) {} }
       });
 
-      // Focus: each real view sharpens as you settle on it and softens through the
-      // transitions between views (like losing contact mid-slide).
-      const nf = nearestFrame(p);
-      const focus = Math.exp(-0.5 * (nf.dist / FOCUS_SIG) * (nf.dist / FOCUS_SIG));
-      ECHO.acc = Math.round(focus * 100);
+      // Focus is driven by how well the probe is aligned to the window: the real
+      // image sharpens and brightens as you dial it in, and blurs/darkens off-window.
+      const acc = clampNum(ECHO.acc / 100, 0, 1);
+      const focus = acc * acc;   // squared ease — snaps into focus near the sweet spot
       const stack = $('#echoStack');
       if (stack) {
         stack.style.filter =
-          'blur(' + ((1 - focus) * 3.4).toFixed(2) + 'px) ' +
-          'brightness(' + (0.6 + 0.4 * focus).toFixed(2) + ') ' +
-          'contrast(' + (0.88 + 0.22 * focus).toFixed(2) + ')';
+          'blur(' + ((1 - focus) * 4.2).toFixed(2) + 'px) ' +
+          'brightness(' + (0.5 + 0.5 * focus).toFixed(2) + ') ' +
+          'contrast(' + (0.85 + 0.3 * focus).toFixed(2) + ')';
+        // Fine probe motion pans the beam and settles with a slight zoom-in.
+        const fan = ECHO.fan || 0, rock = ECHO.rock || 0;
+        const px = clampNum(rock * 1.1, -16, 16);
+        const py = clampNum(-fan * 1.1, -16, 16);
+        stack.style.transform =
+          'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) scale(' + (1.02 + 0.05 * focus).toFixed(3) + ')';
       }
       const haze = $('#echoHaze');
-      if (haze) haze.style.opacity = ((1 - focus) * 0.35).toFixed(2);
+      if (haze) haze.style.opacity = ((1 - focus) * 0.45).toFixed(2);
 
-      // Name whichever real view you're sitting on (updates as you scroll).
+      // Label + accuracy HUD.
+      const nf = nearestFrame(p);
+      const accR = Math.round(ECHO.acc);
       const id = nf.entry ? nf.entry.id : null;
-      if ($('#echoAcc')) $('#echoAcc').textContent = ECHO.acc ? (ECHO.acc + '%') : '';
-      if (id !== ECHO.lastId) {
-        ECHO.lastId = id;
-        setEchoState(id, ECHO.acc, focus > 0.9 && nf.entry && nf.entry.anchor, id);
+      if ($('#echoAcc')) $('#echoAcc').textContent = accR ? (accR + '%') : '';
+      if (id !== ECHO.lastId || Math.abs(accR - (ECHO.lastAcc || 0)) >= 4) {
+        ECHO.lastId = id; ECHO.lastAcc = accR;
+        setEchoState(id, accR, focus > 0.82 && nf.entry && nf.entry.anchor, id);
         renderProbeTargets(nf.entry && nf.entry.anchor ? id : null);
       }
       ECHO.raf = requestAnimationFrame(tick);

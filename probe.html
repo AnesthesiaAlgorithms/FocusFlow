@@ -6,8 +6,8 @@
 <title>FoCUS Virtual Probe — Orientation Compass</title>
 <style>
   :root{
-    --navy:#0E2438; --panel:#13314c; --blue:#2E6DA4; --accent:#6BAED6;
-    --green:#39C06B; --amber:#F5A623; --red:#C0392B; --gray:#8FA3B6; --ink:#EAF2FB;
+    --navy:#2A0B10; --panel:#3C1620; --blue:#C8102E; --accent:#E0727C;
+    --green:#39C06B; --amber:#F5A623; --red:#C0392B; --gray:#B79aa0; --ink:#F6E9EB;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
@@ -122,7 +122,7 @@
 
   <!-- Live: move-to-find radar (accelerometer calibration) -->
   <div id="screen-live" hidden>
-    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>steer onto a window</b>. Line the probe up on a target ring to bring that real view into focus.</p>
+    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>find the PLAX window</b>. Line the probe up on the target ring to bring the real view into sharp focus.</p>
 
     <div class="compass-wrap">
       <svg class="compass" viewBox="0 0 200 200" aria-hidden="true">
@@ -171,13 +171,10 @@
   // Guided sequence + calibration poses. Instructions stress making the three
   // poses clearly DIFFERENT (tilt + rotation), which is what keeps the sensor
   // signatures well separated.
+  // Single view: the parasternal long-axis (PLAX) window.
   var VIEWS = [
     { id:'plax', label:'PLAX',
-      instr:'Left of the breastbone, 3rd–4th rib space. Marker toward the right shoulder. Probe fairly UPRIGHT.' },
-    { id:'a4c', label:'A4CH',
-      instr:'Down at the cardiac apex (lower-left ribs). ROTATE the probe ~90° and TILT up toward the right shoulder.' },
-    { id:'subcostal', label:'SUBCOSTAL 4CH',
-      instr:'Just below the breastbone. Lay the probe over toward the belly, beam angled up to the left shoulder — but not fully vertical.' }
+      instr:'Left of the breastbone, in the 3rd–4th rib space, patient supine or slightly left-side down. Marker toward the right shoulder (~10–11 o’clock). Hold the phone fairly UPRIGHT, like the probe.' }
   ];
 
   var FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
@@ -385,41 +382,19 @@
     }
     var sb=STATE.smoothed.beta, sg=STATE.smoothed.gamma;
 
-    // Project the phone's orientation onto the calibrated scan PATH
-    // (plax -> a4c -> subcostal) to get ONE continuous scan position (0..1) that
-    // scrubs the montage — moving the phone scrolls through the real views.
-    var scan = projectScan(sb, sg);
+    // Single PLAX window: accuracy = how closely the phone matches the calibrated
+    // PLAX pose (Gaussian on the stable tilt+rock axes). You must MOVE the probe
+    // onto the window to bring the real image into focus. fan/rock are the small
+    // offsets that pan the beam and steer the on-screen probe glyph.
+    var c = STATE.calibration[VIEWS[0].id];
+    var dist = Math.hypot(angleDiff(sb, c.beta), angleDiff(sg, c.gamma));
+    var acc = Math.round(clamp(100 * Math.exp(-0.5*(dist/SIGMA)*(dist/SIGMA)), 5, 100));
+    var fan = angleDiff(sb, c.beta), rock = angleDiff(sg, c.gamma);
+    var locked = acc >= 90;
 
-    // Accuracy peaks when you settle exactly ON a calibrated window (Gaussian to
-    // the nearest anchor) — so you still have to MOVE to a view to optimize it.
-    var best=null, bestD=1e9;
-    VIEWS.forEach(function(v){
-      var c=STATE.calibration[v.id];
-      var d=Math.hypot(angleDiff(sb,c.beta), angleDiff(sg,c.gamma));
-      if (d<bestD){ bestD=d; best=v.id; }
-    });
-    var acc=Math.round(clamp(100*Math.exp(-0.5*(bestD/SIGMA)*(bestD/SIGMA)), 6, 100));
-    var locked=acc>=90;
-
-    updateLiveUI(best, acc, locked, sb, sg);
-    send({ type:'pose', scanPos:scan.p, nearestId:best, accuracy:acc, locked:locked });
-  }
-
-  // Closest-point projection onto the polyline through the 3 calibrated anchors,
-  // returning the scan position in [0,1] (plax=0, a4c=0.5, subcostal=1).
-  function projectScan(sb, sg){
-    var A=VIEWS.map(function(v){ return STATE.calibration[v.id]; });
-    var P=[0, 0.5, 1];
-    var bp=0, bperp=1e9;
-    for (var k=0; k<A.length-1; k++){
-      var vb=angleDiff(A[k+1].beta,A[k].beta), vg=angleDiff(A[k+1].gamma,A[k].gamma);
-      var wb=angleDiff(sb,A[k].beta),         wg=angleDiff(sg,A[k].gamma);
-      var vv=vb*vb+vg*vg;
-      var t=vv>0 ? clamp((wb*vb+wg*vg)/vv, 0, 1) : 0;
-      var perp=Math.hypot(wb-vb*t, wg-vg*t);
-      if (perp<bperp){ bperp=perp; bp=P[k] + t*(P[k+1]-P[k]); }
-    }
-    return { p:bp, perp:bperp };
+    updateLiveUI(VIEWS[0].id, acc, locked, sb, sg);
+    send({ type:'pose', scanPos:0.5, nearestId:VIEWS[0].id, accuracy:acc,
+           fan:fan, rock:rock, locked:locked });
   }
 
   function updateLiveUI(near, acc, locked, sb, sg){
