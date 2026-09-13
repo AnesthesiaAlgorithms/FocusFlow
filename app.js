@@ -131,6 +131,38 @@
   // Post-training cases are identical to pre (measures change on the same items).
   const CASES_POST = CASES_PRE;
 
+  /* ---- Answer-option randomization ----------------------------------------
+     Shuffle the answer options within each multiple-choice item so the correct
+     answer is not in a fixed position. The order is drawn ONCE per phase and
+     cached for the session (going back to a question shows the same order), and
+     pre/post get independent shuffles. Each shuffled item keeps the `order`
+     permutation (order[shuffledPos] = originalIndex) so a stored answer can be
+     mapped back to its ORIGINAL option for consistent data export. Likert scales
+     are never shuffled. */
+  const SHUFFLED = { pre: {}, post: {} };
+  function shuffleArr(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function shuffleItem(it) {
+    const order = shuffleArr(it.o.map((_, i) => i));
+    return Object.assign({}, it, { o: order.map(i => it.o[i]), c: order.indexOf(it.c), order });
+  }
+  function getItems(kind, phase) {
+    if (!SHUFFLED[phase][kind]) {
+      const base = kind === 'knowledge' ? KNOWLEDGE_PRE : CASES_PRE;
+      SHUFFLED[phase][kind] = base.map(shuffleItem);
+    }
+    return SHUFFLED[phase][kind];
+  }
+  // Map a phase's stored (shuffled-index) answers back to original option indices.
+  function originalAnswers(kind, phase) {
+    const items = getItems(kind, phase), stored = STATE[phase][kind], out = {};
+    items.forEach((it, i) => { const s = stored[i]; if (typeof s === 'number') out[i] = it.order[s]; });
+    return out;
+  }
+
   /* ============================================================
      SVG DIAGRAMS
      ============================================================ */
@@ -465,7 +497,7 @@
      ============================================================ */
 
   function renderKnowledge(phase) {
-    const items = phase === 'pre' ? KNOWLEDGE_PRE : KNOWLEDGE_POST;
+    const items = getItems('knowledge', phase);
     const answers = STATE[phase].knowledge;
     $('#knowledgePill').textContent = (phase === 'pre' ? 'Step 2 of 6 — Pre-Assessment' : 'Step 5 of 6 — Post-Assessment');
     $('#knowledgeTitle').textContent = (phase === 'pre' ? 'Knowledge Check (Before Training)' : 'Knowledge Check (After Training)');
@@ -487,7 +519,7 @@
   }
 
   function updateKnowledgeNext(phase) {
-    const items = phase === 'pre' ? KNOWLEDGE_PRE : KNOWLEDGE_POST;
+    const items = getItems('knowledge', phase);
     const answers = STATE[phase].knowledge;
     const complete = items.every((_, i) => answers[i] !== undefined);
     $('#btnKnowledgeNext').disabled = !complete;
@@ -543,7 +575,7 @@
   }
 
   function renderCases(phase) {
-    const items = phase === 'pre' ? CASES_PRE : CASES_POST;
+    const items = getItems('cases', phase);
     const answers = STATE[phase].cases;
     $('#casesPill').textContent = (phase === 'pre' ? 'Step 2 of 6 — Pre-Assessment' : 'Step 5 of 6 — Post-Assessment');
     $('#casesTitle').textContent = (phase === 'pre' ? 'Case Scenarios (Before Training)' : 'Case Scenarios (After Training)');
@@ -570,7 +602,7 @@
   }
 
   function updateCasesNext(phase) {
-    const items = phase === 'pre' ? CASES_PRE : CASES_POST;
+    const items = getItems('cases', phase);
     const answers = STATE[phase].cases;
     const complete = items.every((_, i) => answers[i] !== undefined);
     $('#btnCasesNext').disabled = !complete;
@@ -783,10 +815,10 @@
   function renderResults() {
     STATE.completedAt = new Date().toISOString();
 
-    const kPre = score(KNOWLEDGE_PRE, STATE.pre.knowledge);
-    const kPost = score(KNOWLEDGE_POST, STATE.post.knowledge);
-    const cPre = score(CASES_PRE, STATE.pre.cases);
-    const cPost = score(CASES_POST, STATE.post.cases);
+    const kPre = score(getItems('knowledge', 'pre'), STATE.pre.knowledge);
+    const kPost = score(getItems('knowledge', 'post'), STATE.post.knowledge);
+    const cPre = score(getItems('cases', 'pre'), STATE.pre.cases);
+    const cPost = score(getItems('cases', 'post'), STATE.post.cases);
     const confPre = avgConfidence(STATE.pre.confidence);
     const confPost = avgConfidence(STATE.post.confidence);
 
@@ -800,12 +832,12 @@
       <details class="review-block">
         <summary>Review the case answers &amp; rationale</summary>
         <p class="muted" style="margin-top:8px;">Shown only here, after completion, so it does not affect your scores. Based on the post-training scenarios.</p>
-        ${reviewItemsHTML(CASES_POST, STATE.post.cases, CASE_RATIONALES, 'Case')}
+        ${reviewItemsHTML(getItems('cases', 'post'), STATE.post.cases, CASE_RATIONALES, 'Case')}
       </details>
       <details class="review-block">
         <summary>Review the knowledge answers &amp; rationale</summary>
         <p class="muted" style="margin-top:8px;">Based on the post-training knowledge questions.</p>
-        ${reviewItemsHTML(KNOWLEDGE_POST, STATE.post.knowledge, KNOWLEDGE_RATIONALES, 'Question')}
+        ${reviewItemsHTML(getItems('knowledge', 'post'), STATE.post.knowledge, KNOWLEDGE_RATIONALES, 'Question')}
       </details>
     `;
     $('#resultsContainer').innerHTML = html;
@@ -817,18 +849,18 @@
      ============================================================ */
 
   function buildPayload() {
-    const kPre = score(KNOWLEDGE_PRE, STATE.pre.knowledge);
-    const kPost = score(KNOWLEDGE_POST, STATE.post.knowledge);
-    const cPre = score(CASES_PRE, STATE.pre.cases);
-    const cPost = score(CASES_POST, STATE.post.cases);
+    const kPre = score(getItems('knowledge', 'pre'), STATE.pre.knowledge);
+    const kPost = score(getItems('knowledge', 'post'), STATE.post.knowledge);
+    const cPre = score(getItems('cases', 'pre'), STATE.pre.cases);
+    const cPost = score(getItems('cases', 'post'), STATE.post.cases);
     return {
       participantId: STATE.participantId,
       startedAt: STATE.startedAt,
       completedAt: STATE.completedAt,
       demographics: STATE.demo,
       knowledge: {
-        pre: { answers: STATE.pre.knowledge, ...kPre },
-        post: { answers: STATE.post.knowledge, ...kPost }
+        pre: { answers: originalAnswers('knowledge', 'pre'), ...kPre },
+        post: { answers: originalAnswers('knowledge', 'post'), ...kPost }
       },
       confidence: {
         pre: STATE.pre.confidence,
@@ -837,8 +869,8 @@
         postAverage: avgConfidence(STATE.post.confidence)
       },
       cases: {
-        pre: { answers: STATE.pre.cases, ...cPre },
-        post: { answers: STATE.post.cases, ...cPost }
+        pre: { answers: originalAnswers('cases', 'pre'), ...cPre },
+        post: { answers: originalAnswers('cases', 'post'), ...cPost }
       },
       barriersToFocus: { pre: STATE.pre.barriers, post: STATE.post.barriers },
       usability: STATE.usability,
@@ -1004,6 +1036,7 @@
     $$('.radio-row, .check-row, .likert-opt, .seg-opt').forEach(el => el.classList.remove('selected'));
     $('#consentCheck').checked = false;
     $('#btnStart').disabled = true;
+    SHUFFLED.pre = {}; SHUFFLED.post = {};   // re-randomize option order for the next run
     goToStep(0);
   });
 
