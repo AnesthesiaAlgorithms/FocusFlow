@@ -282,12 +282,10 @@
       `
     },
     {
-      title: "Module 2 of 5: Core FoCUS Views",
+      title: "Module 2 of 5: The Parasternal Long-Axis (PLAX) View",
       html: `
-        <p>This training focuses on three core windows. <b>Tap a view below</b> to see exactly where to place the probe and the real echo it produces.</p>
-        <div class="ve-tabs" id="veTabs">
-          ${VIEWS.map((v, i) => `<button class="ve-tab${i === 0 ? ' active' : ''}" data-ve="${v.id}">${probeShortLabel(v)}</button>`).join('')}
-        </div>
+        <p>This training focuses on a single core window — the <b>parasternal long-axis (PLAX)</b> view. It is the standard first view in cardiac ultrasound and, in one image, shows left ventricular size and function, the mitral and aortic valves, the aortic root, and the pericardial space.</p>
+        <p>Below is exactly where to place the probe and the real echo it produces.</p>
         <div id="veContent"></div>
       `
     },
