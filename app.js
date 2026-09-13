@@ -354,7 +354,7 @@
     post: { knowledge: {}, confidence: {}, cases: {} },
     usability: {},
     // Post-only hands-on experience (conditional on what the participant did)
-    experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null },
+    experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null, wouldChooseAll: null, whyNot: '' },
     openFeedback: ''
   };
 
@@ -644,7 +644,17 @@
     let n = 2;
     let html = yesNo('usedPhone', '1. Did you use your phone as a simulated ultrasound probe?')
              + yesNo('usedModel', '2. Did you attend the in-person 3D-printed probe-model demonstration?');
-    if (ex.usedPhone === 'yes') html += helpScale('phoneHelp', `${++n}. How helpful was the phone probe simulation to your learning?`);
+    if (ex.usedPhone === 'yes') {
+      html += helpScale('phoneHelp', `${++n}. How helpful was using your phone as a simulated ultrasound probe to the experience?`);
+      html += yesNo('wouldChooseAll', `${++n}. Would you choose this method — using your phone as a simulated probe — to learn all the standard TTE views?`);
+      if (ex.wouldChooseAll === 'no') {
+        html += `
+      <div class="exp-q">
+        <label for="whyNotField">If not, why not?</label>
+        <textarea id="whyNotField" placeholder="Tell us in your own words">${(ex.whyNot || '').replace(/</g, '&lt;')}</textarea>
+      </div>`;
+      }
+    }
     if (ex.usedModel === 'yes') html += helpScale('modelHelp', `${++n}. How helpful was the in-person 3D-printed model to your learning?`);
     if (ex.usedPhone === 'yes' && ex.usedModel === 'yes') {
       html += `
@@ -664,6 +674,7 @@
     const ex = STATE.experience;
     if (ex.usedPhone === null || ex.usedModel === null) return false;
     if (ex.usedPhone === 'yes' && ex.phoneHelp == null) return false;
+    if (ex.usedPhone === 'yes' && !ex.wouldChooseAll) return false;  // whyNot text is optional
     if (ex.usedModel === 'yes' && ex.modelHelp == null) return false;
     if (ex.usedPhone === 'yes' && ex.usedModel === 'yes' && !ex.moreHelpful) return false;
     return true;
@@ -936,6 +947,12 @@
     updateFeedbackCount();
   });
 
+  // "If not, why not?" free text (delegated — the field is rendered dynamically;
+  // we do NOT re-render on input so the cursor stays put).
+  document.addEventListener('input', e => {
+    if (e.target && e.target.id === 'whyNotField') STATE.experience.whyNot = e.target.value;
+  });
+
   // Results
   $('#btnDownload').addEventListener('click', downloadResults);
   $('#btnRestart').addEventListener('click', () => {
@@ -950,7 +967,7 @@
       pre: { knowledge: {}, confidence: {}, cases: {} },
       post: { knowledge: {}, confidence: {}, cases: {} },
       usability: {},
-      experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null },
+      experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null, wouldChooseAll: null, whyNot: '' },
       openFeedback: ''
     });
     $$('.radio-row, .check-row, .likert-opt, .seg-opt').forEach(el => el.classList.remove('selected'));
@@ -1043,8 +1060,9 @@
       const key = expOpt.getAttribute('data-expq');
       STATE.experience[key] = expOpt.getAttribute('data-val');
       // clear now-irrelevant follow-ups when the answer is "no"
-      if (key === 'usedPhone' && STATE.experience.usedPhone === 'no') STATE.experience.phoneHelp = null;
+      if (key === 'usedPhone' && STATE.experience.usedPhone === 'no') { STATE.experience.phoneHelp = null; STATE.experience.wouldChooseAll = null; STATE.experience.whyNot = ''; }
       if (key === 'usedModel' && STATE.experience.usedModel === 'no') STATE.experience.modelHelp = null;
+      if (key === 'wouldChooseAll' && STATE.experience.wouldChooseAll === 'yes') STATE.experience.whyNot = '';
       if (STATE.experience.usedPhone !== 'yes' || STATE.experience.usedModel !== 'yes') STATE.experience.moreHelpful = null;
       renderExperience();
       updateUsabilityNext();
