@@ -287,6 +287,22 @@
         <p>This training focuses on a single core window — the <b>parasternal long-axis (PLAX)</b> view. It is the standard first view in cardiac ultrasound and, in one image, shows left ventricular size and function, the mitral and aortic valves, the aortic root, and the pericardial space.</p>
         <p>Below is exactly where to place the probe and the real echo it produces.</p>
         <div id="veContent"></div>
+
+        <h3 style="margin-top:18px;">What you can interpret from a PLAX view</h3>
+        <figure style="margin:0 0 12px; text-align:center;">
+          <img src="assets/plax-still.jpg" alt="Parasternal long-axis echocardiography still" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
+          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Reading the PLAX image, near field to far: <b>RV</b> (top) &rarr; interventricular <b>septum</b> &rarr; <b>LV</b> cavity &rarr; <b>mitral valve</b> (center) &rarr; <b>aortic valve &amp; root / LVOT</b> (right) &rarr; <b>left atrium</b> (below the aorta) &rarr; posterior wall &amp; <b>pericardium</b> (bottom). <br>Image: CardioNetworks / Echopedia (CC BY-SA).</figcaption>
+        </figure>
+        <p>A single PLAX image answers several targeted questions:</p>
+        <ul class="content-list">
+          <li><b>LV size &amp; systolic function.</b> Do the septum and posterior wall thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate &mdash; <i>good / mildly&ndash;moderately reduced / severely reduced</i>. A mitral leaflet that opens fully toward the septum favors good function; one that barely reaches it (a wide &ldquo;E-point septal separation&rdquo;) suggests a low ejection fraction.</li>
+          <li><b>LV wall thickness.</b> A septum or posterior wall thicker than ~1.1 cm suggests hypertrophy (long-standing hypertension, aortic stenosis). <i>Asymmetric</i> septal thickening with systolic anterior motion (SAM) of the mitral valve suggests hypertrophic cardiomyopathy.</li>
+          <li><b>Aortic valve &amp; root.</b> A heavily calcified valve with markedly reduced leaflet excursion suggests aortic stenosis; note the aortic root width, since a dilated root raises concern for an aneurysm.</li>
+          <li><b>Mitral valve.</b> Thickened/calcified leaflets with restricted opening (stenosis), a flail or prolapsing leaflet (regurgitation), or systolic anterior motion.</li>
+          <li><b>Left atrium.</b> An LA that appears larger than the aortic root (roughly &gt; ~4 cm) suggests chronically elevated filling pressures &mdash; diastolic dysfunction, mitral disease, or atrial fibrillation.</li>
+          <li><b>Pericardium.</b> An echo-free space, especially behind the LV. A <i>pericardial</i> effusion tracks <b>anterior</b> to the descending thoracic aorta; a <i>pleural</i> effusion tracks <b>posterior</b> to it. Watch for right-ventricular diastolic collapse &mdash; a sign of tamponade.</li>
+        </ul>
+        <p class="muted">FoCUS is qualitative: the goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings &mdash; not to grade severity. Severe-appearing aortic stenosis, severely reduced LV function, or a large effusion with tamponade signs all warrant documenting, communicating, and considering further evaluation before an elective case.</p>
       `
     },
     {
