@@ -1567,6 +1567,12 @@
       goToStep(parseInt(jump.value, 10));
     });
 
+    // Quick page toggling that bypasses the answer-required gating.
+    const syncJump = () => { if (!panel.hidden) jump.value = String(currentStep); };
+    const prevBtn = $('#devPrev'), nextBtn = $('#devNext');
+    if (prevBtn) prevBtn.addEventListener('click', () => { prevStep(); syncJump(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { nextStep(); syncJump(); });
+
     if (editToggle) {
       editToggle.addEventListener('change', () => setEditMode(editToggle.checked));
     }
