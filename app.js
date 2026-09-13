@@ -12,6 +12,10 @@
      distributing the site to participants.
      ============================================================ */
   const DEV_MODE = false;
+  // Author tools (edit-page-text, step jump, export) stay reachable to the study
+  // author via a PRIVATE link — append ?edit=1 to the URL (e.g. the site + "?edit=1")
+  // — but are hidden and inert for participants on the normal link.
+  const DEV_TOOLS = DEV_MODE || /[?&](?:dev|edit)=1/i.test(location.search);
 
   /* ============================================================
      CONTENT DATA
@@ -1499,7 +1503,7 @@
   // Re-applies overrides for the active screen and (re)marks its elements
   // editable if Edit Mode is on. Call after every render.
   function refreshEditableScreen() {
-    if (!DEV_MODE) return;
+    if (!DEV_TOOLS) return;
     const screenEl = $('.screen.active');
     if (!screenEl) return;
     const editable = applyContentOverrides(screenEl);
@@ -1538,8 +1542,10 @@
   }
 
   function initDevTools() {
-    if (!DEV_MODE) return;
     const bar = $('#devBar');
+    // Hide the corner button entirely for participants; only show + wire it up
+    // when the author opens the site with ?edit=1 (or DEV_MODE is on).
+    if (!DEV_TOOLS) { if (bar) bar.style.display = 'none'; return; }
     const panel = $('#devBarPanel');
     const toggleBtn = $('#devBarToggle');
     const jump = $('#devStepJump');
