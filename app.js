@@ -11,7 +11,7 @@
      this file, plus the #devBar block in index.html) before
      distributing the site to participants.
      ============================================================ */
-  const DEV_MODE = true;
+  const DEV_MODE = false;
 
   /* ============================================================
      CONTENT DATA
