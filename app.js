@@ -22,7 +22,8 @@
      ============================================================ */
 
   const CONFIDENCE_ITEMS = [
-    "I can obtain and recognize a parasternal long-axis (PLAX) view.",
+    "I can recognize a parasternal long-axis (PLAX) view and its main structures.",
+    "I can find the parasternal long-axis (PLAX) view on a patient.",
     "I can recognize severely reduced left ventricular systolic function on the PLAX view.",
     "I can identify a clinically significant pericardial effusion on the PLAX view.",
     "I can recognize a heavily calcified or stenotic aortic valve on the PLAX view.",
