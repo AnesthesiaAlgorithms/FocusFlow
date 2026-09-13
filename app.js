@@ -36,7 +36,10 @@
     "The training modules were well organized and easy to navigate.",
     "The case scenarios helped me apply the concepts to clinical decision-making.",
     "I would recommend this training module to a colleague.",
-    "After this training, I am more likely to consider FoCUS as part of my preoperative assessment."
+    "After this training, I am more likely to consider FoCUS as part of my preoperative assessment.",
+    "The simulated ultrasound (using my phone as a probe) was a helpful way to learn.",
+    "I would recommend this phone-based ultrasound simulation to other anesthesia providers.",
+    "I would be interested in learning more ultrasound techniques through phone-based simulation."
   ];
 
   // Knowledge test — 10 questions, focused on the PLAX view. The SAME set is used
