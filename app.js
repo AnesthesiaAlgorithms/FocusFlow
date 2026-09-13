@@ -18,11 +18,13 @@
      ============================================================ */
 
   const CONFIDENCE_ITEMS = [
-    "I can identify the basic FoCUS views (PLAX, A4C, and subcostal).",
-    "I can recognize severely reduced left ventricular systolic function on a focused cardiac ultrasound.",
-    "I can identify a clinically significant pericardial effusion.",
-    "I can recognize a FoCUS finding that should prompt delaying surgery or requesting a formal echocardiogram.",
-    "Overall, I feel confident in my ability to perform and interpret a basic preoperative FoCUS exam."
+    "I can obtain and recognize a parasternal long-axis (PLAX) view.",
+    "I can recognize severely reduced left ventricular systolic function on the PLAX view.",
+    "I can identify a clinically significant pericardial effusion on the PLAX view.",
+    "I can recognize a heavily calcified or stenotic aortic valve on the PLAX view.",
+    "I can recognize a PLAX finding that should prompt delaying surgery or requesting a formal echocardiogram.",
+    "Overall, I feel confident in my ability to obtain and interpret a basic preoperative PLAX exam.",
+    "I believe performing a preoperative focused cardiac ultrasound (FoCUS) is an appropriate part of the anesthesia provider's role."
   ];
 
   const USABILITY_ITEMS = [
@@ -33,199 +35,93 @@
     "After this training, I am more likely to consider FoCUS as part of my preoperative assessment."
   ];
 
-  // Knowledge test - Form A (pre-training)
+  // Knowledge test — 10 questions, focused on the PLAX view. The SAME set is used
+  // pre and post (KNOWLEDGE_POST references this array).
   const KNOWLEDGE_PRE = [
     { q: "What is the primary purpose of a focused preoperative cardiac ultrasound (FoCUS) exam?",
       o: ["To replace comprehensive transthoracic echocardiography (TTE)",
           "To answer a limited set of targeted clinical questions relevant to anesthetic management",
           "To formally grade valve stenosis severity for surgical planning",
           "To diagnose coronary artery disease"], c: 1 },
-    { q: "Approximately how long does a focused preoperative TTE typically take to perform?",
+    { q: "Approximately how long does a focused preoperative TTE (FoCUS) typically take to perform?",
       o: ["1–2 minutes", "8–12 minutes", "45–60 minutes", "2–3 hours"], c: 1 },
     { q: "Which of the following is a recognized limitation of the Revised Cardiac Risk Index (RCRI)?",
       o: ["It requires advanced imaging equipment to calculate",
-          "It cannot identify subclinical structural cardiac abnormalities",
+          "It cannot identify subclinical structural cardiac abnormalities such as LV dysfunction or valve disease",
           "It can only be used in cardiac surgery patients",
           "It requires a cardiology consult to calculate"], c: 1 },
     { q: "The parasternal long-axis (PLAX) view is primarily used to assess:",
-      o: ["Abdominal aortic aneurysm screening",
-          "LV size/function, mitral and aortic valves, aortic root, and pericardial space",
-          "Right ventricular strain only",
+      o: ["IVC diameter and respiratory collapsibility",
+          "LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space",
+          "Right ventricular free-wall strain only",
           "Carotid artery flow"], c: 1 },
-    { q: "In the apical 4-chamber (A4C) view, a right ventricle that appears equal to or larger than the left ventricle most strongly suggests:",
-      o: ["A normal anatomic variant in all patients",
-          "Severe aortic stenosis",
-          "RV dilation/dysfunction, which may indicate pulmonary hypertension or PE",
-          "Hypovolemia"], c: 2 },
-    { q: "On FoCUS, a large pericardial effusion with right ventricular diastolic collapse is most consistent with:",
-      o: ["A normal incidental finding requiring no action",
-          "Tamponade physiology — a red-flag finding warranting prompt communication",
-          "Severe mitral stenosis",
-          "Volume depletion"], c: 1 },
-    { q: "Which finding on FoCUS would be considered a \"red flag\" warranting further evaluation before proceeding with an elective case?",
-      o: ["Mild left atrial enlargement",
-          "Trace mitral regurgitation",
-          "A new, large pericardial effusion with signs of tamponade physiology",
-          "Mildly hyperdynamic LV function"], c: 2 },
-    { q: "The subcostal (subxiphoid) view is particularly useful for:",
-      o: ["Assessing the aortic arch",
-          "Identifying pericardial effusion and serving as an alternative four-chamber view",
-          "Measuring carotid intima-media thickness",
-          "Visualizing the pulmonary veins"], c: 1 },
-    { q: "A CRNA performs a preoperative FoCUS on a patient scheduled for an elective hip replacement and notes a heavily calcified aortic valve with markedly reduced leaflet excursion. The most appropriate next step is:",
-      o: ["Proceed with the case as planned with no further action",
-          "Document the finding and discuss with the team regarding further cardiac evaluation before proceeding",
-          "Cancel all future surgeries for this patient",
-          "Administer additional sedation to compensate"], c: 1 },
-    { q: "Which of the following best describes the appropriate scope of FoCUS for a CRNA?",
-      o: ["A definitive diagnostic tool that replaces cardiology evaluation",
-          "A screening adjunct to existing clinical risk assessment that identifies findings warranting further workup",
-          "A tool used only in the ICU, never preoperatively",
-          "A billing requirement for all surgical patients"], c: 1 },
-    { q: "Global LV systolic function that appears severely reduced (visually estimated EF <30%) on a focused exam should prompt the CRNA to:",
+    { q: "Which of the following is NOT reliably assessed from the PLAX view alone?",
+      o: ["Global left ventricular systolic function",
+          "The appearance of the mitral and aortic valves",
+          "IVC size and respiratory collapse (a volume-status assessment)",
+          "A posterior pericardial effusion"], c: 2 },
+    { q: "On the PLAX view, global left ventricular systolic function that appears severely reduced (visually estimated EF < 30%) should prompt the CRNA to:",
       o: ["Disregard the finding if the patient appears clinically well",
           "Communicate the finding to the care team and consider further cardiac evaluation before elective surgery",
           "Increase the planned dose of induction agents without further discussion",
           "Repeat the scan only after induction"], c: 1 },
-    { q: "According to the AANA, point-of-care ultrasound (POCUS), including FoCUS, is best described as:",
-      o: ["Outside the scope of CRNA practice entirely",
-          "An advancing competency for evidence-based nurse anesthesia practice",
-          "A required certification for all CRNAs as of this year",
-          "Equivalent in scope to a cardiology fellowship"], c: 1 }
+    { q: "A large pericardial effusion with right ventricular diastolic collapse seen on FoCUS is most consistent with:",
+      o: ["A normal incidental finding requiring no action",
+          "Tamponade physiology — a red-flag finding warranting prompt communication",
+          "Severe mitral stenosis",
+          "Volume depletion"], c: 1 },
+    { q: "On the PLAX view, how is a posterior pericardial effusion distinguished from a left pleural effusion?",
+      o: ["A pericardial effusion tracks anterior to the descending thoracic aorta; a pleural effusion tracks posterior to it",
+          "A pericardial effusion is always the larger of the two",
+          "They cannot be distinguished on the PLAX view",
+          "A pleural effusion always causes right ventricular collapse"], c: 0 },
+    { q: "On the PLAX view, a heavily calcified aortic valve with markedly reduced leaflet excursion is most concerning for:",
+      o: ["A normal age-related change of no clinical importance",
+          "Significant aortic stenosis",
+          "Severe mitral stenosis",
+          "Pulmonary hypertension"], c: 1 },
+    { q: "Which of the following best describes the appropriate scope of FoCUS for a CRNA?",
+      o: ["A definitive diagnostic tool that replaces cardiology evaluation",
+          "A screening adjunct to existing clinical risk assessment that identifies findings warranting further workup",
+          "A tool used only in the ICU, never preoperatively",
+          "A billing requirement for all surgical patients"], c: 1 }
   ];
 
-  // Knowledge test - Form B (post-training, parallel form)
-  const KNOWLEDGE_POST = [
-    { q: "The main goal of a focused preoperative TTE (FoCUS) is best described as:",
-      o: ["Performing a complete structural and functional echocardiographic survey",
-          "Targeting specific, clinically relevant questions that influence the anesthetic plan",
-          "Establishing a definitive cardiology diagnosis",
-          "Replacing the need for any preoperative risk-stratification tool"], c: 1 },
-    { q: "A focused cardiac ultrasound exam is generally designed to be completed within:",
-      o: ["Under 1 minute", "About 8–12 minutes", "Roughly 1 hour", "A full afternoon"], c: 1 },
-    { q: "A key limitation of relying solely on the RCRI for preoperative risk stratification is that it:",
-      o: ["Is too time-consuming to calculate",
-          "Does not capture structural cardiac disease such as valvular pathology or LV dysfunction",
-          "Can only be applied to outpatient procedures",
-          "Requires an echocardiogram to complete"], c: 1 },
-    { q: "Which structures are best evaluated using the parasternal long-axis (PLAX) window?",
-      o: ["Renal artery flow",
-          "LV chamber size/function, mitral and aortic valves, and the pericardium",
-          "Carotid bifurcation",
-          "Pulmonary artery branches only"], c: 1 },
-    { q: "On apical 4-chamber view, finding the right ventricle similar in size to or larger than the left ventricle should raise concern for:",
-      o: ["A technically normal variant requiring no further thought",
-          "Severe mitral stenosis",
-          "RV dilation/dysfunction, possibly from pulmonary hypertension or pulmonary embolism",
-          "Volume depletion"], c: 2 },
-    { q: "Which finding on FoCUS would most strongly suggest pericardial tamponade physiology?",
-      o: ["A trace pericardial effusion with no chamber collapse",
-          "A large pericardial effusion with right ventricular diastolic collapse",
-          "Mild left ventricular hypertrophy",
-          "A normal-appearing aortic root"], c: 1 },
-    { q: "Which of these would be considered an unexpected, high-acuity finding on a preoperative FoCUS that should prompt further discussion before an elective procedure?",
-      o: ["Mildly thickened aortic valve leaflets with normal excursion",
-          "A new, large pericardial effusion with evidence of tamponade physiology",
-          "Trace tricuspid regurgitation",
-          "Normal global LV systolic function"], c: 1 },
-    { q: "The subcostal window is especially valuable because it:",
-      o: ["Is the best view for assessing the aortic arch",
-          "Can detect pericardial effusion and serve as a backup four-chamber view",
-          "Provides the clearest image of the carotid arteries",
-          "Is used primarily to measure blood pressure"], c: 1 },
-    { q: "During a preoperative FoCUS for an elective procedure, a CRNA identifies a severely calcified aortic valve with markedly limited leaflet motion. The best next step is to:",
-      o: ["Proceed without mentioning the finding",
-          "Document and communicate the finding to the team for consideration of further cardiac workup",
-          "Cancel the patient's surgery permanently",
-          "Give extra fluids to compensate"], c: 1 },
-    { q: "The most accurate description of FoCUS within CRNA practice is that it functions as:",
-      o: ["A complete replacement for cardiology-performed echocardiography",
-          "An adjunct screening tool that flags findings needing additional evaluation",
-          "A tool restricted to postoperative ICU use only",
-          "A mandatory billing code for every anesthetic"], c: 1 },
-    { q: "If a focused exam reveals what appears to be severely reduced global LV systolic function in a patient scheduled for elective surgery, the CRNA should:",
-      o: ["Ignore it if vital signs are currently stable",
-          "Report the finding to the care team and consider further evaluation before proceeding",
-          "Proceed and plan to address it only if hypotension occurs intraoperatively",
-          "Repeat the scan only after the patient is under anesthesia"], c: 1 },
-    { q: "The AANA's current position on POCUS (including FoCUS) for CRNAs is that it represents:",
-      o: ["A practice that falls outside CRNA scope",
-          "An advancing competency supporting evidence-based practice",
-          "A skill required only for CRNAs in cardiac subspecialty practice",
-          "Training equivalent to a full echocardiography fellowship"], c: 1 }
-  ];
+  // Post-training knowledge is identical to pre (measures change on the same items).
+  const KNOWLEDGE_POST = KNOWLEDGE_PRE;
 
   // Case-based scenarios - Form A (pre-training)
   // Case-based scenarios - Form A (pre-training). Distractors are all clinically
   // plausible (no give-aways). Items marked "image-ready" are written so a real
   // TTE still/loop can be dropped in later via an `img:` field (see caseMediaHTML).
+  // Three PLAX-centered cases, graded easy → medium → hard. The SAME set is used
+  // pre and post (CASES_POST references this array).
   const CASES_PRE = [
-    { v: "A 74-year-old is scheduled for an elective total hip arthroplasty and reports worsening fatigue and exertional dyspnea over 3 months. Preoperative FoCUS shows a heavily calcified aortic valve with severely reduced leaflet excursion and a hyperdynamic, normal-sized LV. There is no echocardiogram on file.",
+    // CASE 1 — EASY: a clear-cut red flag with a straightforward action.
+    { v: "A 74-year-old scheduled for an elective total hip arthroplasty reports three months of worsening exertional dyspnea and fatigue. On the PLAX view, the aortic valve is heavily calcified with markedly reduced leaflet excursion; the LV is normal-sized and hyperdynamic. There is no echocardiogram on file.",
       q: "What is the most appropriate next step?",
-      o: ["Proceed; FoCUS is only a qualitative screen and cannot diagnose valve disease, so the finding can be set aside",
+      o: ["Proceed with the planned anesthetic; a calcified valve is an expected age-related change",
           "Document the finding and discuss with the team; obtain formal echocardiography and reassess the risk/benefit before this elective case",
           "Proceed with an arterial line and vasopressors available — an isolated calcified valve does not justify delaying surgery",
-          "Attribute the fatigue to deconditioning and proceed; a calcified valve is an expected age-related change"], c: 1 },
-    { v: "A 58-year-old with good exercise tolerance and no cardiac symptoms is scheduled for an elective laparoscopic cholecystectomy. FoCUS shows normal LV size and function, no pericardial effusion, normal RV size, and an IVC with normal respiratory variation.",
-      q: "Should a formal transthoracic echocardiogram (TTE) be obtained before proceeding?",
-      o: ["Yes — a formal TTE should follow every FoCUS exam to confirm the findings",
-          "No — with a reassuring FoCUS and no other cardiac indication, proceed; FoCUS supports the existing risk assessment but does not replace formal echo if symptoms later develop",
-          "Yes — FoCUS cannot evaluate systolic function, so a confirmatory TTE is required before any anesthetic",
-          "No — a normal FoCUS definitively rules out all valvular and structural heart disease"], c: 1 },
-    { v: "A 66-year-old with COPD presents for an elective inguinal hernia repair. On the apical 4-chamber view the right ventricle appears equal to or larger than the left ventricle, with flattening of the interventricular septum.",
-      q: "This finding is most consistent with which process, and what is the most appropriate action?",
-      o: ["Right ventricular pressure/volume overload (e.g., pulmonary hypertension or acute PE); communicate the finding and consider further evaluation before proceeding",
-          "Left ventricular underfilling from hypovolemia — the RV only looks large by comparison; give fluids and proceed",
-          "Elevated left-heart filling pressures from LV failure; diurese and proceed",
-          "An off-axis, foreshortened A4C distorting the RV:LV ratio; re-center the view and disregard the finding"], c: 0 },
-    { v: "A 45-year-old trauma patient who has received minimal fluids requires urgent surgery. FoCUS shows a small, vigorously contracting (hyperdynamic) left ventricle and an IVC that nearly fully collapses with inspiration.",
-      q: "These findings are most consistent with — and the best response is:",
-      o: ["Hypovolemia / volume responsiveness; incorporate volume resuscitation into the anesthetic plan and seek the source",
-          "Normal euvolemic findings; a small hyperdynamic LV is expected in a young patient and needs no action",
-          "Cardiogenic shock from LV failure; begin inotropes before induction",
-          "Early tamponade; the small LV reflects external compression — restrict fluids"], c: 0 },
-    { v: "A 70-year-old scheduled for an elective ventral hernia repair reports two months of worsening exertional dyspnea. FoCUS suggests at least moderately reduced LV systolic function with global hypokinesis. No prior echocardiogram is on file.",
-      q: "For this elective procedure, the most appropriate next step is:",
-      o: ["Proceed; visual ('eyeball') EF estimation on FoCUS is too unreliable to change management",
-          "Document and discuss with the team; obtain formal echocardiography and optimize the patient before this elective case",
-          "Proceed with inotropes prepared — reduced function alone does not warrant delaying surgery",
-          "Cancel and refer directly for coronary angiography"], c: 1 }
+          "Cancel all future surgeries for this patient permanently"], c: 1 },
+    // CASE 2 — MEDIUM: the subtle "a normal FoCUS does not clear the patient" trap.
+    { v: "A 68-year-old with exertional chest pain and a recent positive cardiac stress test is scheduled for an elective procedure. On the PLAX view, LV size and function appear normal, the mitral and aortic valves look normal, and there is no pericardial effusion.",
+      q: "How should this reassuring PLAX be interpreted?",
+      o: ["The normal PLAX effectively clears the patient cardiac-wise; proceed without further concern",
+          "A reassuring FoCUS supports — but does not override — the clinical picture; the positive stress test still warrants cardiology input before this elective case",
+          "FoCUS cannot assess LV function, so a normal-appearing PLAX is meaningless here",
+          "Repeat the FoCUS after induction to confirm the normal findings"], c: 1 },
+    // CASE 3 — HARD: HOCM with dynamic LVOT obstruction and counter-intuitive management.
+    { v: "A 55-year-old with occasional exertional lightheadedness is scheduled for an elective procedure and takes no cardiac medications. On the PLAX view there is marked asymmetric hypertrophy of the interventricular septum with systolic anterior motion (SAM) of the anterior mitral leaflet, and the LV cavity appears small and vigorously (hyperdynamically) contracting.",
+      q: "Which best describes the concern and the most appropriate anesthetic considerations?",
+      o: ["Dilated cardiomyopathy; start an inotrope before induction to support the failing ventricle",
+          "Hypovolemia alone; give a large fluid bolus and proceed without further concern",
+          "Hypertrophic cardiomyopathy with dynamic LV outflow-tract obstruction; maintain preload and afterload, avoid hypovolemia, tachycardia, and vasodilation, and communicate the finding for further evaluation",
+          "A normal finding for age; no change to the anesthetic plan is needed"], c: 2 }
   ];
 
-  // Case-based scenarios - Form B (post-training, parallel form). Same constructs
-  // as Form A in the same order; correct answers sit in different positions.
-  const CASES_POST = [
-    { v: "A 71-year-old scheduled for an elective total knee arthroplasty reports several months of exertional dyspnea. FoCUS shows a thickened, heavily calcified aortic valve with markedly reduced leaflet motion and a hyperdynamic LV. No prior echocardiogram is on file.",
-      q: "What is the most appropriate next step?",
-      o: ["Document the finding and discuss with the team; obtain formal echocardiography and reassess before this elective case",
-          "Proceed; FoCUS cannot diagnose valve disease, so the appearance can be disregarded",
-          "Proceed with invasive arterial monitoring and vasopressors ready — the valve finding alone does not warrant delay",
-          "Attribute the dyspnea to age and proceed without further evaluation"], c: 0 },
-    { v: "A 52-year-old with no cardiac symptoms and good functional capacity is scheduled for an elective umbilical hernia repair. FoCUS shows normal LV size/function, no pericardial effusion, normal RV size, and normal IVC respiratory variation.",
-      q: "Should a formal TTE be obtained before proceeding?",
-      o: ["No — a normal FoCUS conclusively excludes all valvular and structural heart disease",
-          "Yes — FoCUS does not assess systolic function, so a confirmatory TTE is mandatory",
-          "No — with a reassuring FoCUS and no other indication, proceed; FoCUS supports the existing risk assessment but does not replace formal echo if symptoms arise",
-          "Yes — every FoCUS should be confirmed with a formal TTE before anesthesia"], c: 2 },
-    { v: "A 69-year-old with known COPD presents for an elective umbilical hernia repair. On the apical 4-chamber view the right ventricle appears dilated — equal to or larger than the LV — with septal flattening.",
-      q: "This most likely reflects which process, and what should the CRNA do?",
-      o: ["An off-axis A4C exaggerating the RV; re-center the view and disregard the finding",
-          "Right ventricular strain / pulmonary hypertension (or acute PE); communicate the finding and consider further evaluation before proceeding",
-          "Hypovolemia with LV underfilling; administer fluids and proceed",
-          "Left ventricular failure with elevated filling pressures; proceed after diuresis"], c: 1 },
-    { v: "A 39-year-old trauma patient who has had minimal resuscitation requires urgent surgery. FoCUS shows a small, hyperdynamic LV and an IVC that collapses almost completely with inspiration.",
-      q: "These findings are most consistent with — and the best response is:",
-      o: ["Cardiogenic shock; start inotropes before induction",
-          "Early tamponade; restrict fluids",
-          "Normal euvolemic findings requiring no action",
-          "Hypovolemia / volume responsiveness; plan for volume resuscitation and identify the source"], c: 3 },
-    { v: "A 68-year-old scheduled for an elective ventral hernia repair reports several weeks of worsening dyspnea on exertion. FoCUS suggests at least moderately reduced LV systolic function with global hypokinesis; no prior echocardiogram is available.",
-      q: "For this elective procedure, the most appropriate next step is:",
-      o: ["Cancel and refer directly for coronary angiography",
-          "Proceed with inotropes available — reduced function alone does not justify delay",
-          "Document and discuss with the team; obtain formal echocardiography and optimize before this elective case",
-          "Proceed; qualitative FoCUS EF is too unreliable to act on"], c: 2 }
-  ];
+  // Post-training cases are identical to pre (measures change on the same items).
+  const CASES_POST = CASES_PRE;
 
   /* ============================================================
      SVG DIAGRAMS
@@ -459,6 +355,8 @@
     pre: { knowledge: {}, confidence: {}, cases: {} },
     post: { knowledge: {}, confidence: {}, cases: {} },
     usability: {},
+    // Post-only hands-on experience (conditional on what the participant did)
+    experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null },
     openFeedback: ''
   };
 
@@ -714,12 +612,73 @@
       </div>
     `).join('');
     $('#usabilityContainer').innerHTML = html;
+    renderExperience();
     $('#openFeedback').value = STATE.openFeedback || '';
+    updateFeedbackCount();
     updateUsabilityNext();
   }
 
+  // Post-only hands-on experience: two Yes/No questions, with helpfulness and a
+  // "which was more helpful?" follow-up that appear only when relevant.
+  function renderExperience() {
+    const host = $('#experienceContainer');
+    if (!host) return;
+    const ex = STATE.experience;
+    const yesNo = (key, q) => `
+      <div class="exp-q">
+        <div class="stmt">${q}</div>
+        <div class="seg-row">
+          <div class="seg-opt ${ex[key] === 'yes' ? 'selected' : ''}" data-expq="${key}" data-val="yes">Yes</div>
+          <div class="seg-opt ${ex[key] === 'no' ? 'selected' : ''}" data-expq="${key}" data-val="no">No</div>
+        </div>
+      </div>`;
+    const helpScale = (key, q) => `
+      <div class="exp-q">
+        <div class="stmt">${q}</div>
+        <div class="likert-scale">
+          ${[1,2,3,4,5].map(v => `
+            <div class="likert-opt ${ex[key] === v ? 'selected' : ''}" data-exhelp="${key}" data-val="${v}">
+              <span class="num">${v}</span>
+            </div>`).join('')}
+        </div>
+        <div class="likert-labels"><span>Not at all helpful</span><span>Extremely helpful</span></div>
+      </div>`;
+    let n = 2;
+    let html = yesNo('usedPhone', '1. Did you use your phone as a simulated ultrasound probe?')
+             + yesNo('usedModel', '2. Did you attend the in-person 3D-printed probe-model demonstration?');
+    if (ex.usedPhone === 'yes') html += helpScale('phoneHelp', `${++n}. How helpful was the phone probe simulation to your learning?`);
+    if (ex.usedModel === 'yes') html += helpScale('modelHelp', `${++n}. How helpful was the in-person 3D-printed model to your learning?`);
+    if (ex.usedPhone === 'yes' && ex.usedModel === 'yes') {
+      html += `
+      <div class="exp-q">
+        <div class="stmt">${++n}. Which did you find more helpful?</div>
+        <div class="seg-row seg-row-3">
+          <div class="seg-opt ${ex.moreHelpful === 'phone' ? 'selected' : ''}" data-exmore data-val="phone">Phone simulation</div>
+          <div class="seg-opt ${ex.moreHelpful === 'model' ? 'selected' : ''}" data-exmore data-val="model">In-person 3D model</div>
+          <div class="seg-opt ${ex.moreHelpful === 'equal' ? 'selected' : ''}" data-exmore data-val="equal">Equally helpful</div>
+        </div>
+      </div>`;
+    }
+    host.innerHTML = html;
+  }
+
+  function experienceComplete() {
+    const ex = STATE.experience;
+    if (ex.usedPhone === null || ex.usedModel === null) return false;
+    if (ex.usedPhone === 'yes' && ex.phoneHelp == null) return false;
+    if (ex.usedModel === 'yes' && ex.modelHelp == null) return false;
+    if (ex.usedPhone === 'yes' && ex.usedModel === 'yes' && !ex.moreHelpful) return false;
+    return true;
+  }
+
+  function updateFeedbackCount() {
+    const el = $('#feedbackCount'); if (!el) return;
+    const words = (STATE.openFeedback || '').trim().split(/\s+/).filter(Boolean);
+    el.textContent = words.length + '/10 words';
+  }
+
   function updateUsabilityNext() {
-    const complete = USABILITY_ITEMS.every((_, i) => STATE.usability[i] !== undefined);
+    const complete = USABILITY_ITEMS.every((_, i) => STATE.usability[i] !== undefined) && experienceComplete();
     $('#btnUsabilityNext').disabled = !complete;
   }
 
@@ -748,11 +707,9 @@
   // One rationale per construct; CASES_PRE and CASES_POST test the same
   // construct at the same index, so the review (post form) reuses these.
   const CASE_RATIONALES = [
-    "Symptomatic severe aortic stenosis (heavily calcified valve, reduced leaflet excursion, exertional symptoms) found on a screening FoCUS is a red flag before an elective case. FoCUS does not grade stenosis severity, so the correct step is to document, communicate, and obtain formal echocardiography to reassess risk — not to disregard it or rely on monitoring alone.",
-    "A reassuring FoCUS in a patient with no symptoms and no other cardiac indication supports proceeding — a formal TTE is not required after every FoCUS. The nuance: FoCUS supports but does not replace formal echo, and it does not 'rule out all structural disease.' It does give a qualitative look at systolic function.",
-    "A right ventricle equal to or larger than the LV with septal flattening reflects RV pressure/volume overload — chronic pulmonary hypertension or acute strain such as PE — not LV failure or simple hypovolemia. An off-axis A4C can distort the ratio, but a reproducible finding should be communicated and evaluated before proceeding.",
-    "A small, hyperdynamic LV with a near-fully collapsing IVC indicates hypovolemia / volume responsiveness, especially in a trauma patient with minimal resuscitation. The plan should incorporate volume resuscitation and a search for the source — not fluid restriction, inotropes, or assuming the picture is normal.",
-    "A new, symptomatic reduction in LV systolic function with no prior echo warrants formal evaluation and optimization before an elective procedure. FoCUS EF is qualitative, but a symptomatic finding should prompt workup — not be dismissed as unreliable, and proceeding straight to angiography is premature before echocardiography."
+    "A symptomatic, heavily calcified aortic valve with markedly reduced excursion on a screening PLAX is a red flag before an elective case. FoCUS does not grade stenosis severity, so the correct step is to document, communicate, and obtain formal echocardiography to reassess risk — not to dismiss it as an age-related change or rely on monitoring alone.",
+    "A reassuring PLAX is helpful, but a normal focused exam does not override a concerning clinical picture — here, exertional chest pain with a positive stress test. FoCUS supports the existing risk assessment; it does not replace formal cardiac evaluation when history and testing raise concern, so cardiology input is still warranted before this elective case.",
+    "Asymmetric septal hypertrophy with systolic anterior motion (SAM) and a small, hyperdynamic LV suggests hypertrophic cardiomyopathy with dynamic LV outflow-tract obstruction. Management is counter-intuitive: keep the tank full and the vessels squeezed at a controlled rate — maintain preload and afterload and avoid hypovolemia, tachycardia, and vasodilation. Inotropes worsen the obstruction. Communicate the finding for further evaluation."
   ];
 
   // One rationale per knowledge construct (KNOWLEDGE_PRE/POST share the order).
@@ -761,14 +718,12 @@
     "A focused preoperative cardiac ultrasound is meant to be brief — on the order of 8–12 minutes — which is what distinguishes it from a complete study.",
     "The RCRI is based on history and comorbidities; it does not detect subclinical structural disease such as valvular pathology or LV dysfunction — a gap that FoCUS can help fill.",
     "The parasternal long-axis (PLAX) window shows LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space.",
-    "An RV that appears equal to or larger than the LV (often with septal flattening) suggests RV dilation/dysfunction — concerning for pulmonary hypertension or acute PE — not a normal variant, aortic stenosis, or hypovolemia.",
-    "A large pericardial effusion with right ventricular diastolic collapse indicates tamponade physiology — a red-flag finding that warrants prompt communication.",
-    "Of the options, only a new, large pericardial effusion with tamponade signs is a high-acuity red flag; mild/trace findings and normal or hyperdynamic function are not.",
-    "The subcostal (subxiphoid) view is excellent for detecting pericardial effusion and serves as a backup four-chamber view when parasternal/apical windows are limited.",
-    "A heavily calcified aortic valve with markedly reduced leaflet excursion suggests significant aortic stenosis; the correct response is to document and communicate for possible further cardiac evaluation — not to ignore it or cancel care.",
-    "FoCUS is a screening adjunct to existing clinical risk assessment that flags findings needing further workup — it is not a replacement for cardiology evaluation.",
+    "The IVC — used to judge volume status — is assessed from the subcostal window, not from PLAX. PLAX does show LV function, the valves, and a posterior pericardial effusion.",
     "Visually severe LV dysfunction (estimated EF <30%) should be communicated and prompt consideration of further evaluation before elective surgery — not disregarded or managed by simply changing drug doses.",
-    "The AANA describes POCUS, including FoCUS, as an advancing competency for evidence-based nurse anesthesia practice."
+    "A large pericardial effusion with right ventricular diastolic collapse indicates tamponade physiology — a red-flag finding that warrants prompt communication.",
+    "On PLAX, a pericardial effusion tracks anterior to the descending thoracic aorta, while a pleural effusion tracks posterior to it — the key landmark for telling them apart.",
+    "A heavily calcified aortic valve with markedly reduced leaflet excursion suggests significant aortic stenosis. FoCUS cannot grade severity, so the finding should be communicated for possible further evaluation.",
+    "FoCUS is a screening adjunct to existing clinical risk assessment that flags findings needing further workup — it is not a replacement for cardiology evaluation."
   ];
 
   // Generic review block: marks each item correct/incorrect, shows the best
@@ -852,6 +807,7 @@
         post: { answers: STATE.post.cases, ...cPost }
       },
       usability: STATE.usability,
+      experience: STATE.experience,
       openFeedback: STATE.openFeedback
     };
   }
@@ -974,7 +930,13 @@
   // Usability nav
   $('#btnUsabilityBack').addEventListener('click', prevStep);
   $('#btnUsabilityNext').addEventListener('click', () => { if (!$('#btnUsabilityNext').disabled) nextStep(); });
-  $('#openFeedback').addEventListener('input', e => { STATE.openFeedback = e.target.value; });
+  $('#openFeedback').addEventListener('input', e => {
+    // Cap free-text feedback at 10 words.
+    let words = e.target.value.split(/\s+/).filter(Boolean);
+    if (words.length > 10) { words = words.slice(0, 10); e.target.value = words.join(' ') + ' '; }
+    STATE.openFeedback = e.target.value;
+    updateFeedbackCount();
+  });
 
   // Results
   $('#btnDownload').addEventListener('click', downloadResults);
@@ -990,9 +952,10 @@
       pre: { knowledge: {}, confidence: {}, cases: {} },
       post: { knowledge: {}, confidence: {}, cases: {} },
       usability: {},
+      experience: { usedPhone: null, usedModel: null, phoneHelp: null, modelHelp: null, moreHelpful: null },
       openFeedback: ''
     });
-    $$('.radio-row, .check-row, .likert-opt').forEach(el => el.classList.remove('selected'));
+    $$('.radio-row, .check-row, .likert-opt, .seg-opt').forEach(el => el.classList.remove('selected'));
     $('#consentCheck').checked = false;
     $('#btnStart').disabled = true;
     goToStep(0);
@@ -1072,6 +1035,36 @@
       STATE.usability[qi] = val;
       $$(`[data-uq="${qi}"]`).forEach(el => el.classList.remove('selected'));
       uOpt.classList.add('selected');
+      updateUsabilityNext();
+      return;
+    }
+
+    // Experience: Yes/No questions (may reveal or hide follow-ups → re-render)
+    const expOpt = e.target.closest('[data-expq]');
+    if (expOpt) {
+      const key = expOpt.getAttribute('data-expq');
+      STATE.experience[key] = expOpt.getAttribute('data-val');
+      // clear now-irrelevant follow-ups when the answer is "no"
+      if (key === 'usedPhone' && STATE.experience.usedPhone === 'no') STATE.experience.phoneHelp = null;
+      if (key === 'usedModel' && STATE.experience.usedModel === 'no') STATE.experience.modelHelp = null;
+      if (STATE.experience.usedPhone !== 'yes' || STATE.experience.usedModel !== 'yes') STATE.experience.moreHelpful = null;
+      renderExperience();
+      updateUsabilityNext();
+      return;
+    }
+    // Experience: helpfulness Likert (phone / model)
+    const exHelp = e.target.closest('[data-exhelp]');
+    if (exHelp) {
+      STATE.experience[exHelp.getAttribute('data-exhelp')] = parseInt(exHelp.getAttribute('data-val'), 10);
+      renderExperience();
+      updateUsabilityNext();
+      return;
+    }
+    // Experience: which was more helpful
+    const exMore = e.target.closest('[data-exmore]');
+    if (exMore) {
+      STATE.experience.moreHelpful = exMore.getAttribute('data-val');
+      renderExperience();
       updateUsabilityNext();
       return;
     }

@@ -92,6 +92,14 @@
   .likert-opt.selected{border-color:var(--blue); background:var(--blue); color:#fff;}
   .likert-opt.selected .num{color:#fff;}
   .likert-labels{display:flex; justify-content:space-between; font-size:.7rem; color:var(--gray); margin-top:4px;}
+  /* Experience Yes/No + choice segmented controls */
+  .exp-q{margin:14px 0;}
+  .exp-q .stmt{font-size:.92rem; font-weight:500; margin-bottom:8px;}
+  .seg-row{display:flex; gap:8px;}
+  .seg-opt{flex:1; text-align:center; padding:11px 6px; border:1px solid #cbd5e1; border-radius:8px;
+    background:#fff; color:var(--navy); font-size:.85rem; font-weight:600; cursor:pointer;}
+  .seg-opt.selected{border-color:var(--accent); background:#eef6fc; color:var(--blue);}
+  .seg-row-3 .seg-opt{font-size:.8rem;}
 
   /* Buttons */
   .btn-row{display:flex; gap:10px; margin-top:18px;}
@@ -402,21 +410,22 @@
       <div id="roleOptions">
         <div class="radio-row" data-name="role" data-value="SRNA"><input type="radio" name="role" value="SRNA"><span>SRNA (student registered nurse anesthetist)</span></div>
         <div class="radio-row" data-name="role" data-value="CRNA"><input type="radio" name="role" value="CRNA"><span>CRNA</span></div>
-        <div class="radio-row" data-name="role" data-value="Resident"><input type="radio" name="role" value="Resident"><span>Anesthesia resident</span></div>
+        <div class="radio-row" data-name="role" data-value="Certified Anesthesia Assistant"><input type="radio" name="role" value="Certified Anesthesia Assistant"><span>Certified Anesthesia Assistant</span></div>
         <div class="radio-row" data-name="role" data-value="Faculty CRNA"><input type="radio" name="role" value="Faculty CRNA"><span>Faculty CRNA</span></div>
+        <div class="radio-row" data-name="role" data-value="Physician Anesthesiologist (MD/DO)"><input type="radio" name="role" value="Physician Anesthesiologist (MD/DO)"><span>Physician Anesthesiologist (MD/DO)</span></div>
         <div class="radio-row" data-name="role" data-value="Other"><input type="radio" name="role" value="Other"><span>Other</span></div>
       </div>
 
       <label for="yearsExp">Years of anesthesia experience (enter 0 if a student/resident)</label>
       <input type="number" id="yearsExp" min="0" max="60" placeholder="e.g., 3">
 
-      <label>Have you had any prior point-of-care ultrasound (POCUS) training?</label>
+      <label>Have you had any prior cardiac point-of-care ultrasound (POCUS) training?</label>
       <div id="pocusTraining">
         <div class="radio-row" data-name="pocusTraining" data-value="Yes"><input type="radio" name="pocusTraining" value="Yes"><span>Yes</span></div>
         <div class="radio-row" data-name="pocusTraining" data-value="No"><input type="radio" name="pocusTraining" value="No"><span>No</span></div>
       </div>
 
-      <label>Have you previously performed or assisted with a focused cardiac ultrasound (FoCUS) exam?</label>
+      <label>Have you previously performed or assisted with a preoperative transthoracic echocardiogram (TTE) &mdash; not TEE?</label>
       <div id="focusExp">
         <div class="radio-row" data-name="focusExp" data-value="Yes"><input type="radio" name="focusExp" value="Yes"><span>Yes</span></div>
         <div class="radio-row" data-name="focusExp" data-value="No"><input type="radio" name="focusExp" value="No"><span>No</span></div>
@@ -597,10 +606,18 @@
     <div class="card">
       <span class="pill">Step 6 of 6</span>
       <h2 class="section-title">Final Feedback</h2>
-      <p class="muted">A few last questions about the module itself.</p>
+      <p class="muted">A few last questions about your experience.</p>
+
+      <h3>Your hands-on experience</h3>
+      <div id="experienceContainer"></div>
+
+      <h3>About the training</h3>
       <div id="usabilityContainer"></div>
-      <label for="openFeedback">Any other comments or suggestions for improving this training module?</label>
-      <textarea id="openFeedback" placeholder="Optional"></textarea>
+
+      <h3>Your feedback</h3>
+      <label for="openFeedback">In a few words, what would you change or add? (up to 10 words)</label>
+      <textarea id="openFeedback" placeholder="Optional — up to 10 words"></textarea>
+      <div class="muted" id="feedbackCount" style="text-align:right; font-size:.72rem; margin-top:2px;">0/10 words</div>
     </div>
     <div class="btn-row">
       <button class="btn-secondary" id="btnUsabilityBack">Back</button>
@@ -665,6 +682,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="app.js?v=20260709c"></script>
+<script src="app.js?v=20260913"></script>
 </body>
 </html>
