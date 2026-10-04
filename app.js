@@ -189,14 +189,17 @@
     </div>`;
   }
 
-  // Real, CC-licensed cine loop for a view (webm + mp4 source for cross-browser
-  // playback, incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
+  // Bump when clip/image files are replaced so browsers don't show a cached copy.
+  const CLIP_VER = '20261004b';
+
+  // Real cine loop for a view (webm + mp4 source for cross-browser playback,
+  // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
   function echoLoopHTML(id, label, sub) {
     return `<div class="view-display">
       <div class="view-label">${label}</div>
       <video class="echo-loop" autoplay muted loop playsinline preload="metadata">
-        <source src="clips/${id}.webm" type="video/webm">
-        <source src="clips/${id}.mp4" type="video/mp4">
+        <source src="clips/${id}.webm?v=${CLIP_VER}" type="video/webm">
+        <source src="clips/${id}.mp4?v=${CLIP_VER}" type="video/mp4">
       </video>
       <div class="view-sub">${sub}</div>
     </div>`;
@@ -270,8 +273,9 @@
     }
   ];
 
-  // Views used by the virtual probe simulator (matches blueprint: PLAX, A4C, Subcostal 4CH)
-  const PROBE_VIEW_IDS = ['plax', 'a4c', 'subcostal'];
+  // Views used by the virtual probe simulator. The study teaches a single view (PLAX);
+  // A4C and subcostal remain defined above for future use.
+  const PROBE_VIEW_IDS = ['plax'];
 
   // Where to place the probe for each window (shown in the clickable view explorer).
   const VIEW_PLACEMENT = {
@@ -566,10 +570,11 @@
   // CASES_PRE/CASES_POST item:  img: 'clips/case_rv.jpg'  (or a .webm/.mp4 loop),
   // and optionally  imgcap: 'Apical 4-chamber'.
   function caseMediaHTML(item) {
-    const src = item.img;
+    const src = item.img + (item.img.indexOf('?') < 0 ? '?v=' + CLIP_VER : '');
     const cap = item.imgcap ? `<figcaption class="case-media-cap">${item.imgcap}</figcaption>` : '';
-    const media = /\.(webm|mp4|ogv)$/i.test(src)
-      ? `<video class="case-media-el" autoplay muted loop playsinline preload="metadata"><source src="${src}"></video>`
+    const ext = (item.img.match(/\.(webm|mp4|ogv)(\?|$)/i) || [])[1];
+    const media = ext
+      ? `<video class="case-media-el" autoplay muted loop playsinline preload="metadata"><source src="${src}" type="video/${ext.toLowerCase() === 'ogv' ? 'ogg' : ext.toLowerCase()}"></video>`
       : `<img class="case-media-el" src="${src}" alt="Echocardiography image for this case scenario">`;
     return `<figure class="case-media">${media}${cap}</figure>`;
   }
@@ -1172,6 +1177,71 @@
   const SCROLL_SLIDE = 450; // % translateX per scan unit — the horizontal "pan"
   const FOCUS_SIG = 0.085;  // scan-distance over which a view falls out of focus
 
+  // Real "approach" footage (manifest.track): consecutive frames from the author's
+  // own continuous scan — no probe contact -> off-axis search -> on-axis PLAX.
+  // The phone's alignment (accuracy) scrubs through it so the image flows with the
+  // hand; once aligned, the beating loop crossfades in and takes over.
+  const TRACK = {
+    imgs: [], knots: null, cycle: 8, fps: 10, lock: [86, 96],
+    canvas: null, ctx: null, last: -1, phase: 0, tPhase: 0
+  };
+
+  function loadTrack() {
+    const t = ECHO.manifest && ECHO.manifest.track;
+    if (!t || TRACK.imgs.length) return;
+    TRACK.knots = t.knots || [[5, 0], [90, t.count - 1]];
+    TRACK.cycle = t.cycle || 8;
+    TRACK.fps = t.fps || 10;
+    TRACK.lock = t.lock || TRACK.lock;
+    for (let i = 0; i < t.count; i++) {
+      const im = new Image();
+      im.decoding = 'async';
+      im.src = t.pattern.replace('{i}', String(i).padStart(3, '0')) + '?v=' + CLIP_VER;
+      TRACK.imgs.push(im);
+    }
+  }
+
+  // Piecewise-linear map from alignment accuracy (0-100) to a track frame index.
+  function trackIndex(acc) {
+    const k = TRACK.knots;
+    if (acc <= k[0][0]) return k[0][1];
+    for (let j = 1; j < k.length; j++) {
+      if (acc <= k[j][0]) {
+        const a0 = k[j - 1][0], i0 = k[j - 1][1], a1 = k[j][0], i1 = k[j][1];
+        return i0 + (i1 - i0) * (acc - a0) / (a1 - a0);
+      }
+    }
+    return k[k.length - 1][1];
+  }
+
+  function trackReady() {
+    const im = TRACK.imgs[0];
+    return !!(TRACK.ctx && im && im.complete && im.naturalWidth);
+  }
+
+  // Draws the current approach frame; returns how far the loop has taken over (0-1).
+  function drawTrack(acc) {
+    const now = performance.now();
+    // Keep the heart moving while the hand is still: cycle through about one beat
+    // of footage around the current position at the recording's frame rate.
+    if (now - TRACK.tPhase >= 1000 / TRACK.fps) { TRACK.tPhase = now; TRACK.phase = (TRACK.phase + 1) % TRACK.cycle; }
+    const n = TRACK.imgs.length;
+    const base = Math.round(trackIndex(acc));
+    const start = clampNum(base - Math.floor(TRACK.cycle / 2), 0, Math.max(0, n - TRACK.cycle));
+    const idx = clampNum(start + TRACK.phase, 0, n - 1);
+    if (idx !== TRACK.last) {
+      const im = TRACK.imgs[idx];
+      if (im.complete && im.naturalWidth) {
+        TRACK.ctx.drawImage(im, 0, 0, TRACK.canvas.width, TRACK.canvas.height);
+        TRACK.last = idx;
+      }
+    }
+    const t = clampNum((acc - TRACK.lock[0]) / (TRACK.lock[1] - TRACK.lock[0]), 0, 1);
+    const lock = t * t * (3 - 2 * t);   // smoothstep
+    TRACK.canvas.style.opacity = (1 - lock).toFixed(3);
+    return lock;
+  }
+
   function loadEchoManifest() {
     if (ECHO.manifest) return Promise.resolve(ECHO.manifest);
     // cache-bust the tiny manifest so clip/citation updates always take effect
@@ -1195,6 +1265,17 @@
     const stack = $('#echoStack');
     if (!stack) return;
     const haze = $('#echoHaze');
+    // Approach-footage canvas sits beneath the loop layer(s).
+    if (ECHO.manifest && ECHO.manifest.track && !TRACK.canvas) {
+      const c = document.createElement('canvas');
+      c.className = 'echo-layer echo-track';
+      c.width = ECHO.manifest.track.size || 480;
+      c.height = ECHO.manifest.track.size || 480;
+      c.style.opacity = '1';
+      stack.insertBefore(c, haze || null);
+      TRACK.canvas = c;
+      TRACK.ctx = c.getContext('2d');
+    }
     ECHO.montage = montageList().map(entry => {
       const view = ECHO.manifest && ECHO.manifest.views[entry.id];
       const src = (view && view.src) || ('clips/' + entry.id + '.webm');
@@ -1202,8 +1283,8 @@
       v.className = 'echo-layer';
       v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
       v.setAttribute('playsinline', '');
-      v.innerHTML = '<source src="' + src + '" type="video/webm">' +
-                    '<source src="' + src.replace(/\.webm$/, '.mp4') + '" type="video/mp4">';
+      v.innerHTML = '<source src="' + src + '?v=' + CLIP_VER + '" type="video/webm">' +
+                    '<source src="' + src.replace(/\.webm$/, '.mp4') + '?v=' + CLIP_VER + '" type="video/mp4">';
       v.style.opacity = '0';
       ECHO.op[entry.id] = 0;
       stack.insertBefore(v, haze || null);
@@ -1215,7 +1296,7 @@
   function setupEchoVideos() {
     // Ensure the manifest (with sweep arrays) is loaded BEFORE building layers,
     // so we build all the sweep clips rather than a single-clip fallback.
-    return loadEchoManifest().then(function () { buildEchoLayers(); renderEchoCredits(); });
+    return loadEchoManifest().then(function () { buildEchoLayers(); loadTrack(); renderEchoCredits(); });
   }
 
   function renderEchoCredits() {
@@ -1251,6 +1332,11 @@
       ECHO.acc += ((ECHO.accTarget || 0) - ECHO.acc) * 0.2;
       const p = ECHO.p;
 
+      // With approach footage loaded, the footage carries the image until the
+      // probe is aligned, then the beating loop takes over (lock 0 -> 1).
+      const useTrack = trackReady();
+      const lock = useTrack ? drawTrack(clampNum(ECHO.acc, 0, 100)) : 1;
+
       // Position the real loop(s). With a single PLAX window this simply keeps the
       // loop centered; the multi-view slide is retained for completeness.
       ECHO.montage.forEach(e => {
@@ -1260,8 +1346,9 @@
         const nv = cur + (wgt - cur) * 0.25;
         ECHO.op[e.id] = nv;
         const tx = ECHO.montage.length > 1 ? clampNum(d * SCROLL_SLIDE, -170, 170) : 0;
-        e.el.style.opacity = nv.toFixed(3);
+        e.el.style.opacity = (nv * lock).toFixed(3);
         e.el.style.transform = 'translateX(' + tx.toFixed(1) + '%)';
+        // Keep the loop running under the footage so it is already beating when it fades in.
         if (nv > 0.02) { if (e.el.paused) { const pr = e.el.play(); if (pr && pr.catch) pr.catch(() => {}); } }
         else if (!e.el.paused) { try { e.el.pause(); } catch (err) {} }
       });
@@ -1272,19 +1359,24 @@
       const focus = acc * acc;   // squared ease — snaps into focus near the sweet spot
       const stack = $('#echoStack');
       if (stack) {
-        stack.style.filter =
-          'blur(' + ((1 - focus) * 4.2).toFixed(2) + 'px) ' +
-          'brightness(' + (0.5 + 0.5 * focus).toFixed(2) + ') ' +
-          'contrast(' + (0.85 + 0.3 * focus).toFixed(2) + ')';
+        // Real footage already shows off-axis and poor-contact images, so it only
+        // gets a gentle dim; the blur is kept for the loop-only fallback.
+        stack.style.filter = useTrack
+          ? 'brightness(' + (0.8 + 0.2 * acc).toFixed(2) + ')'
+          : 'blur(' + ((1 - focus) * 4.2).toFixed(2) + 'px) ' +
+            'brightness(' + (0.5 + 0.5 * focus).toFixed(2) + ') ' +
+            'contrast(' + (0.85 + 0.3 * focus).toFixed(2) + ')';
         // Fine probe motion pans the beam and settles with a slight zoom-in.
+        // The footage's fan lines up with the sector overlay, so its pan stays small.
         const fan = ECHO.fan || 0, rock = ECHO.rock || 0;
-        const px = clampNum(rock * 1.1, -16, 16);
-        const py = clampNum(-fan * 1.1, -16, 16);
+        const panMax = useTrack ? 4 : 16;
+        const px = clampNum(rock * 1.1, -panMax, panMax);
+        const py = clampNum(-fan * 1.1, -panMax, panMax);
         stack.style.transform =
           'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) scale(' + (1.02 + 0.05 * focus).toFixed(3) + ')';
       }
       const haze = $('#echoHaze');
-      if (haze) haze.style.opacity = ((1 - focus) * 0.45).toFixed(2);
+      if (haze) haze.style.opacity = ((1 - focus) * (useTrack ? 0.2 : 0.45)).toFixed(2);
 
       // Label + accuracy HUD.
       const nf = nearestFrame(p);
