@@ -6,10 +6,44 @@
       "name": "Parasternal Long-Axis",
       "structures": "RV, IVS, LV, posterior wall, aortic root, LA, mitral & aortic valves",
       "status": "ready",
-      "citation": "CardioNetworks Foundation. (n.d.). Parasternal long axis (normal) [Video]. Echopedia; courtesy Dept. of Echocardiography, AMC, I. A. C. van der Bilt. https://www.echopedia.org/index.php/Parasternal_long_axis (CC BY-SA)"
+      "citation": "Echo images: the principal investigator's own transthoracic echocardiogram (2026), de-identified."
     }
   },
   "montage": [
-    { "id": "plax", "pos": 0.5, "anchor": true }
-  ]
+    {
+      "id": "plax",
+      "pos": 0.5,
+      "anchor": true
+    }
+  ],
+  "track": {
+    "pattern": "clips/track/plax_{i}.jpg",
+    "count": 66,
+    "size": 480,
+    "fps": 10,
+    "cycle": 8,
+    "knots": [
+      [
+        5,
+        0
+      ],
+      [
+        20,
+        8
+      ],
+      [
+        60,
+        39
+      ],
+      [
+        88,
+        65
+      ]
+    ],
+    "lock": [
+      86,
+      96
+    ],
+    "source": "10I1(5).mp4, frames 110-175 (0:11.0-0:17.5): probe lift-off -> off-axis search -> on-axis PLAX"
+  }
 }

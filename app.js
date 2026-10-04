@@ -114,6 +114,7 @@
           "Cancel all future surgeries for this patient permanently"], c: 1 },
     // CASE 2 — MEDIUM: the subtle "a normal FoCUS does not clear the patient" trap.
     { v: "A 68-year-old with exertional chest pain and a recent positive cardiac stress test is scheduled for an elective procedure. On the PLAX view, LV size and function appear normal, the mitral and aortic valves look normal, and there is no pericardial effusion.",
+      img: 'clips/plax.mp4', imgcap: 'Parasternal long-axis (PLAX) view',
       q: "How should this reassuring PLAX be interpreted?",
       o: ["The normal PLAX effectively clears the patient cardiac-wise; proceed without further concern",
           "A reassuring FoCUS supports — but does not override — the clinical picture; the positive stress test still warrants cardiology input before this elective case",
@@ -190,7 +191,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261004b';
+  const CLIP_VER = '20261004d';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -334,8 +335,8 @@
 
         <h3 style="margin-top:18px;">What you can interpret from a PLAX view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
-          <img src="assets/plax-still.jpg" alt="Parasternal long-axis echocardiography still" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
-          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Reading the PLAX image, near field to far: <b>RV</b> (top) &rarr; interventricular <b>septum</b> &rarr; <b>LV</b> cavity &rarr; <b>mitral valve</b> (center) &rarr; <b>aortic valve &amp; root / LVOT</b> (right) &rarr; <b>left atrium</b> (below the aorta) &rarr; posterior wall &amp; <b>pericardium</b> (bottom). <br>Image: CardioNetworks / Echopedia (CC BY-SA).</figcaption>
+          <img src="assets/plax-still-own.jpg?v=20261004d" alt="Parasternal echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
+          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Reading a PLAX image, near field to far: <b>RV</b> &rarr; interventricular <b>septum</b> &rarr; <b>LV</b> cavity &rarr; <b>mitral valve</b> &rarr; <b>aortic valve &amp; root / LVOT</b> &rarr; <b>left atrium</b> &rarr; posterior wall &amp; <b>pericardium</b>. <br>Image: the principal investigator's own transthoracic echocardiogram (de-identified).</figcaption>
         </figure>
         <p>A single PLAX image answers several targeted questions:</p>
         <ul class="content-list">
