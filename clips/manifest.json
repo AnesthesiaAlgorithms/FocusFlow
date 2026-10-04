@@ -18,32 +18,17 @@
   ],
   "track": {
     "pattern": "clips/track/plax_{i}.jpg",
-    "count": 66,
+    "count": 77,
     "size": 480,
-    "fps": 10,
-    "cycle": 8,
-    "knots": [
-      [
-        5,
-        0
-      ],
-      [
-        20,
-        8
-      ],
-      [
-        60,
-        39
-      ],
-      [
-        88,
-        65
-      ]
-    ],
-    "lock": [
-      86,
-      96
-    ],
-    "source": "10I1(5).mp4, frames 110-175 (0:11.0-0:17.5): probe lift-off -> off-axis search -> on-axis PLAX"
+    "fps": 10.02,
+    "period": 8.28,
+    "near": 4.2,
+    "far": 72,
+    "zMax": 2.2,
+    "lockIn": 90,
+    "lockOut": 84,
+    "lockFadeMs": 350,
+    "jumpFadeMs": 180,
+    "source": "10I1(1).mp4 frames 0-76 (0:00-0:07.6): on-window view matching the loop (recorded 1.5 min after 10I1.mp4) -> nearby views -> lost contact. Played in real time; the phone picks the position."
   }
 }

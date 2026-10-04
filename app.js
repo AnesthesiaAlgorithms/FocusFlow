@@ -191,7 +191,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261004d';
+  const CLIP_VER = '20261004e';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -1186,22 +1186,27 @@
   const SCROLL_SLIDE = 450; // % translateX per scan unit — the horizontal "pan"
   const FOCUS_SIG = 0.085;  // scan-distance over which a view falls out of focus
 
-  // Real "approach" footage (manifest.track): consecutive frames from the author's
-  // own continuous scan — no probe contact -> off-axis search -> on-axis PLAX.
-  // The phone's alignment (accuracy) scrubs through it so the image flows with the
-  // hand; once aligned, the beating loop crossfades in and takes over.
+  // Real scan footage for the phone simulator (manifest.track): consecutive frames of
+  // the author's own scan, ordered from the on-window view ("near") out to lost probe
+  // contact ("far"). The phone's alignment chooses WHERE in the footage you are, while a
+  // separate playhead runs the footage forward in real time, so the heart always beats
+  // at its natural rate no matter how the hand moves. When the playhead drifts more than
+  // half a beat from the hand's position it jumps by exactly one heartbeat (crossfaded),
+  // which keeps the rhythm continuous. Neighbouring frames are blended so the 10-fps
+  // footage moves smoothly. Once aligned, the 30-fps loop fades in and takes over.
   const TRACK = {
-    imgs: [], knots: null, cycle: 8, fps: 10, lock: [86, 96],
-    canvas: null, ctx: null, last: -1, phase: 0, tPhase: 0
+    imgs: [], cfg: null, canvas: null, ctx: null,
+    pos: 0, head: null, prevHead: null, jumpT: 1,
+    lock: 0, locked: false, lastT: 0
   };
 
   function loadTrack() {
     const t = ECHO.manifest && ECHO.manifest.track;
     if (!t || TRACK.imgs.length) return;
-    TRACK.knots = t.knots || [[5, 0], [90, t.count - 1]];
-    TRACK.cycle = t.cycle || 8;
-    TRACK.fps = t.fps || 10;
-    TRACK.lock = t.lock || TRACK.lock;
+    TRACK.cfg = Object.assign({
+      fps: 10, period: 8, near: 4, far: t.count - 5, zMax: 2.2,
+      lockIn: 90, lockOut: 84, lockFadeMs: 350, jumpFadeMs: 180
+    }, t);
     for (let i = 0; i < t.count; i++) {
       const im = new Image();
       im.decoding = 'async';
@@ -1210,43 +1215,65 @@
     }
   }
 
-  // Piecewise-linear map from alignment accuracy (0-100) to a track frame index.
-  function trackIndex(acc) {
-    const k = TRACK.knots;
-    if (acc <= k[0][0]) return k[0][1];
-    for (let j = 1; j < k.length; j++) {
-      if (acc <= k[j][0]) {
-        const a0 = k[j - 1][0], i0 = k[j - 1][1], a1 = k[j][0], i1 = k[j][1];
-        return i0 + (i1 - i0) * (acc - a0) / (a1 - a0);
-      }
-    }
-    return k[k.length - 1][1];
-  }
-
   function trackReady() {
     const im = TRACK.imgs[0];
     return !!(TRACK.ctx && im && im.complete && im.naturalWidth);
   }
 
-  // Draws the current approach frame; returns how far the loop has taken over (0-1).
-  function drawTrack(acc) {
-    const now = performance.now();
-    // Keep the heart moving while the hand is still: cycle through about one beat
-    // of footage around the current position at the recording's frame rate.
-    if (now - TRACK.tPhase >= 1000 / TRACK.fps) { TRACK.tPhase = now; TRACK.phase = (TRACK.phase + 1) % TRACK.cycle; }
+  // Draws the footage at a fractional frame index by blending the two nearest frames.
+  function drawTrackFrame(h, alpha) {
     const n = TRACK.imgs.length;
-    const base = Math.round(trackIndex(acc));
-    const start = clampNum(base - Math.floor(TRACK.cycle / 2), 0, Math.max(0, n - TRACK.cycle));
-    const idx = clampNum(start + TRACK.phase, 0, n - 1);
-    if (idx !== TRACK.last) {
-      const im = TRACK.imgs[idx];
-      if (im.complete && im.naturalWidth) {
-        TRACK.ctx.drawImage(im, 0, 0, TRACK.canvas.width, TRACK.canvas.height);
-        TRACK.last = idx;
-      }
+    const i0 = clampNum(Math.floor(h), 0, n - 1), i1 = Math.min(n - 1, i0 + 1);
+    const a = clampNum(h - i0, 0, 1);
+    const A = TRACK.imgs[i0], B = TRACK.imgs[i1];
+    const ctx = TRACK.ctx, w = TRACK.canvas.width, ht = TRACK.canvas.height;
+    if (!(A.complete && A.naturalWidth)) return;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(A, 0, 0, w, ht);
+    if (a > 0.01 && B.complete && B.naturalWidth) {
+      ctx.globalAlpha = alpha * a;
+      ctx.drawImage(B, 0, 0, w, ht);
     }
-    const t = clampNum((acc - TRACK.lock[0]) / (TRACK.lock[1] - TRACK.lock[0]), 0, 1);
-    const lock = t * t * (3 - 2 * t);   // smoothstep
+    ctx.globalAlpha = 1;
+  }
+
+  // Advances and draws the footage; returns how far the beating loop has taken over (0-1).
+  function drawTrack(acc, now) {
+    const c = TRACK.cfg, n = TRACK.imgs.length;
+    const dt = TRACK.lastT ? Math.min(0.1, (now - TRACK.lastT) / 1000) : 0;
+    TRACK.lastT = now;
+
+    // Closeness to the window, linear in angular distance (0 = far, 1 = on it). The
+    // phone's accuracy is a Gaussian of that distance, so invert it.
+    const z = Math.sqrt(-2 * Math.log(clampNum(acc, 1, 100) / 100));
+    const closeness = clampNum(1 - z / c.zMax, 0, 1);
+    TRACK.pos += (closeness - TRACK.pos) * Math.min(1, dt * 10);
+    const half = c.period / 2;
+    const target = clampNum(c.far + (c.near - c.far) * TRACK.pos, half, n - 1 - half);
+
+    // Real-time playhead, kept within half a beat of the hand's position by
+    // whole-beat jumps so the rhythm never stutters.
+    if (TRACK.head === null) TRACK.head = target;
+    const step = c.fps * dt;
+    let h = TRACK.head + step, jumped = false;
+    while (h > target + half) { h -= c.period; jumped = true; }
+    while (h < target - half) { h += c.period; jumped = true; }
+    if (jumped) { TRACK.prevHead = TRACK.head + step; TRACK.jumpT = 0; }
+    else if (TRACK.prevHead !== null) TRACK.prevHead += step;
+    TRACK.head = h;
+    TRACK.jumpT = Math.min(1, TRACK.jumpT + dt * 1000 / c.jumpFadeMs);
+    if (TRACK.jumpT >= 1) TRACK.prevHead = null;
+
+    drawTrackFrame(TRACK.head, 1);
+    if (TRACK.prevHead !== null) drawTrackFrame(clampNum(TRACK.prevHead, 0, n - 1), 1 - TRACK.jumpT);
+
+    // Lock-on: a short timed crossfade into the 30-fps loop, with hysteresis so it
+    // does not flicker at the edge of the window.
+    if (!TRACK.locked && acc >= c.lockIn) TRACK.locked = true;
+    else if (TRACK.locked && acc < c.lockOut) TRACK.locked = false;
+    const lockStep = dt * 1000 / c.lockFadeMs;
+    TRACK.lock = clampNum(TRACK.lock + (TRACK.locked ? lockStep : -lockStep), 0, 1);
+    const lock = TRACK.lock * TRACK.lock * (3 - 2 * TRACK.lock);
     TRACK.canvas.style.opacity = (1 - lock).toFixed(3);
     return lock;
   }
@@ -1344,7 +1371,7 @@
       // With approach footage loaded, the footage carries the image until the
       // probe is aligned, then the beating loop takes over (lock 0 -> 1).
       const useTrack = trackReady();
-      const lock = useTrack ? drawTrack(clampNum(ECHO.acc, 0, 100)) : 1;
+      const lock = useTrack ? drawTrack(clampNum(ECHO.acc, 0, 100), performance.now()) : 1;
 
       // Position the real loop(s). With a single PLAX window this simply keeps the
       // loop centered; the multi-view slide is retained for completeness.
@@ -1377,7 +1404,9 @@
             'contrast(' + (0.85 + 0.3 * focus).toFixed(2) + ')';
         // Fine probe motion pans the beam and settles with a slight zoom-in.
         // The footage's fan lines up with the sector overlay, so its pan stays small.
-        const fan = ECHO.fan || 0, rock = ECHO.rock || 0;
+        ECHO.fanS = (ECHO.fanS || 0) + ((ECHO.fan || 0) - (ECHO.fanS || 0)) * 0.15;
+        ECHO.rockS = (ECHO.rockS || 0) + ((ECHO.rock || 0) - (ECHO.rockS || 0)) * 0.15;
+        const fan = ECHO.fanS, rock = ECHO.rockS;
         const panMax = useTrack ? 4 : 16;
         const px = clampNum(rock * 1.1, -panMax, panMax);
         const py = clampNum(-fan * 1.1, -panMax, panMax);

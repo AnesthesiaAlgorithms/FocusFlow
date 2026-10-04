@@ -326,7 +326,7 @@
      axes only (no magnetometer, so it never drifts or jitters). Moving the phone
      changes your distance to each pose; the nearest one crossfades into focus.
      You must physically MOVE to a pose to score — resting in place is not 100%. */
-  var SMOOTH=0.16, TICK_MS=60;
+  var SMOOTH=0.28, TICK_MS=40;   // lighter smoothing + 25 Hz updates; the screen eases motion further
   var SIGMA=15;             // sweet-spot radius in degrees (set by the slider)
   var GEO=null;            // {cB,cG,scale,dots:[{id,ox,oy}]} radar geometry
 

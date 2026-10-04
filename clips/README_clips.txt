@@ -17,9 +17,12 @@ plax.webm / plax.mp4           Parasternal window - AUTHOR'S OWN TTE (10/1/2026)
                                aligned), and case scenario 2. assets/plax-still-own.jpg is
                                frame 34 of the same clip (unlabeled).
 
-track/plax_000-065.jpg         Real approach footage for the phone simulator - AUTHOR'S OWN.
-                               Source: 10.1.26/10I1(5).mp4, frames 110-175 (0:11.0-0:17.5,
-                               10 fps): probe lift-off -> off-axis search -> on-axis view.
+track/plax_000-076.jpg         Real scan footage for the phone simulator - AUTHOR'S OWN.
+                               Source: 10.1.26/10I1(1).mp4, frames 0-76 (0:00-0:07.6, 10 fps),
+                               recorded 1.5 min after 10I1.mp4 so its opening view matches the
+                               loop: on-window view -> nearby views -> lost contact. The phone
+                               picks the position; a real-time playhead keeps the heartbeat at
+                               its natural rate (period 8.28 frames), with frame blending.
 
 plax_echopedia.webm / .mp4     Previous licensed PLAX loop (CardioNetworks/Echopedia,
                                courtesy Dept of Echocardiography AMC, I.A.C. van der Bilt,
