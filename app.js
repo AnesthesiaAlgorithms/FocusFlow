@@ -952,13 +952,21 @@
      EVENT WIRING
      ============================================================ */
 
-  // Welcome / consent
-  $('#consentRow').addEventListener('click', () => {
+  // Welcome / consent. The whole row is clickable. A click on the checkbox itself
+  // toggles it natively (its 'change' event syncs the UI), so the row handler must
+  // skip it; otherwise the box flips twice and appears unclickable.
+  function syncConsent() {
     const cb = $('#consentCheck');
-    cb.checked = !cb.checked;
     $('#consentRow').classList.toggle('selected', cb.checked);
     $('#btnStart').disabled = !cb.checked;
+  }
+  $('#consentRow').addEventListener('click', e => {
+    const cb = $('#consentCheck');
+    if (e.target === cb) return;
+    cb.checked = !cb.checked;
+    syncConsent();
   });
+  $('#consentCheck').addEventListener('change', syncConsent);
   $('#btnStart').addEventListener('click', () => { if (!$('#btnStart').disabled) nextStep(); });
 
   // Demographics
