@@ -191,7 +191,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261007a';
+  const CLIP_VER = '20261007b';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -206,10 +206,22 @@
     </div>`;
   }
 
+  // Simulated red-flag example: the investigator's normal loop, digitally altered.
+  // Clearly labeled as simulated in the caption and in the image itself.
+  function simLoopHTML(id, caption) {
+    return `<figure class="sim-figure">
+      <video class="sim-loop" autoplay muted loop playsinline preload="metadata">
+        <source src="clips/${id}.webm?v=${CLIP_VER}" type="video/webm">
+        <source src="clips/${id}.mp4?v=${CLIP_VER}" type="video/mp4">
+      </video>
+      <figcaption><b>Simulated example.</b> ${caption} Created by digitally altering the investigator's normal scan; not a patient recording.</figcaption>
+    </figure>`;
+  }
+
   // Videos inserted via innerHTML don't honor the autoplay attribute, so kick
   // them off explicitly (muted -> allowed to autoplay).
   function playEchoLoops(root) {
-    (root || document).querySelectorAll('video.echo-loop').forEach(v => {
+    (root || document).querySelectorAll('video.echo-loop, video.sim-loop').forEach(v => {
       v.muted = true;
       const p = v.play();
       if (p && p.catch) p.catch(() => {});
@@ -354,10 +366,10 @@
       title: "Module 3 of 5: Red-Flag Findings",
       html: `
         <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause, document, and communicate before proceeding with an elective case.</p>
-        <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure.</div>
-        <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with right ventricular diastolic collapse.</div>
-        <div class="flag-box"><b>Severe valvular pathology</b> — e.g., a heavily calcified aortic valve with markedly reduced leaflet excursion (severe AS), or a flail mitral leaflet with severe MR.</div>
-        <div class="flag-box"><b>RV dilation/dysfunction</b> — RV approaching or exceeding LV size, with septal flattening. Raises concern for pulmonary hypertension or pulmonary embolism.</div>
+        <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure.${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
+        <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with right ventricular diastolic collapse.${simLoopHTML('sim_effusion', 'Large echo-free (dark) space behind the heart. RV diastolic collapse is not simulated.')}</div>
+        <div class="flag-box"><b>Severe valvular pathology</b> — e.g., a heavily calcified aortic valve with markedly reduced leaflet excursion (severe AS), or a flail mitral leaflet with severe MR.${simLoopHTML('sim_calcified_valve', 'Thick, bright (calcified-appearing) leaflets that barely open.')}</div>
+        <div class="flag-box"><b>RV dilation/dysfunction</b> — RV approaching or exceeding LV size, with septal flattening. Raises concern for pulmonary hypertension or pulmonary embolism.${simLoopHTML('sim_rv_dilation', 'Enlarged right ventricle at the top of the image. Septal flattening is best seen in short axis and is not shown.')}</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
