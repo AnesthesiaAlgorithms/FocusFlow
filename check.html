@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoCUS Training: Connection Check</title>
+<style>
+  :root{--red:#8B1E2D;--green:#1E8A4C;--amber:#B26A00;--gray:#5b6470;--bg:#F6F1F2}
+  body{margin:0;background:var(--bg);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937}
+  header{background:var(--red);color:#fff;padding:14px 18px;font-weight:700}
+  main{max-width:640px;margin:18px auto;padding:0 16px}
+  .card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .row{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eef0f3}
+  .row:last-child{border-bottom:0}
+  .dot{flex:0 0 22px;height:22px;border-radius:50%;background:#cbd5e1;color:#fff;font-weight:800;text-align:center;line-height:22px;font-size:.8rem}
+  .ok .dot{background:var(--green)} .bad .dot{background:var(--red)} .warn .dot{background:var(--amber)}
+  .name{font-weight:700} .detail{font-size:.85rem;color:var(--gray);margin-top:2px}
+  #verdict{margin-top:14px;padding:14px;border-radius:10px;font-weight:700;background:#eef2f7}
+  #verdict.ok{background:#EAF7EE;color:var(--green)} #verdict.bad{background:#FBEAEC;color:var(--red)}
+  .muted{font-size:.82rem;color:var(--gray)}
+</style>
+</head>
+<body>
+<header>FoCUS Training: Connection Check</header>
+<main>
+  <div class="card">
+    <p style="margin-top:0">This page checks whether this computer can run the FoCUS training. It takes about 10 seconds. <b>Nothing is recorded</b>; no study data is sent.</p>
+    <div id="checks"></div>
+    <div id="verdict">Running checks&hellip;</div>
+    <p class="muted">Please take a screenshot of this page and send it to Ashley Campbell.</p>
+    <p class="muted" id="env"></p>
+  </div>
+</main>
+<script>
+(function () {
+  var SERVER = 'https://142-93-192-209.sslip.io';
+  var tests = [
+    { id: 'site', name: 'Training website', why: 'The training pages and questions load.' },
+    { id: 'video', name: 'Echo videos', why: 'The ultrasound loops can play.' },
+    { id: 'qr', name: 'QR code tool', why: 'The code your phone scans to become the probe (cdn.jsdelivr.net).' },
+    { id: 'save', name: 'Saving results', why: 'Answers can be sent to the study server when the training is finished.' },
+    { id: 'pair', name: 'Phone pairing', why: 'Your phone can connect to this computer as the simulated probe.' }
+  ];
+  var box = document.getElementById('checks');
+  tests.forEach(function (t) {
+    var d = document.createElement('div');
+    d.className = 'row'; d.id = 'r-' + t.id;
+    d.innerHTML = '<div class="dot">&hellip;</div><div><div class="name">' + t.name + '</div><div class="detail">' + t.why + '</div></div>';
+    box.appendChild(d);
+  });
+  function mark(id, state, note) {
+    var r = document.getElementById('r-' + id);
+    r.className = 'row ' + state;
+    r.querySelector('.dot').textContent = state === 'ok' ? '✓' : (state === 'warn' ? '!' : '✕');
+    if (note) r.querySelector('.detail').textContent += ' ' + note;
+    results[id] = state;
+  }
+  function timeout(p, ms) {
+    return Promise.race([p, new Promise(function (_, rej) { setTimeout(function () { rej(new Error('timed out')); }, ms); })]);
+  }
+  var results = {};
+
+  // 1. site: if this page loaded, GitHub Pages works; also load the training script.
+  var p1 = timeout(fetch('app.js?check=' + Date.now(), { cache: 'no-store' }), 8000)
+    .then(function (r) { mark('site', r.ok ? 'ok' : 'bad', r.ok ? '' : '(HTTP ' + r.status + ')'); })
+    .catch(function (e) { mark('site', 'bad', '(' + e.message + ')'); });
+
+  // 2. video playback
+  var p2 = new Promise(function (res) {
+    var v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto';
+    var done = false;
+    function fin(state, note) { if (!done) { done = true; mark('video', state, note); res(); } }
+    v.oncanplay = function () { fin('ok'); };
+    v.onerror = function () { fin('bad', '(could not load or play)'); };
+    v.src = 'clips/plax.mp4?check=' + Date.now();
+    setTimeout(function () { fin('bad', '(timed out)'); }, 10000);
+  });
+
+  // 3. QR library from the CDN
+  var p3 = new Promise(function (res) {
+    var s = document.createElement('script');
+    var done = false;
+    function fin(state, note) { if (!done) { done = true; mark('qr', state, note); res(); } }
+    s.onload = function () { fin(typeof qrcode !== 'undefined' ? 'ok' : 'bad'); };
+    s.onerror = function () { fin('warn', '(blocked; participants could still type the phone link shown on screen)'); };
+    s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+    document.head.appendChild(s);
+    setTimeout(function () { fin('warn', '(timed out)'); }, 10000);
+  });
+
+  // 4. results server (read-only status endpoint; nothing is saved)
+  var p4 = timeout(fetch(SERVER + '/api/status', { cache: 'no-store' }), 8000)
+    .then(function (r) { mark('save', r.ok ? 'ok' : 'bad', r.ok ? '' : '(HTTP ' + r.status + ')'); })
+    .catch(function (e) { mark('save', 'bad', '(blocked or unreachable: ' + e.message + ')'); });
+
+  // 5. phone pairing relay (opens and closes a host session)
+  var p5 = new Promise(function (res) {
+    var done = false, ws;
+    function fin(state, note) { if (!done) { done = true; try { ws && ws.close(); } catch (e) {} mark('pair', state, note); res(); } }
+    try { ws = new WebSocket(SERVER.replace(/^http/, 'ws') + '/ws?role=host'); }
+    catch (e) { fin('bad', '(' + e.message + ')'); return; }
+    ws.onmessage = function (ev) { fin('ok'); };
+    ws.onerror = function () { fin('bad', '(blocked or unreachable)'); };
+    ws.onclose = function () { fin('bad', '(connection closed)'); };
+    setTimeout(function () { fin('bad', '(timed out)'); }, 10000);
+  });
+
+  Promise.all([p1, p2, p3, p4, p5]).then(function () {
+    var v = document.getElementById('verdict');
+    var essentialOk = results.site === 'ok' && results.video === 'ok' && results.save === 'ok';
+    if (essentialOk && results.pair === 'ok') {
+      v.className = 'ok'; v.textContent = '✓ This computer can run the full training, including the phone simulation.';
+    } else if (essentialOk) {
+      v.className = 'ok'; v.textContent = '✓ This computer can run the training and save results. The phone simulation may not connect here; that step is optional.';
+    } else {
+      v.className = 'bad'; v.textContent = '✕ This computer cannot fully run the training. Red items above are blocked.';
+    }
+  });
+  document.getElementById('env').textContent = 'Browser: ' + navigator.userAgent;
+})();
+</script>
+</body>
+</html>
