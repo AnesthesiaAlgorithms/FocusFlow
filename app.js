@@ -46,53 +46,53 @@
   // Knowledge test — 10 questions, focused on the PLAX view. The SAME set is used
   // pre and post (KNOWLEDGE_POST references this array).
   const KNOWLEDGE_PRE = [
-    { q: "What is the primary purpose of a focused preoperative cardiac ultrasound (FoCUS) exam?",
-      o: ["To replace comprehensive transthoracic echocardiography (TTE)",
-          "To answer a limited set of targeted clinical questions relevant to anesthetic management",
-          "To formally grade valve stenosis severity for surgical planning",
-          "To diagnose coronary artery disease"], c: 1 },
+    { q: "A CRNA performs FoCUS before a hip replacement in a 72-year-old. Which question is FoCUS best suited to answer?",
+      o: ["Is global LV systolic function grossly reduced?",
+          "What is the aortic valve area?",
+          "Is there a regional wall-motion abnormality from a prior MI?",
+          "What is the pulmonary artery systolic pressure?"], c: 0 },
     { q: "Approximately how long does a focused preoperative TTE (FoCUS) typically take to perform?",
       o: ["1–2 minutes", "8–12 minutes", "45–60 minutes", "2–3 hours"], c: 1 },
     { q: "Which of the following is a recognized limitation of the Revised Cardiac Risk Index (RCRI)?",
-      o: ["It requires advanced imaging equipment to calculate",
-          "It cannot identify subclinical structural cardiac abnormalities such as LV dysfunction or valve disease",
-          "It can only be used in cardiac surgery patients",
-          "It requires a cardiology consult to calculate"], c: 1 },
+      o: ["It cannot detect undiagnosed structural disease, such as reduced LV function or aortic stenosis",
+          "It does not include diabetes as a risk factor",
+          "It requires a preoperative troponin level",
+          "It assigns additional points for age over 70"], c: 0 },
     { q: "The parasternal long-axis (PLAX) view is primarily used to assess:",
-      o: ["IVC diameter and respiratory collapsibility",
-          "LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space",
-          "Right ventricular free-wall strain only",
-          "Carotid artery flow"], c: 1 },
+      o: ["LV size and function, the mitral and aortic valves, the aortic root, and the pericardium",
+          "RV size relative to the LV, the tricuspid valve, and the interatrial septum",
+          "IVC size and collapsibility, viewed through the liver",
+          "All four chambers in a single plane for comparing the two ventricles"], c: 0 },
     { q: "Which of the following is NOT reliably assessed from the PLAX view alone?",
-      o: ["Global left ventricular systolic function",
-          "The appearance of the mitral and aortic valves",
-          "IVC size and respiratory collapse (a volume-status assessment)",
-          "A posterior pericardial effusion"], c: 2 },
+      o: ["Mitral leaflet motion",
+          "LV systolic function",
+          "Posterior pericardial effusion",
+          "IVC collapsibility"], c: 3 },
     { q: "On the PLAX view, global left ventricular systolic function that appears severely reduced (visually estimated EF < 30%) should prompt the CRNA to:",
-      o: ["Disregard the finding if the patient appears clinically well",
-          "Communicate the finding to the care team and consider further cardiac evaluation before elective surgery",
-          "Increase the planned dose of induction agents without further discussion",
-          "Repeat the scan only after induction"], c: 1 },
+      o: ["Proceed with a reduced-dose induction, since FoCUS is not diagnostic",
+          "Proceed after placing an arterial line, since reduced EF alone does not justify delay",
+          "Repeat the FoCUS in the PACU to confirm the finding",
+          "Communicate the finding and consider formal echo or cardiology input before this elective case"], c: 3 },
     { q: "A large pericardial effusion with right ventricular diastolic collapse seen on FoCUS is most consistent with:",
       o: ["A normal incidental finding requiring no action",
-          "Tamponade physiology — a red-flag finding warranting prompt communication",
+          "Tamponade physiology",
           "Severe mitral stenosis",
           "Volume depletion"], c: 1 },
     { q: "On the PLAX view, how is a posterior pericardial effusion distinguished from a left pleural effusion?",
-      o: ["A pericardial effusion tracks anterior to the descending thoracic aorta; a pleural effusion tracks posterior to it",
-          "A pericardial effusion is always the larger of the two",
-          "They cannot be distinguished on the PLAX view",
-          "A pleural effusion always causes right ventricular collapse"], c: 0 },
+      o: ["Pericardial fluid tracks anterior to the descending aorta; pleural fluid tracks posterior to it",
+          "Pericardial fluid tracks posterior to the descending aorta; pleural fluid tracks anterior to it",
+          "Pericardial fluid commonly extends behind the left atrium; pleural fluid does not",
+          "They cannot be distinguished without adding a subcostal view"], c: 0 },
     { q: "On the PLAX view, a heavily calcified aortic valve with markedly reduced leaflet excursion is most concerning for:",
-      o: ["A normal age-related change of no clinical importance",
-          "Significant aortic stenosis",
-          "Severe mitral stenosis",
-          "Pulmonary hypertension"], c: 1 },
-    { q: "Which of the following best describes the appropriate scope of FoCUS for a CRNA?",
-      o: ["A definitive diagnostic tool that replaces cardiology evaluation",
-          "A screening adjunct to existing clinical risk assessment that identifies findings warranting further workup",
-          "A tool used only in the ICU, never preoperatively",
-          "A billing requirement for all surgical patients"], c: 1 }
+      o: ["Significant aortic stenosis",
+          "Hypertrophic cardiomyopathy with outflow obstruction",
+          "Aortic regurgitation from a dilated root",
+          "Mitral annular calcification"], c: 0 },
+    { q: "Which of the following best describes the appropriate scope of FoCUS for anesthesia providers?",
+      o: ["A screening adjunct, interpreted alongside clinical risk, that flags findings needing further workup",
+          "A way to quantify EF and valve gradients so a formal echo can be skipped",
+          "A diagnostic exam documented as a cardiology-level interpretation",
+          "A routine test indicated before every general anesthetic"], c: 0 }
   ];
 
   // Post-training knowledge is identical to pre (measures change on the same items).
@@ -191,7 +191,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261004e';
+  const CLIP_VER = '20261007a';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -786,17 +786,18 @@
 
   // One rationale per knowledge construct (KNOWLEDGE_PRE/POST share the order).
   const KNOWLEDGE_RATIONALES = [
-    "FoCUS is a goal-directed, time-limited exam that answers a few specific questions relevant to the anesthetic — it does not replace comprehensive echocardiography or grade disease severity.",
+    "FoCUS answers a few targeted, qualitative questions, such as whether global LV function is grossly reduced. Valve area, regional wall motion, and pulmonary pressures require comprehensive echocardiography.",
     "A focused preoperative cardiac ultrasound is meant to be brief — on the order of 8–12 minutes — which is what distinguishes it from a complete study.",
-    "The RCRI is based on history and comorbidities; it does not detect subclinical structural disease such as valvular pathology or LV dysfunction — a gap that FoCUS can help fill.",
-    "The parasternal long-axis (PLAX) window shows LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space.",
-    "The IVC — used to judge volume status — is assessed from the subcostal window, not from PLAX. PLAX does show LV function, the valves, and a posterior pericardial effusion.",
-    "Visually severe LV dysfunction (estimated EF <30%) should be communicated and prompt consideration of further evaluation before elective surgery — not disregarded or managed by simply changing drug doses.",
+    "The RCRI uses six clinical variables: high-risk surgery, ischemic heart disease, heart failure, cerebrovascular disease, insulin-treated diabetes, and creatinine > 2 mg/dL. It includes diabetes, uses neither troponin nor age, and cannot detect undiagnosed structural disease — a gap FoCUS can help fill.",
+    "PLAX shows LV size and function, the mitral and aortic valves, the aortic root, and the pericardial space. Comparing RV and LV size across all four chambers comes from the apical 4-chamber view; the IVC is seen from the subcostal window.",
+    "The IVC — used to judge volume status — is assessed from the subcostal window, not from PLAX. PLAX does show LV function, mitral leaflet motion, and a posterior pericardial effusion.",
+    "Visually severe LV dysfunction (estimated EF <30%) should be communicated and prompt consideration of further evaluation before elective surgery. A lower induction dose or an arterial line may become part of the plan, but neither replaces communicating the finding, and a PACU rescan comes after the decision it should inform.",
     "A large pericardial effusion with right ventricular diastolic collapse indicates tamponade physiology — a red-flag finding that warrants prompt communication.",
-    "On PLAX, a pericardial effusion tracks anterior to the descending thoracic aorta, while a pleural effusion tracks posterior to it — the key landmark for telling them apart.",
-    "A heavily calcified aortic valve with markedly reduced leaflet excursion suggests significant aortic stenosis. FoCUS cannot grade severity, so the finding should be communicated for possible further evaluation.",
-    "FoCUS is a screening adjunct to existing clinical risk assessment that flags findings needing further workup — it is not a replacement for cardiology evaluation."
+    "On PLAX, pericardial fluid tracks anterior to the descending thoracic aorta, while pleural fluid tracks posterior to it. Pericardial fluid also does not usually extend behind the left atrium.",
+    "A heavily calcified aortic valve with markedly reduced leaflet excursion suggests significant aortic stenosis. HCM shows a thick septum with systolic anterior motion, and mitral annular calcification sits at the mitral annulus. FoCUS cannot grade severity, so the finding should be communicated for further evaluation.",
+    "FoCUS is a screening adjunct interpreted alongside clinical risk assessment that flags findings needing further workup. It does not quantify disease, replace a formal echo or cardiology evaluation, or apply routinely to every patient."
   ];
+
 
   // Generic review block: marks each item correct/incorrect, shows the best
   // answer and a one-line rationale. Used for both the case and knowledge reviews.
