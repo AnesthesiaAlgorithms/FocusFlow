@@ -7,22 +7,28 @@ All of the author's own clips are cropped to the ultrasound fan and masked outsi
 it, so no on-screen text (site, date, initials, machine settings) remains.
 Square 600x600, fan apex at top-center to line up with the simulator's sector overlay.
 
-plax.webm / plax.mp4           Parasternal window - AUTHOR'S OWN TTE (10/1/2026), used at
-                               the author's request. Source: TTE recordings/10.1.26/10I1.mp4,
-                               frames 9-83 (seamless 3-beat loop, 30 fps), ~14 cm depth.
-                               Note: recorded with the probe rotated toward short axis (see
-                               _review_PLAX_check_2026-10-04.png); replace with a true PLAX
-                               when re-recorded (pipeline: ../staged_media_10I1_not_published/make_media.py).
-                               Used in Module 2, the probe preview, the simulator (once
-                               aligned), and case scenario 2. assets/plax-still-own.jpg is
-                               frame 34 of the same clip (unlabeled).
+plax.webm / plax.mp4           TRUE parasternal long-axis - AUTHOR'S OWN TTE (10/15/2026),
+                               used at the author's request. Source: Desktop/MyFile(72).mp4
+                               (60-s sweep, 1400x1050, 10.02 fps), 33.50-34.90 s = 14 native
+                               frames (2 beats, ~86 bpm), motion-interpolated to 30 fps and
+                               crossfade-looped for a seamless loop; fan-masked at ~13 cm.
+                               Replaces the earlier 10I1.mp4 clip that was rotated toward
+                               short axis. Used in Module 2, the probe preview, the simulator
+                               (once aligned), and case scenario 2. assets/plax-still-own.jpg
+                               is a clean open-valve frame (~34.1 s) of the same scan.
+                               Pipeline: ../staged_media_10I1_not_published (build_real.py).
 
 track/plax_000-076.jpg         Real scan footage for the phone simulator - AUTHOR'S OWN.
-                               Source: 10.1.26/10I1(1).mp4, frames 0-76 (0:00-0:07.6, 10 fps),
-                               recorded 1.5 min after 10I1.mp4 so its opening view matches the
-                               loop: on-window view -> nearby views -> lost contact. The phone
+                               Source: MyFile(72).mp4, 46.5-54.2 s (77 frames, 10.02 fps),
+                               fan-masked: on-window PLAX -> drift -> lost contact. The phone
                                picks the position; a real-time playhead keeps the heartbeat at
-                               its natural rate (period 8.28 frames), with frame blending.
+                               its natural rate (period ~7 frames, ~86 bpm), with frame blending.
+
+sim_low_ef, sim_effusion,      SIMULATED red-flag examples (Module 3), each labeled SIMULATED
+sim_calcified_valve,           in-image. Made by digitally altering the normal PLAX loop above
+sim_rv_dilation                (build_sims.py): global hypokinesis (motion -68%), a posterior
+                               pericardial effusion crescent, a brightened/restricted valve,
+                               and near-field RV enlargement. Not patient recordings.
 
 plax_echopedia.webm / .mp4     Previous licensed PLAX loop (CardioNetworks/Echopedia,
                                courtesy Dept of Echocardiography AMC, I.A.C. van der Bilt,

@@ -21,7 +21,7 @@
     "count": 77,
     "size": 480,
     "fps": 10.02,
-    "period": 8.28,
+    "period": 7.0,
     "near": 4.2,
     "far": 72,
     "zMax": 2.2,
@@ -29,6 +29,6 @@
     "lockOut": 84,
     "lockFadeMs": 350,
     "jumpFadeMs": 180,
-    "source": "10I1(1).mp4 frames 0-76 (0:00-0:07.6): on-window view matching the loop (recorded 1.5 min after 10I1.mp4) -> nearby views -> lost contact. Played in real time; the phone picks the position."
+    "source": "MyFile(72).mp4 frames at 46.5-54.2s: true parasternal long-axis on-window -> drift -> lost contact, fan-masked (no burned-in text). Played in real time; the phone picks the position. Heart rate ~86 bpm (period ~7 frames)."
   }
 }

@@ -191,7 +191,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261007b';
+  const CLIP_VER = '20261015a';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -347,7 +347,7 @@
 
         <h3 style="margin-top:18px;">What you can interpret from a PLAX view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
-          <img src="assets/plax-still-own.jpg?v=20261004d" alt="Parasternal echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
+          <img src="assets/plax-still-own.jpg?v=20261015a" alt="Parasternal echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
           <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Reading a PLAX image, near field to far: <b>RV</b> &rarr; interventricular <b>septum</b> &rarr; <b>LV</b> cavity &rarr; <b>mitral valve</b> &rarr; <b>aortic valve &amp; root / LVOT</b> &rarr; <b>left atrium</b> &rarr; posterior wall &amp; <b>pericardium</b>. <br>Image: the principal investigator's own transthoracic echocardiogram (de-identified).</figcaption>
         </figure>
         <p>A single PLAX image answers several targeted questions:</p>
