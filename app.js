@@ -369,7 +369,7 @@
     {
       title: "Module 3 of 5: Red-Flag Findings",
       html: `
-        <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause, document, and communicate before proceeding with an elective case.</p>
+        <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause and communicate before proceeding with an elective case.</p>
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure.${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
         <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with right ventricular diastolic collapse.${simLoopHTML('sim_effusion', 'Large echo-free (dark) space behind the heart. RV diastolic collapse is not simulated.')}</div>
         <div class="flag-box"><b>Severe valvular pathology</b> — e.g., a heavily calcified aortic valve with markedly reduced leaflet excursion (severe AS), or a flail mitral leaflet with severe MR.${simLoopHTML('sim_calcified_valve', 'Thick, bright (calcified-appearing) leaflets that barely open.')}</div>
