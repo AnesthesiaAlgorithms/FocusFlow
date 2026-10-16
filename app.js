@@ -38,7 +38,7 @@
     "The case scenarios helped me apply the concepts to clinical decision-making.",
     "I would recommend this training module to a colleague.",
     "After this training, I am more likely to consider FoCUS as part of my preoperative assessment.",
-    "The simulated ultrasound (using my phone as a probe) was a helpful way to learn.",
+    "The simulated ultrasound (using your phone as a probe) is a helpful way to learn.",
     "I would recommend this phone-based ultrasound simulation to other anesthesia providers.",
     "I would be interested in learning more ultrasound techniques through phone-based simulation."
   ];
@@ -329,9 +329,9 @@
     {
       title: "Module 1 of 5: Why Preoperative FoCUS?",
       html: `
-        <p>Perioperative hemodynamic instability — including intraoperative hypotension, hypertensive crises, and dysrhythmias — complicates a substantial proportion of noncardiac surgical procedures and is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays.</p>
-        <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point each for six clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>exclusively</i> on clinical history — it cannot detect subclinical ventricular dysfunction, valvular disease, or other structural abnormalities that meaningfully raise perioperative risk.</p>
-        <p>Focused cardiac ultrasound (FoCUS) — also called point-of-care ultrasound (POCUS) or focused TTE — is a goal-directed bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools; it adds a layer of structural information that clinical scoring alone cannot provide.</p>
+        <p>Perioperative hemodynamic instability, which includes intraoperative hypotension, hypertensive crises, and dysrhythmias, complicates a substantial proportion of noncardiac surgical procedures. It is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays.</p>
+        <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point for 6 clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>ONLY</i> on clinical history. It cannot detect&nbsp;subclinical myocardial dysfunction, valvular disease, or other structural abnormalities that can raise perioperative risks.</p>
+        <p>Focused cardiac ultrasound (FoCUS), also called point-of-care ultrasound (POCUS) or focused TTE, is a bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools. It adds structural information that current clinical scoring alone cannot provide.</p>
         <h3 style="margin-top:14px;">FoCUS is designed to answer four targeted questions</h3>
         <ul class="content-list">
           <li>Is global left ventricular systolic function preserved or reduced?</li>
@@ -339,7 +339,7 @@
           <li>Is right ventricular size and function normal?</li>
           <li>Is there severe valvular pathology that would change the anesthetic plan?</li>
         </ul>
-        <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice. When a FoCUS finding raises concern, the appropriate response is not to make a definitive diagnosis — it is to <b>communicate the finding</b> and integrate it into the existing risk-assessment and decision-making process alongside the surgical and anesthesia team.</p>
+        <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice. When a FoCUS finding raises concern, communicate your findings to your anesthesia team to develop an induction and maintenance plan. If findings are concerning enough, it may prompt a cardiology consult.&nbsp;</p>
       `
     },
     {
