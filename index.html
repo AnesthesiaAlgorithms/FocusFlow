@@ -208,12 +208,21 @@
     position:relative; overflow:hidden; border:3px solid #1f2937;
   }
   .view-display .view-label{
-    position:absolute; top:10px; left:12px; color:#7CD4FF; font-family:ui-monospace,monospace;
-    font-size:.85rem; letter-spacing:1px; font-weight:700; z-index:2;
+    position:absolute; top:10px; right:14px; color:#4da3ff; font-family:ui-monospace,monospace;
+    font-size:.85rem; letter-spacing:1px; font-weight:700; z-index:3;
   }
   .view-display .view-sub{
     position:absolute; bottom:10px; left:12px; right:12px; color:#9fb4c7; font-family:ui-monospace,monospace;
     font-size:.7rem; z-index:2;
+  }
+  .view-display .view-depth{
+    position:absolute; top:34px; bottom:8%; right:6px; z-index:3;
+    display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;
+    color:#9fb4c7; font-family:ui-monospace,monospace; font-size:.58rem; line-height:1; pointer-events:none;
+  }
+  .view-display .view-depth span{ position:relative; padding-right:9px; }
+  .view-display .view-depth span::after{
+    content:""; position:absolute; right:0; top:50%; width:7px; height:1px; background:rgba(159,180,199,.7);
   }
   .view-display canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block; z-index:1;
@@ -424,6 +433,7 @@
       <div id="roleOptions">
         <div class="radio-row" data-name="role" data-value="SRNA"><input type="radio" name="role" value="SRNA"><span>SRNA (Student Registered Nurse Anesthetist)</span></div>
         <div class="radio-row" data-name="role" data-value="CRNA"><input type="radio" name="role" value="CRNA"><span>CRNA (Certified Registered Nurse Anesthetist)</span></div>
+        <div class="radio-row" data-name="role" data-value="Student Anesthesia Assistant"><input type="radio" name="role" value="Student Anesthesia Assistant"><span>SAA (Student Anesthesia Assistant)</span></div>
         <div class="radio-row" data-name="role" data-value="Certified Anesthesia Assistant"><input type="radio" name="role" value="Certified Anesthesia Assistant"><span>CAA (Certified Anesthesia Assistant)</span></div>
         <div class="radio-row" data-name="role" data-value="Faculty CRNA"><input type="radio" name="role" value="Faculty CRNA"><span>Faculty CRNA</span></div>
         <div class="radio-row" data-name="role" data-value="Physician Anesthesiologist (MD/DO)"><input type="radio" name="role" value="Physician Anesthesiologist (MD/DO)"><span>Physician Anesthesiologist</span></div>

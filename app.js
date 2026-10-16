@@ -60,7 +60,7 @@
           "It assigns additional points for age over 70"], c: 0 },
     { q: "The apical four-chamber (A4C) view is primarily used to assess:",
       o: ["All four chambers in a single plane — comparing LV and RV size and function, with the mitral and tricuspid valves",
-          "LV size, the aortic valve, and the aortic root only",
+          "LV size, the aortic valve, and the aortic root",
           "IVC size and collapsibility, viewed through the liver",
           "The aortic valve gradient and the severity of aortic stenosis"], c: 0 },
     { q: "Which of the following is NOT reliably assessed from the A4C view alone?",
@@ -108,7 +108,7 @@
   // and post (CASES_POST references this array).
   const CASES_PRE = [
     // CASE 1 — Severe LV systolic dysfunction: hemodynamically stable induction.
-    { v: "A 64-year-old is scheduled for elective surgery. With the A4C view on screen, FoCUS shows a dilated left ventricle with walls that barely move. The patient is borderline hypotensive before induction.",
+    { v: "A 64-year-old is scheduled for elective surgery and is borderline hypotensive before induction. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_low_ef.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "What best guides your anesthetic?",
       o: ["Propofol 2 mg/kg with a fluid bolus",
@@ -116,7 +116,7 @@
           "Proceed as usual; low EF rarely changes induction",
           "Ketamine, since its sympathetic surge supports blood pressure in a failing heart"], c: 1 },
     // CASE 2 — Pericardial effusion with tamponade: full/fast/tight, drain before induction.
-    { v: "A 59-year-old is scheduled for elective surgery. With the A4C view on screen, FoCUS shows a large echo-free space surrounding the heart, and the right atrium and right ventricle appear to collapse inward in diastole. The patient is anxious with a fast heart rate and borderline blood pressure.",
+    { v: "A 59-year-old is scheduled for elective surgery and is anxious with a fast heart rate and borderline blood pressure. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_effusion.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "What should you do before proceeding?",
       o: ["Proceed with a standard propofol induction to calm the patient",
@@ -124,7 +124,7 @@
           "Pause; keep the patient full and the heart rate up, get help, and arrange drainage before any induction",
           "Treat it as anxiety; no change to the plan is needed"], c: 2 },
     // CASE 3 — RV strain (e.g., PE): don't overfill; support the RV, avoid raising PVR.
-    { v: "A 55-year-old with new shortness of breath and a swollen leg needs an urgent procedure. With the A4C view on screen, FoCUS shows a right ventricle as large as the left ventricle and squeezing poorly. The blood pressure is low.",
+    { v: "A 55-year-old with new shortness of breath and a swollen leg needs an urgent procedure, and the blood pressure is low. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_rv_dilation.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "Which best describes the concern and the most appropriate management?",
       o: ["Left heart failure; give a large fluid bolus to raise the pressure",
@@ -195,13 +195,14 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261016a';
+  const CLIP_VER = '20261017a';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
   function echoLoopHTML(id, label, sub) {
     return `<div class="view-display">
       <div class="view-label">${label}</div>
+      <div class="view-depth"><span>0</span><span>4</span><span>8</span><span>12</span><span>16</span></div>
       <video class="echo-loop" autoplay muted loop playsinline preload="metadata">
         <source src="clips/${id}.webm?v=${CLIP_VER}" type="video/webm">
         <source src="clips/${id}.mp4?v=${CLIP_VER}" type="video/mp4">
@@ -353,18 +354,19 @@
 
         <h3 style="margin-top:18px;">What you can interpret from an A4C view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
-          <img src="assets/a4c-still-own.jpg?v=20261016a" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
-          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> runs vertically down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field (Pardo, 2023). <br>Image: the principal investigator's own transthoracic echocardiogram (de-identified).</figcaption>
+          <img src="assets/a4c-still-own.jpg?v=20261017a" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:380px; max-width:100%; border-radius:12px; background:#000; border:3px solid #1f2937; box-shadow:0 2px 10px rgba(0,0,0,.15);">
+          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.45;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> and <b>interatrial septum (IAS)</b> run down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field (Pardo, 2023).</figcaption>
         </figure>
-        <p>A single A4C image answers several targeted questions:</p>
-        <ul class="content-list">
-          <li><b>LV size &amp; systolic function.</b> Do the walls thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate &mdash; <i>good, mildly&ndash;moderately reduced, or severely reduced</i> (Pardo, 2023).</li>
-          <li><b>RV size &amp; function &mdash; the key A4C strength.</b> Compare the RV directly to the LV. A normal RV is smaller than the LV and does not form the cardiac apex. An RV that approaches or exceeds LV size (RV:LV ratio near or above 1), or that loses its triangular shape, suggests RV pressure or volume overload (Pardo, 2023).</li>
-          <li><b>Atrioventricular valves.</b> Watch the mitral and tricuspid leaflets open and close. Thickened, calcified, or restricted leaflets, or leaflets that fail to coapt, suggest significant valvular disease (Butterworth et al., 2022).</li>
-          <li><b>Atria.</b> Enlarged atria suggest chronically elevated filling pressures &mdash; diastolic dysfunction, chronic valve disease, or atrial fibrillation.</li>
-          <li><b>Pericardium.</b> An echo-free (dark) space surrounding the heart indicates a pericardial effusion. Because the RA and RV are clearly seen, A4C is a strong view for detecting <b>diastolic collapse of the right atrium and/or right ventricle</b> &mdash; a sign of tamponade (Pardo, 2023).</li>
+        <p style="font-weight:600;">A single A4C image answers several targeted questions:</p>
+        <ul class="content-list" style="line-height:1.5; padding-left:4px;">
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">LV size &amp; systolic function:</b> Do the walls thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate: <i>good, mildly-moderately reduced, or severely reduced</i> (Pardo, 2023).</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">RV size &amp; function:</b> the key A4C strength. Compare the RV directly to the LV. A normal RV is smaller than the LV and does not form the cardiac apex. An RV that approaches or exceeds LV size (RV:LV ratio near or above 1), or that loses its triangular shape, suggests RV pressure or volume overload (Pardo, 2023).</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Atrioventricular valves:</b> Look closely as the mitral and tricuspid leaflets open and close. Thickened, calcified, or restricted leaflets, or leaflets that fail to close can suggest significant valvular disease (Butterworth et al., 2022).</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Atria:</b> An enlarged left or right atrium suggests chronically elevated filling pressures. Etiology can be from diastolic dysfunction, chronic valve disease, or atrial fibrillation.</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Pericardium:</b> An echo-free (dark) space surrounding the heart indicates a pericardial effusion. Because the RA and RV are clearly seen, A4C is a strong view for detecting diastolic collapse of the right atrium and/or right ventricle. This is a sign of cardiac tamponade (Pardo, 2023).</li>
         </ul>
-        <p class="muted">FoCUS is a qualitative skill. The goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings &mdash; not to make a definitive diagnosis. Severely reduced LV function, an enlarged or strained RV, or a large effusion with tamponade signs all warrant documentation, communication, and consideration of further evaluation before an elective case.</p>
+        <p class="muted">FoCUS is a qualitative skill. The goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings. FoCUS is not to be used to make a definitive diagnosis. Severely reduced LV function, an enlarged or strained RV, or a large effusion with tamponade all warrant communication with the team, and consideration of further evaluation before an elective case.</p>
+        <p class="muted" style="font-size:.74rem; margin-top:12px; padding:10px 12px; background:#f3f4f6; border-radius:8px; line-height:1.45;"><b>Image disclosure.</b> Every ultrasound image in this training is the de-identified transthoracic echocardiogram of the principal investigator; no patient images are used. The abnormal examples shown later are digital simulations produced by altering the investigator's own normal images, not recordings of disease.</p>
       `
     },
     {
@@ -374,40 +376,37 @@
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure (Pardo, 2023).${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
         <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle (Pardo, 2023).${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
         <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension (Pardo, 2023).${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
-        <div class="flag-box"><b>Severe valvular disease</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a flail/poorly-coapting leaflet (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thick, bright, restricted mitral leaflets that barely open.')}</div>
+        <div class="flag-box"><b>Severe valvular abnormality</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a leaflet that fails to close (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thick, bright, restricted mitral leaflets that barely open.')}</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
     {
       title: "Module 4 of 5: The Decision Pathway",
       html: `
-        <p>Use the pathway below to translate FoCUS findings into action. This is a communication and triage framework — not a substitute for clinical judgment.</p>
-        <div class="flow-box"><b>1. Perform FoCUS</b>Integrate findings with existing history, exam, and RCRI/clinical risk assessment.</div>
+        <div class="flow-box"><b>1. Perform FoCUS</b><br>Integrate findings with existing history, exam, and RCRI / clinical risk assessment.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box go"><b>2. Findings normal or expected</b>No new structural concerns, or consistent with documented history.<br><b>→ Proceed</b> with the planned anesthetic.</div>
+        <div class="flow-box go"><b>2. Findings normal or expected</b><br>No new structural concerns, or consistent with documented history.<br><b>→ Proceed</b> with the planned anesthetic.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box"><b>3. New, non-life-threatening finding</b>e.g., mild–moderate valve disease, mild LV dysfunction.<br><b>→ Document</b>, communicate to the team, correlate clinically, and consider further workup if time allows &mdash; proceeding is often still appropriate.</div>
+        <div class="flow-box"><b>3. New, non-life-threatening finding</b><br>e.g., mild to moderate valve disease, or mild LV dysfunction.<br><b>→ Document</b>, communicate to the team, correlate clinically, and consider further workup if time allows. Proceeding is often still appropriate.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box alert"><b>4. Red-flag finding</b>Severe LV dysfunction, tamponade physiology, severe valve disease, or significant RV dysfunction.<br><b>→ Document and communicate immediately</b>; discuss the risk/benefit of proceeding vs. delaying with the team, and consider formal TTE or cardiology consultation.</div>
+        <div class="flow-box alert"><b>4. Red-flag finding</b><br>Severe LV dysfunction, tamponade physiology, a severe valvular abnormality, or significant RV dysfunction.<br><b>→ Document and communicate immediately.</b> Discuss the risk and benefit of proceeding vs. delaying with the team, and consider formal TTE or cardiology consultation.</div>
       `
     },
     {
       title: "Module 5 of 5: Limitations of FoCUS",
       html: `
-        <p>FoCUS is a powerful adjunct, but it has real boundaries that every operator should keep in mind.</p>
-        <ul class="content-list">
-          <li><b>Not a substitute for comprehensive TTE.</b> A focused exam answers a narrow set of questions — it does not rule out all cardiac pathology (Pardo, 2023).</li>
-          <li><b>One view cannot show everything.</b> The A4C view does not display the aortic valve, so it cannot assess aortic stenosis. Structures outside the four-chamber plane require additional windows (see the note below).</li>
-          <li><b>Operator- and training-dependent.</b> Image quality and interpretation accuracy depend on the skill of the person scanning (Pardo, 2023).</li>
-          <li><b>Qualitative, not quantitative.</b> FoCUS flags "normal vs. clearly abnormal"; it does not grade severity. A concerning finding should prompt referral, not drive surgical planning on its own.</li>
-          <li><b>Should not be used in isolation to "clear" high-risk patients.</b> A reassuring FoCUS does not override clinical concern from history or exam.</li>
-          <li><b>Absence of an obvious finding does not exclude pathology.</b> Always correlate with the clinical picture and existing risk-assessment tools (e.g., RCRI) (Elisha et al., 2023).</li>
-          <li><b>Communication is the deliverable.</b> The clinical value of FoCUS comes from sharing findings with the team — not from acting on them unilaterally.</li>
+        <p>FoCUS is a powerful adjunct, but it has real boundaries every operator should keep in mind.</p>
+        <ul class="content-list" style="line-height:1.5;">
+          <li><b>Not a full study.</b> A focused exam answers a narrow set of questions and does not rule out all cardiac pathology (Pardo, 2023).</li>
+          <li><b>One view cannot show everything.</b> The A4C view does not show the aortic valve, so it cannot assess aortic stenosis.</li>
+          <li><b>Operator dependent.</b> Image quality and interpretation depend on the person scanning (Pardo, 2023).</li>
+          <li><b>Qualitative, not quantitative.</b> It flags normal versus clearly abnormal and does not grade severity.</li>
+          <li><b>Not for clearing high-risk patients.</b> A reassuring exam does not override concern from the history and exam (Elisha et al., 2023).</li>
         </ul>
         <div style="margin-top:14px; padding:12px 14px; border-left:4px solid #7CD4FF; background:rgba(124,212,255,.08); border-radius:8px;">
-          <b>Beyond the four-chamber view.</b> FoCUS is not limited to a single window. Other standard views answer questions the A4C cannot — for example, the <b>parasternal long-axis (PLAX)</b> view brings the aortic valve into plane and can be used to recognize and estimate the severity of <b>aortic stenosis</b>. Learning additional views extends what a focused exam can detect.
+          <b>Beyond the four-chamber view.</b> FoCUS is not limited to one window. For example, the <b>parasternal long-axis (PLAX)</b> view brings the aortic valve into plane to recognize and estimate the severity of <b>aortic stenosis</b>.
         </div>
-        <p style="margin-top:14px;">This concludes the training content. Next, you'll have the option to try a brief hands-on probe simulation before completing the post-training assessment.</p>
+        <p style="margin-top:14px;">This concludes the training content. Next, you will have the option to try a brief hands-on probe simulation before the post-training assessment.</p>
 
         <h3 style="margin-top:22px;">References</h3>
         <ol style="font-size:.8rem; line-height:1.55; padding-left:20px; color:#475569;">

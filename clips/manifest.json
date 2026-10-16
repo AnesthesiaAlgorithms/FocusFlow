@@ -18,17 +18,17 @@
   ],
   "track": {
     "pattern": "clips/track/a4c_{i}.jpg",
-    "count": 77,
+    "count": 154,
     "size": 480,
-    "fps": 10.02,
-    "period": 8.0,
-    "near": 6,
-    "far": 72,
+    "fps": 20.0,
+    "period": 16.0,
+    "near": 12,
+    "far": 148,
     "zMax": 2.2,
     "lockIn": 90,
     "lockOut": 84,
     "lockFadeMs": 350,
     "jumpFadeMs": 180,
-    "source": "Apical four-chamber. On-window beats from MyFile(3).mp4 (clean 30 fps A4C cine) blended into the real drift-to-lost passage of 10I1(9).mp4 (41-47.5 s), fan-masked. Played in real time; the phone picks the position. Heart rate ~75 bpm (period ~8 frames)."
+    "source": "Apical four-chamber. On-window beats from MyFile(3).mp4 blended into the real drift-to-lost passage of 10I1(9).mp4, fan-masked, at 20 fps for smooth playback. The phone picks the position; ~75 bpm (period ~16 frames)."
   }
 }
