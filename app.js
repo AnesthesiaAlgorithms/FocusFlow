@@ -298,7 +298,8 @@
   const VIEW_PLACEMENT = {
     plax: {
       where: "Left of the breastbone, in the 3rd–4th intercostal space (rib gap), with the patient supine or ideally in the left lateral decubitus.",
-      marker: "Probe marker toward the patient's RIGHT shoulder (~10–11 o'clock)."
+      marker: "Probe marker toward the patient's RIGHT shoulder (~10–11 o'clock).",
+      probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs (intercostal spaces)."
     },
     a4c: {
       where: "At the cardiac apex — lower-left chest, around the 5th–6th intercostal space near the nipple line (where you feel the strongest heartbeat).",
@@ -648,6 +649,7 @@
         <div class="ve-place">
           <div><span class="ve-pin">📍 Where</span> ${p.where || ''}</div>
           <div><span class="ve-pin">↗ Marker</span> ${p.marker || ''}</div>
+          ${p.probe ? `<div><span class="ve-pin">📡 Probe</span> ${p.probe}</div>` : ''}
         </div>
         <div class="view-grid">
           <div>${v.probe}</div>
@@ -1105,8 +1107,10 @@
       const qi = parseInt(kOpt.getAttribute('data-kq'), 10);
       const val = parseInt(kOpt.getAttribute('data-val'), 10);
       STATE[phase].knowledge[qi] = val;
-      $$(`[data-kq="${qi}"]`).forEach(el => el.classList.remove('selected'));
+      $$(`[data-kq="${qi}"]`).forEach(el => { el.classList.remove('selected'); const r = el.querySelector('input'); if (r) r.checked = false; });
       kOpt.classList.add('selected');
+      const kInput = kOpt.querySelector('input');
+      if (kInput) kInput.checked = true;
       updateKnowledgeNext(phase);
       return;
     }
@@ -1131,8 +1135,10 @@
       const qi = parseInt(caseOpt.getAttribute('data-caseq'), 10);
       const val = parseInt(caseOpt.getAttribute('data-val'), 10);
       STATE[phase].cases[qi] = val;
-      $$(`[data-caseq="${qi}"]`).forEach(el => el.classList.remove('selected'));
+      $$(`[data-caseq="${qi}"]`).forEach(el => { el.classList.remove('selected'); const r = el.querySelector('input'); if (r) r.checked = false; });
       caseOpt.classList.add('selected');
+      const caseInput = caseOpt.querySelector('input');
+      if (caseInput) caseInput.checked = true;
       updateCasesNext(phase);
       return;
     }
