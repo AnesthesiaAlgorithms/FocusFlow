@@ -1,34 +1,34 @@
 {
   "views": {
-    "plax": {
-      "src": "clips/plax.webm",
-      "label": "PLAX",
-      "name": "Parasternal Long-Axis",
-      "structures": "RV, IVS, LV, posterior wall, aortic root, LA, mitral & aortic valves",
+    "a4c": {
+      "src": "clips/a4c.webm",
+      "label": "A4C",
+      "name": "Apical Four-Chamber",
+      "structures": "RV, LV, RA, LA, interventricular & interatrial septa, mitral & tricuspid valves",
       "status": "ready",
       "citation": "Echo images: the principal investigator's own transthoracic echocardiogram (2026), de-identified."
     }
   },
   "montage": [
     {
-      "id": "plax",
+      "id": "a4c",
       "pos": 0.5,
       "anchor": true
     }
   ],
   "track": {
-    "pattern": "clips/track/plax_{i}.jpg",
+    "pattern": "clips/track/a4c_{i}.jpg",
     "count": 77,
     "size": 480,
     "fps": 10.02,
-    "period": 7.0,
-    "near": 4.2,
+    "period": 8.0,
+    "near": 6,
     "far": 72,
     "zMax": 2.2,
     "lockIn": 90,
     "lockOut": 84,
     "lockFadeMs": 350,
     "jumpFadeMs": 180,
-    "source": "MyFile(72).mp4 frames at 46.5-54.2s: true parasternal long-axis on-window -> drift -> lost contact, fan-masked (no burned-in text). Played in real time; the phone picks the position. Heart rate ~86 bpm (period ~7 frames)."
+    "source": "Apical four-chamber. On-window beats from MyFile(3).mp4 (clean 30 fps A4C cine) blended into the real drift-to-lost passage of 10I1(9).mp4 (41-47.5 s), fan-masked. Played in real time; the phone picks the position. Heart rate ~75 bpm (period ~8 frames)."
   }
 }

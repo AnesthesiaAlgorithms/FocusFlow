@@ -22,13 +22,13 @@
      ============================================================ */
 
   const CONFIDENCE_ITEMS = [
-    "I can find and recognize the parasternal long-axis (PLAX) view on a patient.",
+    "I can find and recognize the apical four-chamber (A4C) view on a patient.",
     "I know which ultrasound probe (transducer) to use for a preoperative focused cardiac ultrasound (TTE).",
-    "I can recognize severely reduced left ventricular systolic function on the PLAX view.",
-    "I can identify a clinically significant pericardial effusion on the PLAX view.",
-    "I can recognize a heavily calcified or stenotic aortic valve on the PLAX view.",
-    "I can recognize a PLAX finding that should prompt delaying surgery or requesting a formal echocardiogram.",
-    "Overall, I feel confident in my ability to obtain and interpret a basic preoperative PLAX exam.",
+    "I can recognize severely reduced left ventricular systolic function on the A4C view.",
+    "I can identify a clinically significant pericardial effusion on the A4C view.",
+    "I can recognize an enlarged or dysfunctional right ventricle on the A4C view.",
+    "I can recognize an A4C finding that should prompt delaying surgery or requesting a formal echocardiogram.",
+    "Overall, I feel confident in my ability to obtain and interpret a basic preoperative A4C exam.",
     "I believe performing a preoperative focused cardiac ultrasound (FoCUS) is an appropriate part of the anesthesia provider's role."
   ];
 
@@ -43,7 +43,7 @@
     "I would be interested in learning more ultrasound techniques through phone-based simulation."
   ];
 
-  // Knowledge test — 10 questions, focused on the PLAX view. The SAME set is used
+  // Knowledge test — 10 questions, focused on the A4C view. The SAME set is used
   // pre and post (KNOWLEDGE_POST references this array).
   const KNOWLEDGE_PRE = [
     { q: "A CRNA performs FoCUS before a hip replacement in a 72-year-old. Which question is FoCUS best suited to answer?",
@@ -58,17 +58,17 @@
           "It does not include diabetes as a risk factor",
           "It requires a preoperative troponin level",
           "It assigns additional points for age over 70"], c: 0 },
-    { q: "The parasternal long-axis (PLAX) view is primarily used to assess:",
-      o: ["LV size and function, the mitral and aortic valves, the aortic root, and the pericardium",
-          "RV size relative to the LV, the tricuspid valve, and the interatrial septum",
+    { q: "The apical four-chamber (A4C) view is primarily used to assess:",
+      o: ["All four chambers in a single plane — comparing LV and RV size and function, with the mitral and tricuspid valves",
+          "LV size, the aortic valve, and the aortic root only",
           "IVC size and collapsibility, viewed through the liver",
-          "All four chambers in a single plane for comparing the two ventricles"], c: 0 },
-    { q: "Which of the following is NOT reliably assessed from the PLAX view alone?",
-      o: ["Mitral leaflet motion",
-          "LV systolic function",
-          "Posterior pericardial effusion",
-          "IVC collapsibility"], c: 3 },
-    { q: "On the PLAX view, global left ventricular systolic function that appears severely reduced (visually estimated EF < 30%) should prompt the CRNA to:",
+          "The aortic valve gradient and the severity of aortic stenosis"], c: 0 },
+    { q: "Which of the following is NOT reliably assessed from the A4C view alone?",
+      o: ["Right ventricular size relative to the left ventricle",
+          "Left ventricular systolic function",
+          "A pericardial effusion",
+          "The severity of aortic stenosis"], c: 3 },
+    { q: "On the A4C view, global left ventricular systolic function that appears severely reduced (visually estimated EF < 30%) should prompt the CRNA to:",
       o: ["Proceed with a reduced-dose induction, since FoCUS is not diagnostic",
           "Proceed after placing an arterial line, since reduced EF alone does not justify delay",
           "Repeat the FoCUS in the PACU to confirm the finding",
@@ -78,16 +78,16 @@
           "Tamponade physiology",
           "Severe mitral stenosis",
           "Volume depletion"], c: 1 },
-    { q: "On the PLAX view, how is a posterior pericardial effusion distinguished from a left pleural effusion?",
-      o: ["Pericardial fluid tracks anterior to the descending aorta; pleural fluid tracks posterior to it",
-          "Pericardial fluid tracks posterior to the descending aorta; pleural fluid tracks anterior to it",
-          "Pericardial fluid commonly extends behind the left atrium; pleural fluid does not",
-          "They cannot be distinguished without adding a subcostal view"], c: 0 },
-    { q: "On the PLAX view, a heavily calcified aortic valve with markedly reduced leaflet excursion is most concerning for:",
-      o: ["Significant aortic stenosis",
-          "Hypertrophic cardiomyopathy with outflow obstruction",
-          "Aortic regurgitation from a dilated root",
-          "Mitral annular calcification"], c: 0 },
+    { q: "On the A4C view, a right ventricle that appears as large as or larger than the left ventricle most strongly suggests:",
+      o: ["RV pressure or volume overload, which can occur with acute pulmonary embolism",
+          "A normal finding, since the RV is normally the larger ventricle",
+          "Severe aortic stenosis",
+          "Left ventricular hypertrophy"], c: 0 },
+    { q: "On the A4C view, compared with the left ventricle, a normal right ventricle should appear:",
+      o: ["Smaller than the LV, and it should not form the cardiac apex",
+          "Larger than the LV",
+          "Exactly equal in size to the LV",
+          "As the chamber that forms the cardiac apex"], c: 0 },
     { q: "Which of the following best describes the appropriate scope of FoCUS for anesthesia providers?",
       o: ["A screening adjunct, interpreted alongside clinical risk, that flags findings needing further workup",
           "A way to quantify EF and valve gradients so a formal echo can be skipped",
@@ -102,35 +102,35 @@
   // Case-based scenarios - Form A (pre-training). Distractors are all clinically
   // plausible (no give-aways). Items marked "image-ready" are written so a real
   // TTE still/loop can be dropped in later via an `img:` field (see caseMediaHTML).
-  // Three expert-level PLAX cases where the finding flips the anesthetic plan and
-  // the reflexive answer is the dangerous one (HCM/LVOTO, moderate AS, severe LV
-  // dysfunction). The SAME set is used pre and post (CASES_POST references this array).
+  // Three expert-level A4C cases where the finding flips the anesthetic plan and the
+  // reflexive answer is the dangerous one (severe LV dysfunction, tamponade, RV
+  // strain/PE). Each shows the matching simulated A4C loop. The SAME set is used pre
+  // and post (CASES_POST references this array).
   const CASES_PRE = [
-    // CASE 1 — HCM with dynamic LVOT obstruction: the pressor trap (inotropes/
-    // vasodilators worsen the obstruction; pure alpha + volume + slower rate).
-    { v: "A 55-year-old is scheduled for elective surgery. With the PLAX in view, FoCUS shows a very thick heart muscle with a small, forcefully squeezing left ventricle. Just after induction the blood pressure drops sharply.",
-      q: "What is the best response?",
-      o: ["Ephedrine and lighten the anesthetic",
-          "Phenylephrine, a fluid bolus, and esmolol",
-          "An epinephrine or dopamine infusion",
-          "Nitroglycerin to reduce afterload"], c: 1 },
-    // CASE 2 — Moderate aortic stenosis: neuraxial technique choice (a single-shot
-    // spinal's abrupt sympathectomy is poorly tolerated; titrate an epidural).
-    { v: "A 78-year-old needs an elective lower-extremity procedure. With the PLAX in view, FoCUS shows a calcified aortic valve with somewhat reduced opening (moderate aortic stenosis).",
-      q: "What is the most appropriate anesthetic approach?",
-      o: ["Single-shot spinal for a fast, dense block",
-          "A slowly titrated epidural instead of a spinal, with phenylephrine ready",
-          "Single-shot spinal with a fluid bolus and metoprolol",
-          "Single-shot spinal with ephedrine ready for a faster rate"], c: 1 },
-    // CASE 3 — Severe LV systolic dysfunction: stable induction. Shows the
-    // simulated low-EF PLAX loop (sim_low_ef) so the learner reads the finding.
-    { v: "A 64-year-old is scheduled for elective surgery. With the PLAX in view, FoCUS shows a dilated left ventricle with walls that barely move. The patient is borderline hypotensive before induction.",
-      img: 'clips/sim_low_ef.mp4', imgcap: 'Parasternal long-axis (PLAX) — simulated example',
+    // CASE 1 — Severe LV systolic dysfunction: hemodynamically stable induction.
+    { v: "A 64-year-old is scheduled for elective surgery. With the A4C view on screen, FoCUS shows a dilated left ventricle with walls that barely move. The patient is borderline hypotensive before induction.",
+      img: 'clips/sim_low_ef.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "What best guides your anesthetic?",
       o: ["Propofol 2 mg/kg with a fluid bolus",
           "Etomidate titrated, with pressor support ready",
           "Proceed as usual; low EF rarely changes induction",
-          "Ketamine, since its sympathetic surge supports blood pressure in a failing heart"], c: 1 }
+          "Ketamine, since its sympathetic surge supports blood pressure in a failing heart"], c: 1 },
+    // CASE 2 — Pericardial effusion with tamponade: full/fast/tight, drain before induction.
+    { v: "A 59-year-old is scheduled for elective surgery. With the A4C view on screen, FoCUS shows a large echo-free space surrounding the heart, and the right atrium and right ventricle appear to collapse inward in diastole. The patient is anxious with a fast heart rate and borderline blood pressure.",
+      img: 'clips/sim_effusion.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
+      q: "What should you do before proceeding?",
+      o: ["Proceed with a standard propofol induction to calm the patient",
+          "Give a beta-blocker and a vasodilator to settle the rate and pressure",
+          "Pause; keep the patient full and the heart rate up, get help, and arrange drainage before any induction",
+          "Treat it as anxiety; no change to the plan is needed"], c: 2 },
+    // CASE 3 — RV strain (e.g., PE): don't overfill; support the RV, avoid raising PVR.
+    { v: "A 55-year-old with new shortness of breath and a swollen leg needs an urgent procedure. With the A4C view on screen, FoCUS shows a right ventricle as large as the left ventricle and squeezing poorly. The blood pressure is low.",
+      img: 'clips/sim_rv_dilation.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
+      q: "Which best describes the concern and the most appropriate management?",
+      o: ["Left heart failure; give a large fluid bolus to raise the pressure",
+          "Acute RV strain (e.g., pulmonary embolism); avoid overfilling, support the pressure with a vasopressor, prevent hypoxia and hypercarbia, and get help",
+          "A normal finding, since the RV is normally the larger chamber; proceed",
+          "Severe aortic stenosis; maintain afterload and proceed"], c: 1 }
   ];
 
   // Post-training cases are identical to pre (measures change on the same items).
@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261015a';
+  const CLIP_VER = '20261016a';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -290,9 +290,9 @@
     }
   ];
 
-  // Views used by the virtual probe simulator. The study teaches a single view (PLAX);
-  // A4C and subcostal remain defined above for future use.
-  const PROBE_VIEW_IDS = ['plax'];
+  // Views used by the virtual probe simulator. The study teaches a single view (A4C);
+  // PLAX and subcostal remain defined above for future use.
+  const PROBE_VIEW_IDS = ['a4c'];
 
   // Where to place the probe for each window (shown in the clickable view explorer).
   const VIEW_PLACEMENT = {
@@ -302,8 +302,9 @@
       probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs (intercostal spaces)."
     },
     a4c: {
-      where: "At the cardiac apex — lower-left chest, around the 5th–6th intercostal space near the nipple line (where you feel the strongest heartbeat).",
-      marker: "Marker toward the patient's LEFT (~2–3 o'clock); aim the beam up toward the right shoulder."
+      where: "At the cardiac apex — lower-left chest, around the 5th–6th intercostal space near the point of maximal impulse (where you feel the strongest heartbeat), with the patient in the left lateral decubitus if possible.",
+      marker: "Marker toward the patient's LEFT (~2–3 o'clock); aim the beam up through the apex toward the right shoulder so all four chambers open into view.",
+      probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs to image the heart (Pardo, 2023)."
     },
     subcostal: {
       where: "Just below the tip of the breastbone (subxiphoid), probe laid nearly FLAT against the upper abdomen.",
@@ -330,9 +331,9 @@
     {
       title: "Module 1 of 5: Why Preoperative FoCUS?",
       html: `
-        <p>Perioperative hemodynamic instability, which includes intraoperative hypotension, hypertensive crises, and dysrhythmias, complicates a substantial proportion of noncardiac surgical procedures. It is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays.</p>
-        <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point for 6 clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>ONLY</i> on clinical history. It cannot detect&nbsp;subclinical myocardial dysfunction, valvular disease, or other structural abnormalities that can raise perioperative risks.</p>
-        <p>Focused cardiac ultrasound (FoCUS), also called point-of-care ultrasound (POCUS) or focused TTE, is a bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools. It adds structural information that current clinical scoring alone cannot provide.</p>
+        <p>Perioperative hemodynamic instability, which includes intraoperative hypotension, hypertensive crises, and dysrhythmias, complicates a substantial proportion of noncardiac surgical procedures. It is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays (Pardo, 2023).</p>
+        <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point for 6 clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>ONLY</i> on clinical history. It cannot detect&nbsp;subclinical myocardial dysfunction, valvular disease, or other structural abnormalities that can raise perioperative risks (Elisha et al., 2023).</p>
+        <p>Focused cardiac ultrasound (FoCUS), also called point-of-care ultrasound (POCUS) or focused TTE, is a bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools. It adds structural information that current clinical scoring alone cannot provide (Pardo, 2023).</p>
         <h3 style="margin-top:14px;">FoCUS is designed to answer four targeted questions</h3>
         <ul class="content-list">
           <li>Is global left ventricular systolic function preserved or reduced?</li>
@@ -340,41 +341,40 @@
           <li>Is right ventricular size and function normal?</li>
           <li>Is there severe valvular pathology that would change the anesthetic plan?</li>
         </ul>
-        <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice. When a FoCUS finding raises concern, communicate your findings to your anesthesia team to develop an induction and maintenance plan. If findings are concerning enough, it may prompt a cardiology consult.&nbsp;</p>
+        <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice (Elisha et al., 2023). When a FoCUS finding raises concern, communicate your findings to your anesthesia team to develop an induction and maintenance plan. If findings are concerning enough, it may prompt a cardiology consult.&nbsp;</p>
       `
     },
     {
-      title: "Module 2 of 5: The Parasternal Long-Axis (PLAX) View",
+      title: "Module 2 of 5: The Apical Four-Chamber (A4C) View",
       html: `
-        <p>Bedside FoCUS has 4 core views. This training focuses on a single view: the <b>parasternal long-axis (PLAX)</b> view. It is the standard first view in cardiac ultrasound. The PLAX view shows left ventricular size and function, the mitral and aortic valves, the aortic root, and the pericardial space.</p>
+        <p>Bedside FoCUS is built on a small set of standard windows. This training focuses on a single, high-yield view: the <b>apical four-chamber (A4C)</b> view. In one image it displays all four chambers, both atrioventricular valves, and the interventricular and interatrial septa, so the left and right ventricles can be compared side by side (Pardo, 2023).</p>
         <p>Below is where to place the probe and the real echo it produces.</p>
         <div id="veContent"></div>
 
-        <h3 style="margin-top:18px;">What you can interpret from a PLAX view</h3>
+        <h3 style="margin-top:18px;">What you can interpret from an A4C view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
-          <img src="assets/plax-still-own.jpg?v=20261015a" alt="Parasternal echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
-          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Reading a PLAX image, near field to far: <b>RV</b> &rarr; interventricular <b>septum</b> &rarr; <b>LV</b> cavity &rarr; <b>mitral valve</b> &rarr; <b>aortic valve &amp; root / LVOT</b> &rarr; <b>left atrium</b> &rarr; posterior wall &amp; <b>pericardium</b>. <br>Image: the principal investigator's own transthoracic echocardiogram (de-identified).</figcaption>
+          <img src="assets/a4c-still-own.jpg?v=20261016a" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:360px; max-width:100%; border-radius:10px; background:#000; border:3px solid #1f2937;">
+          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.4;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> runs vertically down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field (Pardo, 2023). <br>Image: the principal investigator's own transthoracic echocardiogram (de-identified).</figcaption>
         </figure>
-        <p>A single PLAX image answers several targeted questions:</p>
+        <p>A single A4C image answers several targeted questions:</p>
         <ul class="content-list">
-          <li><b>LV size &amp; systolic function.</b> Do the septum and posterior wall thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate. <i>Good, mildly&ndash;moderately reduced, severely reduced</i>. A mitral leaflet that opens fully toward the septum favors good function.</li>
-          <li><b>LV wall thickness.</b> A septum or posterior wall thicker than ~1.1 cm suggests hypertrophy. Possibly from long-standing hypertension and/or aortic stenosis. <i>Asymmetric</i> septal thickening with systolic anterior motion (SAM) of the mitral valve suggests hypertrophic cardiomyopathy.</li>
-          <li><b>Aortic valve &amp; root.</b> A heavily calcified valve with markedly reduced leaflet excursion suggests aortic stenosis. Note the aortic root width, since a dilated root raises concern for an aneurysm!</li>
-          <li><b>Mitral valve.</b> Thickened/calcified leaflets with restricted opening (stenosis), a flail or prolapsing leaflet (regurgitation), or systolic anterior motion.</li>
-          <li><b>Left atrium.</b> An LA that appears larger than the aortic root (roughly &gt; ~4 cm) suggests chronically elevated filling pressures. This could represent diastolic dysfunction, mitral or tricuspid disease, or atrial fibrillation.</li>
-          <li><b>Pericardium.</b> An echo-free space, especially behind the LV. A <i>pericardial</i> effusion tracks <b>anterior</b> to the descending thoracic aorta; a <i>pleural</i> effusion tracks <b>posterior</b> to it. Watch for right ventricular diastolic collapse, a sign of tamponade!</li>
+          <li><b>LV size &amp; systolic function.</b> Do the walls thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate &mdash; <i>good, mildly&ndash;moderately reduced, or severely reduced</i> (Pardo, 2023).</li>
+          <li><b>RV size &amp; function &mdash; the key A4C strength.</b> Compare the RV directly to the LV. A normal RV is smaller than the LV and does not form the cardiac apex. An RV that approaches or exceeds LV size (RV:LV ratio near or above 1), or that loses its triangular shape, suggests RV pressure or volume overload (Pardo, 2023).</li>
+          <li><b>Atrioventricular valves.</b> Watch the mitral and tricuspid leaflets open and close. Thickened, calcified, or restricted leaflets, or leaflets that fail to coapt, suggest significant valvular disease (Butterworth et al., 2022).</li>
+          <li><b>Atria.</b> Enlarged atria suggest chronically elevated filling pressures &mdash; diastolic dysfunction, chronic valve disease, or atrial fibrillation.</li>
+          <li><b>Pericardium.</b> An echo-free (dark) space surrounding the heart indicates a pericardial effusion. Because the RA and RV are clearly seen, A4C is a strong view for detecting <b>diastolic collapse of the right atrium and/or right ventricle</b> &mdash; a sign of tamponade (Pardo, 2023).</li>
         </ul>
-        <p class="muted">FoCUS is a qualitative skill. The goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings. FoCUS is not meant to diagnose cardiac abnormalities. Severe-appearing aortic stenosis, severely reduced LV function, or a large effusion with tamponade signs all warrant documentation, communication, and consideration of further evaluation before an elective case.</p>
+        <p class="muted">FoCUS is a qualitative skill. The goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings &mdash; not to make a definitive diagnosis. Severely reduced LV function, an enlarged or strained RV, or a large effusion with tamponade signs all warrant documentation, communication, and consideration of further evaluation before an elective case.</p>
       `
     },
     {
       title: "Module 3 of 5: Red-Flag Findings",
       html: `
         <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause and communicate before proceeding with an elective case.</p>
-        <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure.${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
-        <div class="flag-box"><b>Significant pericardial effusion with tamponade physiology</b> — Large effusion with right ventricular diastolic collapse.${simLoopHTML('sim_effusion', 'Large echo-free (dark) space behind the heart. RV diastolic collapse is not simulated.')}</div>
-        <div class="flag-box"><b>Severe valvular pathology</b> — e.g., a heavily calcified aortic valve with markedly reduced leaflet excursion (severe AS), or a flail mitral leaflet with severe MR.${simLoopHTML('sim_calcified_valve', 'Thick, bright (calcified-appearing) leaflets that barely open.')}</div>
-        <div class="flag-box"><b>RV dilation/dysfunction</b> — RV approaching or exceeding LV size, with septal flattening. Raises concern for pulmonary hypertension or pulmonary embolism.${simLoopHTML('sim_rv_dilation', 'Enlarged right ventricle at the top of the image. Septal flattening is best seen in short axis and is not shown.')}</div>
+        <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure (Pardo, 2023).${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
+        <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle (Pardo, 2023).${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
+        <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension (Pardo, 2023).${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
+        <div class="flag-box"><b>Severe valvular disease</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a flail/poorly-coapting leaflet (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thick, bright, restricted mitral leaflets that barely open.')}</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
@@ -396,14 +396,25 @@
       html: `
         <p>FoCUS is a powerful adjunct, but it has real boundaries that every operator should keep in mind.</p>
         <ul class="content-list">
-          <li><b>Not a substitute for comprehensive TTE.</b> A focused exam answers a narrow set of questions — it does not rule out all cardiac pathology.</li>
-          <li><b>Operator- and training-dependent.</b> Image quality and interpretation accuracy depend on the skill of the person scanning.</li>
-          <li><b>Cannot definitively grade valve severity.</b> Findings such as "severe-appearing AS" should prompt referral, not be used alone for surgical planning.</li>
+          <li><b>Not a substitute for comprehensive TTE.</b> A focused exam answers a narrow set of questions — it does not rule out all cardiac pathology (Pardo, 2023).</li>
+          <li><b>One view cannot show everything.</b> The A4C view does not display the aortic valve, so it cannot assess aortic stenosis. Structures outside the four-chamber plane require additional windows (see the note below).</li>
+          <li><b>Operator- and training-dependent.</b> Image quality and interpretation accuracy depend on the skill of the person scanning (Pardo, 2023).</li>
+          <li><b>Qualitative, not quantitative.</b> FoCUS flags "normal vs. clearly abnormal"; it does not grade severity. A concerning finding should prompt referral, not drive surgical planning on its own.</li>
           <li><b>Should not be used in isolation to "clear" high-risk patients.</b> A reassuring FoCUS does not override clinical concern from history or exam.</li>
-          <li><b>Absence of an obvious finding does not exclude pathology.</b> Always correlate with the clinical picture and existing risk-assessment tools (e.g., RCRI).</li>
+          <li><b>Absence of an obvious finding does not exclude pathology.</b> Always correlate with the clinical picture and existing risk-assessment tools (e.g., RCRI) (Elisha et al., 2023).</li>
           <li><b>Communication is the deliverable.</b> The clinical value of FoCUS comes from sharing findings with the team — not from acting on them unilaterally.</li>
         </ul>
+        <div style="margin-top:14px; padding:12px 14px; border-left:4px solid #7CD4FF; background:rgba(124,212,255,.08); border-radius:8px;">
+          <b>Beyond the four-chamber view.</b> FoCUS is not limited to a single window. Other standard views answer questions the A4C cannot — for example, the <b>parasternal long-axis (PLAX)</b> view brings the aortic valve into plane and can be used to recognize and estimate the severity of <b>aortic stenosis</b>. Learning additional views extends what a focused exam can detect.
+        </div>
         <p style="margin-top:14px;">This concludes the training content. Next, you'll have the option to try a brief hands-on probe simulation before completing the post-training assessment.</p>
+
+        <h3 style="margin-top:22px;">References</h3>
+        <ol style="font-size:.8rem; line-height:1.55; padding-left:20px; color:#475569;">
+          <li style="margin-bottom:6px;">Butterworth, J. F., Mackey, D. C., &amp; Wasnick, J. D. (2022). <i>Morgan &amp; Mikhail's clinical anesthesiology</i> (7th ed.). McGraw Hill.</li>
+          <li style="margin-bottom:6px;">Elisha, S., Heiner, J. S., &amp; Nagelhout, J. J. (Eds.). (2023). <i>Nurse anesthesia</i> (7th ed.). Elsevier.</li>
+          <li style="margin-bottom:6px;">Pardo, M. C., Jr. (Ed.). (2023). <i>Miller's basics of anesthesia</i> (8th ed.). Elsevier.</li>
+        </ol>
       `
     }
   ];
@@ -635,7 +646,7 @@
      RENDER: MODULES
      ============================================================ */
 
-  let currentVeView = 'plax';
+  let currentVeView = 'a4c';
   function renderViewExplorer(id) {
     const host = $('#veContent');
     if (!host) return;
