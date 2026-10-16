@@ -102,31 +102,35 @@
   // Case-based scenarios - Form A (pre-training). Distractors are all clinically
   // plausible (no give-aways). Items marked "image-ready" are written so a real
   // TTE still/loop can be dropped in later via an `img:` field (see caseMediaHTML).
-  // Three PLAX-centered cases, graded easy → medium → hard. The SAME set is used
-  // pre and post (CASES_POST references this array).
+  // Three expert-level PLAX cases where the finding flips the anesthetic plan and
+  // the reflexive answer is the dangerous one (HCM/LVOTO, moderate AS, severe LV
+  // dysfunction). The SAME set is used pre and post (CASES_POST references this array).
   const CASES_PRE = [
-    // CASE 1 — EASY: a clear-cut red flag with a straightforward action.
-    { v: "A 74-year-old scheduled for an elective total hip arthroplasty reports three months of worsening exertional dyspnea and fatigue. On the PLAX view, the aortic valve is heavily calcified with markedly reduced leaflet excursion; the LV is normal-sized and hyperdynamic. There is no echocardiogram on file.",
-      q: "What is the most appropriate next step?",
-      o: ["Proceed with the planned anesthetic; a calcified valve is an expected age-related change",
-          "Document the finding and discuss with the team; obtain formal echocardiography and reassess the risk/benefit before this elective case",
-          "Proceed with an arterial line and vasopressors available — an isolated calcified valve does not justify delaying surgery",
-          "Cancel all future surgeries for this patient permanently"], c: 1 },
-    // CASE 2 — MEDIUM: the subtle "a normal FoCUS does not clear the patient" trap.
-    { v: "A 68-year-old with exertional chest pain and a recent positive cardiac stress test is scheduled for an elective procedure. On the PLAX view, LV size and function appear normal, the mitral and aortic valves look normal, and there is no pericardial effusion.",
-      img: 'clips/plax.mp4', imgcap: 'Parasternal long-axis (PLAX) view',
-      q: "How should this reassuring PLAX be interpreted?",
-      o: ["The normal PLAX effectively clears the patient cardiac-wise; proceed without further concern",
-          "A reassuring FoCUS supports — but does not override — the clinical picture; the positive stress test still warrants cardiology input before this elective case",
-          "FoCUS cannot assess LV function, so a normal-appearing PLAX is meaningless here",
-          "Repeat the FoCUS after induction to confirm the normal findings"], c: 1 },
-    // CASE 3 — HARD: HOCM with dynamic LVOT obstruction and counter-intuitive management.
-    { v: "A 55-year-old with occasional exertional lightheadedness is scheduled for an elective procedure and takes no cardiac medications. On the PLAX view there is marked asymmetric hypertrophy of the interventricular septum with systolic anterior motion (SAM) of the anterior mitral leaflet, and the LV cavity appears small and vigorously (hyperdynamically) contracting.",
-      q: "Which best describes the concern and the most appropriate anesthetic considerations?",
-      o: ["Dilated cardiomyopathy; start an inotrope before induction to support the failing ventricle",
-          "Hypovolemia alone; give a large fluid bolus and proceed without further concern",
-          "Hypertrophic cardiomyopathy with dynamic LV outflow-tract obstruction; maintain preload and afterload, avoid hypovolemia, tachycardia, and vasodilation, and communicate the finding for further evaluation",
-          "A normal finding for age; no change to the anesthetic plan is needed"], c: 2 }
+    // CASE 1 — HCM with dynamic LVOT obstruction: the pressor trap (inotropes/
+    // vasodilators worsen the obstruction; pure alpha + volume + slower rate).
+    { v: "A 55-year-old is scheduled for elective surgery. With the PLAX in view, FoCUS shows a very thick heart muscle with a small, forcefully squeezing left ventricle. Just after induction the blood pressure drops sharply.",
+      q: "What is the best response?",
+      o: ["Ephedrine and lighten the anesthetic",
+          "Phenylephrine, a fluid bolus, and esmolol",
+          "An epinephrine or dopamine infusion",
+          "Nitroglycerin to reduce afterload"], c: 1 },
+    // CASE 2 — Moderate aortic stenosis: neuraxial technique choice (a single-shot
+    // spinal's abrupt sympathectomy is poorly tolerated; titrate an epidural).
+    { v: "A 78-year-old needs an elective lower-extremity procedure. With the PLAX in view, FoCUS shows a calcified aortic valve with somewhat reduced opening (moderate aortic stenosis).",
+      q: "What is the most appropriate anesthetic approach?",
+      o: ["Single-shot spinal for a fast, dense block",
+          "A slowly titrated epidural instead of a spinal, with phenylephrine ready",
+          "Single-shot spinal with a fluid bolus and metoprolol",
+          "Single-shot spinal with ephedrine ready for a faster rate"], c: 1 },
+    // CASE 3 — Severe LV systolic dysfunction: stable induction. Shows the
+    // simulated low-EF PLAX loop (sim_low_ef) so the learner reads the finding.
+    { v: "A 64-year-old is scheduled for elective surgery. With the PLAX in view, FoCUS shows a dilated left ventricle with walls that barely move. The patient is borderline hypotensive before induction.",
+      img: 'clips/sim_low_ef.mp4', imgcap: 'Parasternal long-axis (PLAX) — simulated example',
+      q: "What best guides your anesthetic?",
+      o: ["Propofol 2 mg/kg with a fluid bolus",
+          "Etomidate titrated, with pressor support ready",
+          "Proceed as usual; low EF rarely changes induction",
+          "Ketamine, since its sympathetic surge supports blood pressure in a failing heart"], c: 1 }
   ];
 
   // Post-training cases are identical to pre (measures change on the same items).
