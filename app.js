@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017a';
+  const CLIP_VER = '20261017b';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -219,7 +219,7 @@
         <source src="clips/${id}.webm?v=${CLIP_VER}" type="video/webm">
         <source src="clips/${id}.mp4?v=${CLIP_VER}" type="video/mp4">
       </video>
-      <figcaption><b>Simulated example.</b> ${caption} Created by digitally altering the investigator's normal scan; not a patient recording.</figcaption>
+      <figcaption><b>Simulated example.</b> ${caption}</figcaption>
     </figure>`;
   }
 
@@ -354,7 +354,7 @@
 
         <h3 style="margin-top:18px;">What you can interpret from an A4C view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
-          <img src="assets/a4c-still-own.jpg?v=20261017a" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:380px; max-width:100%; border-radius:12px; background:#000; border:3px solid #1f2937; box-shadow:0 2px 10px rgba(0,0,0,.15);">
+          <img src="assets/a4c-still-own.jpg?v=20261017b" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:380px; max-width:100%; border-radius:12px; background:#000; border:3px solid #1f2937; box-shadow:0 2px 10px rgba(0,0,0,.15);">
           <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.45;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> and <b>interatrial septum (IAS)</b> run down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field (Pardo, 2023).</figcaption>
         </figure>
         <p style="font-weight:600;">A single A4C image answers several targeted questions:</p>
@@ -373,6 +373,7 @@
       title: "Module 3 of 5: Red-Flag Findings",
       html: `
         <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause and communicate before proceeding with an elective case.</p>
+        <p class="muted" style="font-style:italic; margin-top:-2px;">Each clip below was created by digitally altering the investigator's own normal scan, not a patient recording.</p>
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure (Pardo, 2023).${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
         <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle (Pardo, 2023).${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
         <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension (Pardo, 2023).${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
@@ -383,13 +384,13 @@
     {
       title: "Module 4 of 5: The Decision Pathway",
       html: `
-        <div class="flow-box"><b>1. Perform FoCUS</b><br>Integrate findings with existing history, exam, and RCRI / clinical risk assessment.</div>
+        <div class="flow-box"><b>1. Perform FoCUS</b>Integrate findings with existing history, exam, and RCRI / clinical risk assessment.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box go"><b>2. Findings normal or expected</b><br>No new structural concerns, or consistent with documented history.<br><b>→ Proceed</b> with the planned anesthetic.</div>
+        <div class="flow-box go"><b>2. Findings normal or expected</b>No new structural concerns, or consistent with documented history.<br><b>→ Proceed</b> with the planned anesthetic.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box"><b>3. New, non-life-threatening finding</b><br>e.g., mild to moderate valve disease, or mild LV dysfunction.<br><b>→ Document</b>, communicate to the team, correlate clinically, and consider further workup if time allows. Proceeding is often still appropriate.</div>
+        <div class="flow-box"><b>3. New, non-life-threatening finding</b>e.g., mild to moderate valve disease, or mild LV dysfunction.<br><b>→ Communicate</b> to the team, correlate clinically, and consider further workup. The anesthetic plan may be adjusted to better care for the patient; proceeding is often still appropriate.</div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-box alert"><b>4. Red-flag finding</b><br>Severe LV dysfunction, tamponade physiology, a severe valvular abnormality, or significant RV dysfunction.<br><b>→ Document and communicate immediately.</b> Discuss the risk and benefit of proceeding vs. delaying with the team, and consider formal TTE or cardiology consultation.</div>
+        <div class="flow-box alert"><b>4. Red-flag finding</b>Severe LV dysfunction, tamponade physiology, a severe valvular abnormality, or significant RV dysfunction.<br><b>→ Document and communicate immediately.</b> Discuss the risk and benefit of proceeding vs. delaying with the team, adjust the anesthetic plan to better care for the patient, and consider formal TTE or cardiology consultation.</div>
       `
     },
     {
