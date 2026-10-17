@@ -429,7 +429,7 @@
   // After the droplet is deployed, set this to the server address, e.g.
   // 'https://203-0-113-45.sslip.io'. When set, results upload AUTOMATICALLY on
   // completion (no button). Left '' it falls back to a manual download.
-  const FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
+  const FOCUSFLOW_SERVER = 'https://api.pocusanesthesia.com';
 
   const STATE = {
     participantId: genId(),
