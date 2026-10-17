@@ -502,7 +502,13 @@
     renderStep();
   }
   function nextStep() { goToStep(currentStep + 1); }
-  function prevStep() { goToStep(currentStep - 1); }
+  function prevStep() { if (canGoBack()) goToStep(currentStep - 1); }
+  // Going back is allowed ONLY between the educational modules (so pre-test answers
+  // can't be revisited). True only when the current AND previous steps are modules.
+  function canGoBack() {
+    const cur = FLOW[currentStep], prev = FLOW[currentStep - 1];
+    return !!(cur && cur.screen === 'module' && prev && prev.screen === 'module');
+  }
 
   function renderStep() {
     const step = FLOW[currentStep];
@@ -510,6 +516,10 @@
     $('#screen-' + step.screen).classList.add('active');
     setProgress();
     updateStepIndicator(step);
+
+    // Back navigation is allowed only between the educational modules.
+    $$('button[id$="Back"]').forEach(b => { b.style.display = 'none'; });
+    if (canGoBack()) { const mb = $('#btnModuleBack'); if (mb) mb.style.display = ''; }
 
     if (step.screen !== 'probe') stopPlaxSim();
 
