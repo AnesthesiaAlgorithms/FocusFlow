@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017d';
+  const CLIP_VER = '20261017e';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
