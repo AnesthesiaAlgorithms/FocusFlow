@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017e';
+  const CLIP_VER = '20261017f';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -303,7 +303,7 @@
       probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs (intercostal spaces)."
     },
     a4c: {
-      where: "At the cardiac apex — lower-left chest, around the 5th–6th intercostal space near the point of maximal impulse (where you feel the strongest heartbeat), with the patient in the left lateral decubitus if possible.",
+      where: "At the cardiac apex — lower-left chest, around the 4th–6th intercostal space in the midclavicular line, near the point of maximal impulse (where you feel the strongest heartbeat), with the patient in the left lateral decubitus if possible.",
       marker: "Marker toward the patient's LEFT (~2–3 o'clock); aim the beam up through the apex toward the right shoulder so all four chambers open into view.",
       probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs to image the heart (Pardo, 2023)."
     },

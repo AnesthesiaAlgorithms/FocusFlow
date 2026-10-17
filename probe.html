@@ -122,7 +122,7 @@
 
   <!-- Live: move-to-find radar (accelerometer calibration) -->
   <div id="screen-live" hidden>
-    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>find the PLAX window</b>. Line the probe up on the target ring to bring the real view into sharp focus.</p>
+    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>find the A4C window</b>. Line the probe up on the target ring to bring the real view into sharp focus.</p>
 
     <div class="compass-wrap">
       <svg class="compass" viewBox="0 0 200 200" aria-hidden="true">
@@ -173,10 +173,10 @@
   // Guided sequence + calibration poses. Instructions stress making the three
   // poses clearly DIFFERENT (tilt + rotation), which is what keeps the sensor
   // signatures well separated.
-  // Single view: the parasternal long-axis (PLAX) window.
+  // Single view: the apical four-chamber (A4C) window.
   var VIEWS = [
-    { id:'plax', label:'PLAX',
-      instr:'Left of the breastbone, in the 3rd–4th rib space, patient supine or slightly left-side down. Marker toward the right shoulder (~10–11 o’clock). Hold the phone fairly UPRIGHT, like the probe.' }
+    { id:'a4c', label:'A4C',
+      instr:'At the cardiac apex — lower-left chest, 4th–6th rib space in the midclavicular line, patient in the left lateral decubitus if possible. Index marker toward the patient’s LEFT (~2–3 o’clock); aim the beam up toward the patient’s right shoulder. Hold the phone fairly UPRIGHT, like the probe.' }
   ];
 
   var FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
