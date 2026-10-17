@@ -59,7 +59,7 @@
           "It requires a preoperative troponin level",
           "It assigns additional points for age over 70"], c: 0 },
     { q: "The apical four-chamber (A4C) view is primarily used to assess:",
-      o: ["All four chambers in a single plane — comparing LV and RV size and function, with the mitral and tricuspid valves",
+      o: ["All four chambers in a single plane",
           "LV size, the aortic valve, and the aortic root",
           "IVC size and collapsibility, viewed through the liver",
           "The aortic valve gradient and the severity of aortic stenosis"], c: 0 },
@@ -79,7 +79,7 @@
           "Severe mitral stenosis",
           "Volume depletion"], c: 1 },
     { q: "On the A4C view, a right ventricle that appears as large as or larger than the left ventricle most strongly suggests:",
-      o: ["RV pressure or volume overload, which can occur with acute pulmonary embolism",
+      o: ["RV pressure or volume overload",
           "A normal finding, since the RV is normally the larger ventricle",
           "Severe aortic stenosis",
           "Left ventricular hypertrophy"], c: 0 },
@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017f';
+  const CLIP_VER = '20261017g';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
