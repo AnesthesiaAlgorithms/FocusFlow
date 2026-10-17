@@ -1488,11 +1488,11 @@
       stEl.textContent = locked ? 'LOCKED' : (acc >= 60 ? 'ACQUIRING' : 'SEARCHING');
       stEl.className = 'echo-state' + (locked ? ' locked' : '');
     }
-    if (subEl) subEl.textContent = name ? (name) : 'Move your phone to a probe position.';
-    if (capEl) {
-      if (ECHO.showCaption && info && info.structures) { capEl.hidden = false; capEl.textContent = info.structures; }
-      else capEl.hidden = true;
+    if (subEl) {
+      if (id) { subEl.textContent = ''; subEl.style.display = 'none'; }
+      else { subEl.textContent = 'Move your phone to a probe position.'; subEl.style.display = ''; }
     }
+    if (capEl) capEl.hidden = true;   // teaching caption removed from the sim
   }
 
   /* ============================================================
