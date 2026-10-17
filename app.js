@@ -659,10 +659,10 @@
       <div class="view-card" style="margin-bottom:0;">
         <h4>${v.name}</h4>
         <div class="ve-place">
-          <div><span class="ve-pin">Where</span> ${p.where || ''}</div>
-          <div><span class="ve-pin">Marker</span> ${p.marker || ''}</div>
-          ${p.aim ? `<div><span class="ve-pin">Aim</span> ${p.aim}</div>` : ''}
-          ${p.probe ? `<div><span class="ve-pin">Probe</span> ${p.probe}</div>` : ''}
+          <div><span class="ve-pin">Where</span><span>${p.where || ''}</span></div>
+          <div><span class="ve-pin">Marker</span><span>${p.marker || ''}</span></div>
+          ${p.aim ? `<div><span class="ve-pin">Aim</span><span>${p.aim}</span></div>` : ''}
+          ${p.probe ? `<div><span class="ve-pin">Probe</span><span>${p.probe}</span></div>` : ''}
         </div>
         ${v.view}
         <p style="margin-bottom:0;"><b>What it shows:</b> ${v.assesses}</p>
