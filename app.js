@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017c';
+  const CLIP_VER = '20261017d';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
@@ -377,7 +377,7 @@
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure (Pardo, 2023).${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
         <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle (Pardo, 2023).${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
         <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension (Pardo, 2023).${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
-        <div class="flag-box"><b>Severe valvular abnormality</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a leaflet that fails to close (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thick, bright, restricted mitral leaflets that barely open.')}</div>
+        <div class="flag-box"><b>Severe valvular abnormality</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a leaflet that fails to close (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thickened, bright mitral leaflets (LV side) moving with the valve.')}</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
