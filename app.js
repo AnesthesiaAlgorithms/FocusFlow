@@ -1466,8 +1466,9 @@
       if ($('#echoAcc')) $('#echoAcc').textContent = accR ? (accR + '%') : '';
       if (id !== ECHO.lastId || Math.abs(accR - (ECHO.lastAcc || 0)) >= 4) {
         ECHO.lastId = id; ECHO.lastAcc = accR;
-        setEchoState(id, accR, focus > 0.82 && nf.entry && nf.entry.anchor, id);
-        renderProbeTargets(nf.entry && nf.entry.anchor ? id : null);
+        const locked = focus > 0.82 && nf.entry && nf.entry.anchor;
+        setEchoState(id, accR, locked, id);
+        renderProbeTargets(nf.entry && nf.entry.anchor ? id : null, locked);
       }
       ECHO.raf = requestAnimationFrame(tick);
     };
@@ -1540,12 +1541,13 @@
     }
   }
 
-  function renderProbeTargets(activeId) {
+  function renderProbeTargets(activeId, locked) {
     const row = $('#probeTargetRow');
     if (!row) return;
     row.innerHTML = PROBE_VIEW_IDS.map(id => {
       const v = getViewById(id);
-      const cls = 'probe-target' + (id === activeId ? ' matched' : '');
+      // Red until the view is actually locked (on the right frame), then green.
+      const cls = 'probe-target' + (locked && id === activeId ? ' locked' : '');
       return `<div class="${cls}">${probeShortLabel(v)}</div>`;
     }).join('');
   }
