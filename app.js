@@ -305,7 +305,7 @@
     a4c: {
       where: "Cardiac apex — the point of maximal impulse (PMI), around the 4th–6th intercostal space in the midclavicular line.",
       marker: "Toward the patient's left (~2–3 o'clock).",
-      aim: "Direct the beam toward the base of the heart / right shoulder until all four chambers come into view.",
+      aim: "Tilt until all four chambers are centered and the LV is not foreshortened; angle the beam toward the base of the heart / right shoulder.",
       probe: "Phased-array cardiac probe, 1–5 MHz (Pardo, 2023)."
     },
     subcostal: {
