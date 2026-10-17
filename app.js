@@ -343,7 +343,7 @@
           <li>Is right ventricular size and function normal?</li>
           <li>Is there severe valvular pathology that would change the anesthetic plan?</li>
         </ul>
-        <p>The American Association of Nurse Anesthesiology (AANA) recognizes POCUS as an <b>advancing competency</b> for evidence-based nurse anesthesia practice (Elisha et al., 2023). When a FoCUS finding raises concern, communicate your findings to your anesthesia team to develop an induction and maintenance plan. If findings are concerning enough, it may prompt a cardiology consult.&nbsp;</p>
+        <p>The American Association of Nurse Anesthesiology (AANA) recognizes point-of-care ultrasound (POCUS) as an <b>advancing competency</b> for evidence-based nurse anesthesia practice (Elisha et al., 2023). POCUS includes cardiac ultrasound. When a FoCUS finding raises concern, communicate your findings to your anesthesia team to develop an induction and maintenance plan. If findings are concerning enough, it may prompt a cardiology consult.&nbsp;</p>
       `
     },
     {
