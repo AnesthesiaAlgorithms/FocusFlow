@@ -127,7 +127,7 @@
     { v: "A 55-year-old with new shortness of breath and a swollen leg needs an urgent procedure, and the blood pressure is low. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_rv_dilation.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "Which best describes the concern and the most appropriate management?",
-      o: ["Possible left heart failure",
+      o: ["Possible left heart failure; support contractility with an inotrope and avoid fluid overload",
           "Possible RV overload; avoid overfilling, support the pressure with a vasopressor, prevent hypoxia and hypercarbia",
           "A normal finding, since the RV is normally the larger chamber; proceed",
           "Severe aortic stenosis; maintain afterload and proceed"], c: 1 }
