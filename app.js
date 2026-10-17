@@ -46,7 +46,7 @@
   // Knowledge test — 10 questions, focused on the A4C view. The SAME set is used
   // pre and post (KNOWLEDGE_POST references this array).
   const KNOWLEDGE_PRE = [
-    { q: "A CRNA performs FoCUS before a hip replacement in a 72-year-old. Which question is FoCUS best suited to answer?",
+    { q: "A CRNA performs FoCUS (focused cardiac ultrasound) before a hip replacement in a 72-year-old. Which question is FoCUS best suited to answer?",
       o: ["Is global LV systolic function grossly reduced?",
           "What is the aortic valve area?",
           "Is there a regional wall-motion abnormality from a prior MI?",
@@ -54,7 +54,7 @@
     { q: "Approximately how long does a focused preoperative TTE (FoCUS) typically take to perform?",
       o: ["1–2 minutes", "8–12 minutes", "45–60 minutes", "2–3 hours"], c: 1 },
     { q: "Which of the following is a recognized limitation of the Revised Cardiac Risk Index (RCRI)?",
-      o: ["It cannot detect undiagnosed structural disease, such as reduced LV function or aortic stenosis",
+      o: ["It cannot detect undiagnosed structural disease, such as reduced LV function or severe mitral leaflet calcifications",
           "It does not include diabetes as a risk factor",
           "It requires a preoperative troponin level",
           "It assigns additional points for age over 70"], c: 0 },
@@ -83,11 +83,11 @@
           "A normal finding, since the RV is normally the larger ventricle",
           "Severe aortic stenosis",
           "Left ventricular hypertrophy"], c: 0 },
-    { q: "On the A4C view, compared with the left ventricle, a normal right ventricle should appear:",
-      o: ["Smaller than the LV, and it should not form the cardiac apex",
-          "Larger than the LV",
-          "Exactly equal in size to the LV",
-          "As the chamber that forms the cardiac apex"], c: 0 },
+    { q: "On the A4C view, compared with the right ventricle, a normal left ventricle should appear:",
+      o: ["Larger than the RV, and it should form the cardiac apex",
+          "Smaller than the RV",
+          "Exactly equal in size to the RV",
+          "The chamber that does not reach the cardiac apex"], c: 0 },
     { q: "Which of the following best describes the appropriate scope of FoCUS for anesthesia providers?",
       o: ["A screening adjunct, interpreted alongside clinical risk, that flags findings needing further workup",
           "A way to quantify EF and valve gradients so a formal echo won't delay the case",
@@ -108,7 +108,7 @@
   // and post (CASES_POST references this array).
   const CASES_PRE = [
     // CASE 1 — Severe LV systolic dysfunction: hemodynamically stable induction.
-    { v: "A 64-year-old is scheduled for elective surgery and is borderline hypotensive before induction. You obtain an apical four-chamber view. This is what you see on the screen:",
+    { v: "A 64-year-old is scheduled for emergent surgery and is borderline hypotensive before induction. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_low_ef.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "What best guides your anesthetic?",
       o: ["Propofol 2 mg/kg with a fluid bolus",
@@ -306,7 +306,7 @@
       where: "Cardiac apex — the point of maximal impulse (PMI), around the 4th–6th intercostal space in the midclavicular line.",
       marker: "Indicator notch pointed out to the patient's left (Pardo, 2023).",
       aim: "Tilt until all four chambers are centered and the LV is not foreshortened; angle the beam toward the base of the heart / right shoulder.",
-      probe: "Phased-array cardiac probe, 1–5 MHz (Pardo, 2023)."
+      probe: "Phased-array cardiac probe, 1–5 MHz."
     },
     subcostal: {
       where: "Just below the tip of the breastbone (subxiphoid), probe laid nearly FLAT against the upper abdomen.",
@@ -333,7 +333,7 @@
     {
       title: "Module 1 of 5: Why Preoperative FoCUS?",
       html: `
-        <p>Perioperative hemodynamic instability, which includes intraoperative hypotension, hypertensive crises, and dysrhythmias, complicates a substantial proportion of noncardiac surgical procedures. It is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays (Pardo, 2023).</p>
+        <p>Perioperative hemodynamic instability, which includes intraoperative hypotension, hypertensive crises, and dysrhythmias, complicates a substantial proportion of noncardiac surgical procedures. It is independently associated with myocardial injury, acute kidney injury, cerebrovascular events, and prolonged hospital stays.</p>
         <p>The Revised Cardiac Risk Index (RCRI) remains the most widely used preoperative cardiac risk tool. It assigns one point for 6 clinical variables: high-risk surgery, ischemic heart disease, congestive heart failure, cerebrovascular disease, insulin-dependent diabetes, and creatinine &gt; 2.0 mg/dL. However, the RCRI relies <i>ONLY</i> on clinical history. It cannot detect&nbsp;subclinical myocardial dysfunction, valvular disease, or other structural abnormalities that can raise perioperative risks (Elisha et al., 2023).</p>
         <p>Focused cardiac ultrasound (FoCUS), also called point-of-care ultrasound (POCUS) or focused TTE, is a bedside exam that takes roughly <b>8–12 minutes</b>. It is not meant to replace clinical risk tools. It adds structural information that current clinical scoring alone cannot provide (Pardo, 2023).</p>
         <h3 style="margin-top:14px;">FoCUS is designed to answer four targeted questions</h3>
@@ -356,15 +356,15 @@
         <h3 style="margin-top:18px;">What you can interpret from an A4C view</h3>
         <figure style="margin:0 0 12px; text-align:center;">
           <img src="assets/a4c-still-own.jpg?v=20261017b" alt="Labeled apical four-chamber echocardiography still from the investigator's own scan" style="width:380px; max-width:100%; border-radius:12px; background:#000; border:3px solid #1f2937; box-shadow:0 2px 10px rgba(0,0,0,.15);">
-          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.45;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> and <b>interatrial septum (IAS)</b> run down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field (Pardo, 2023).</figcaption>
+          <figcaption class="muted" style="font-size:.78rem; margin-top:6px; line-height:1.45;">Apical four-chamber view, apex at the top: the <b>interventricular septum (IVS)</b> and <b>interatrial septum (IAS)</b> run down the center, the <b>right (RV)</b> and <b>left (LV)</b> ventricles sit on either side, the <b>tricuspid (TV)</b> and <b>mitral (MV)</b> valves form the central valve plane, and the <b>right (RA)</b> and <b>left (LA)</b> atria lie in the far field.</figcaption>
         </figure>
         <p style="font-weight:600;">A single A4C image answers several targeted questions:</p>
         <ul class="content-list" style="line-height:1.5; padding-left:4px;">
-          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">LV size &amp; systolic function:</b> Do the walls thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate: <i>good, mildly-moderately reduced, or severely reduced</i> (Pardo, 2023).</li>
-          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">RV size &amp; function:</b> the key A4C strength. Compare the RV directly to the LV. A normal RV is smaller than the LV and does not form the cardiac apex. An RV that approaches or exceeds LV size (RV:LV ratio near or above 1), or that loses its triangular shape, suggests RV pressure or volume overload (Pardo, 2023).</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">LV size &amp; systolic function:</b> Do the walls thicken and squeeze inward briskly (normal), or barely move (reduced)? Give a qualitative estimate: <i>good, mildly-moderately reduced, or severely reduced</i>.</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">RV size &amp; function:</b> the key A4C strength. Compare the RV directly to the LV. A normal RV is smaller than the LV and does not form the cardiac apex. An RV that approaches or exceeds LV size (RV:LV ratio near or above 1), or that loses its triangular shape, suggests RV pressure or volume overload.</li>
           <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Atrioventricular valves:</b> Look closely as the mitral and tricuspid leaflets open and close. Thickened, calcified, or restricted leaflets, or leaflets that fail to close can suggest significant valvular disease (Butterworth et al., 2022).</li>
           <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Atria:</b> An enlarged left or right atrium suggests chronically elevated filling pressures. Etiology can be from diastolic dysfunction, chronic valve disease, or atrial fibrillation.</li>
-          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Pericardium:</b> An echo-free (dark) space surrounding the heart indicates a pericardial effusion. Because the RA and RV are clearly seen, A4C is a strong view for detecting diastolic collapse of the right atrium and/or right ventricle. This is a sign of cardiac tamponade (Pardo, 2023).</li>
+          <li style="margin-bottom:10px; list-style:none; padding-left:14px; border-left:3px solid #e2b9c0;"><b style="color:#8a1a2b;">Pericardium:</b> An echo-free (dark) space surrounding the heart indicates a pericardial effusion. Because the RA and RV are clearly seen, A4C is a strong view for detecting diastolic collapse of the right atrium and/or right ventricle. This is a sign of cardiac tamponade.</li>
         </ul>
         <p class="muted">FoCUS is a qualitative skill. The goal is to recognize <b>normal vs. clearly abnormal</b> and to communicate red-flag findings. FoCUS is not to be used to make a definitive diagnosis. Severely reduced LV function, an enlarged or strained RV, or a large effusion with tamponade all warrant communication with the team, and consideration of further evaluation before an elective case.</p>
         <p class="muted" style="font-size:.74rem; margin-top:12px; padding:10px 12px; background:#f3f4f6; border-radius:8px; line-height:1.45;"><b>Image disclosure.</b> Every ultrasound image in this training is the de-identified transthoracic echocardiogram of the principal investigator; no patient images are used. The abnormal examples shown later are digital simulations produced by altering the investigator's own normal images, not recordings of disease.</p>
@@ -376,9 +376,9 @@
         <p>The following findings represent <b>unexpected, high-acuity results</b> on a preoperative FoCUS that should prompt the CRNA to pause and communicate before proceeding with an elective case.</p>
         <p class="muted" style="font-style:italic; margin-top:-2px;">Each clip below was created by digitally altering the investigator's own normal scan, not a patient recording.</p>
         <div class="flag-box"><b>Severely reduced LV systolic function</b> — Visually estimated EF &lt; 30%, global hypokinesis. May indicate undiagnosed cardiomyopathy or decompensated heart failure (Pardo, 2023).${simLoopHTML('sim_low_ef', 'Global hypokinesis: the walls barely move with each beat.')}</div>
-        <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle (Pardo, 2023).${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
-        <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension (Pardo, 2023).${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
-        <div class="flag-box"><b>Severe valvular abnormality</b> — e.g., thickened, calcified, or restricted mitral or tricuspid leaflets, or a leaflet that fails to close (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thickened, bright mitral leaflets (LV side) moving with the valve.')}</div>
+        <div class="flag-box"><b>Pericardial effusion with tamponade physiology</b> — A large echo-free space surrounding the heart with diastolic collapse of the right atrium and/or right ventricle.${simLoopHTML('sim_effusion', 'Echo-free (dark) fluid surrounds the heart, with a bright pericardial line at its outer edge.')}</div>
+        <div class="flag-box"><b>RV dilation/dysfunction</b> — The RV approaches or exceeds LV size and loses its triangular shape, raising concern for acute pulmonary embolism or pulmonary hypertension.${simLoopHTML('sim_rv_dilation', 'The right ventricle is enlarged and now rivals the left ventricle in size.')}</div>
+        <div class="flag-box"><b>Severe valvular abnormality</b> — thickened, calcified, or restricted mitral or tricuspid leaflets, or a leaflet that fails to close (Butterworth et al., 2022).${simLoopHTML('sim_mv_disease', 'Thickened, bright mitral leaflets (LV side) moving with the valve.')}</div>
         <p class="muted" style="margin-top:14px;">A red-flag finding does not automatically mean a case should be cancelled. It means the finding should be <b>documented and discussed</b> with the team so the risks and benefits of proceeding can be weighed with full information.</p>
       `
     },
@@ -399,9 +399,9 @@
       html: `
         <p>FoCUS is a powerful adjunct, but it has real boundaries every operator should keep in mind.</p>
         <ul class="content-list" style="line-height:1.5;">
-          <li><b>Not a full study.</b> A focused exam answers a narrow set of questions and does not rule out all cardiac pathology (Pardo, 2023).</li>
+          <li><b>Not a full study.</b> A focused exam answers a narrow set of questions and does not rule out all cardiac pathology.</li>
           <li><b>One view cannot show everything.</b> The A4C view does not show the aortic valve, so it cannot assess aortic stenosis.</li>
-          <li><b>Operator dependent.</b> Image quality and interpretation depend on the person scanning (Pardo, 2023).</li>
+          <li><b>Operator dependent.</b> Image quality and interpretation depend on the person scanning.</li>
           <li><b>Qualitative, not quantitative.</b> It flags normal versus clearly abnormal and does not grade severity.</li>
           <li><b>Not for clearing high-risk patients.</b> A reassuring exam does not override concern from the history and exam (Elisha et al., 2023).</li>
         </ul>
@@ -659,10 +659,10 @@
       <div class="view-card" style="margin-bottom:0;">
         <h4>${v.name}</h4>
         <div class="ve-place">
-          <div><span class="ve-pin">📍 Where</span> ${p.where || ''}</div>
-          <div><span class="ve-pin">↗ Marker</span> ${p.marker || ''}</div>
-          ${p.aim ? `<div><span class="ve-pin">🎯 Aim</span> ${p.aim}</div>` : ''}
-          ${p.probe ? `<div><span class="ve-pin">📡 Probe</span> ${p.probe}</div>` : ''}
+          <div><span class="ve-pin">Where</span> ${p.where || ''}</div>
+          <div><span class="ve-pin">Marker</span> ${p.marker || ''}</div>
+          ${p.aim ? `<div><span class="ve-pin">Aim</span> ${p.aim}</div>` : ''}
+          ${p.probe ? `<div><span class="ve-pin">Probe</span> ${p.probe}</div>` : ''}
         </div>
         ${v.view}
         <p style="margin-bottom:0;"><b>What it shows:</b> ${v.assesses}</p>
