@@ -661,10 +661,7 @@
           <div><span class="ve-pin">↗ Marker</span> ${p.marker || ''}</div>
           ${p.probe ? `<div><span class="ve-pin">📡 Probe</span> ${p.probe}</div>` : ''}
         </div>
-        <div class="view-grid">
-          <div>${v.probe}</div>
-          <div>${v.view}</div>
-        </div>
+        ${v.view}
         <p style="margin-bottom:0;"><b>What it shows:</b> ${v.assesses}</p>
       </div>`;
     playEchoLoops(host);
