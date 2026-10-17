@@ -90,7 +90,7 @@
           "As the chamber that forms the cardiac apex"], c: 0 },
     { q: "Which of the following best describes the appropriate scope of FoCUS for anesthesia providers?",
       o: ["A screening adjunct, interpreted alongside clinical risk, that flags findings needing further workup",
-          "A way to quantify EF and valve gradients so a formal echo can be skipped",
+          "A way to quantify EF and valve gradients so a formal echo won't delay the case",
           "A diagnostic exam documented as a cardiology-level interpretation",
           "A routine test indicated before every general anesthetic"], c: 0 }
   ];
@@ -127,8 +127,8 @@
     { v: "A 55-year-old with new shortness of breath and a swollen leg needs an urgent procedure, and the blood pressure is low. You obtain an apical four-chamber view. This is what you see on the screen:",
       img: 'clips/sim_rv_dilation.mp4', imgcap: 'Apical four-chamber (A4C) — simulated example',
       q: "Which best describes the concern and the most appropriate management?",
-      o: ["Left heart failure; give a large fluid bolus to raise the pressure",
-          "Acute RV strain (e.g., pulmonary embolism); avoid overfilling, support the pressure with a vasopressor, prevent hypoxia and hypercarbia, and get help",
+      o: ["Possible left heart failure",
+          "Possible RV overload; avoid overfilling, support the pressure with a vasopressor, prevent hypoxia and hypercarbia",
           "A normal finding, since the RV is normally the larger chamber; proceed",
           "Severe aortic stenosis; maintain afterload and proceed"], c: 1 }
   ];
@@ -195,7 +195,7 @@
   }
 
   // Bump when clip/image files are replaced so browsers don't show a cached copy.
-  const CLIP_VER = '20261017g';
+  const CLIP_VER = '20261017h';
 
   // Real cine loop for a view (webm + mp4 source for cross-browser playback,
   // incl. Safari/iOS). Autoplays muted + looped wherever it's shown.
