@@ -1012,11 +1012,17 @@
   // Demographics
   function checkDemoComplete() {
     const d = STATE.demo;
-    const complete = d.role && d.pocusTraining && d.focusExp && d.comfortBaseline;
+    const complete = d.role && d.yearsExp !== null && d.pocusTraining && d.focusExp && d.comfortBaseline;
     $('#btnDemoNext').disabled = !complete;
   }
   $('#btnDemoBack').addEventListener('click', prevStep);
   $('#btnDemoNext').addEventListener('click', () => { if (!$('#btnDemoNext').disabled) nextStep(); });
+  // Capture the "years of anesthesia experience" number input (0 is valid).
+  $('#yearsExp').addEventListener('input', e => {
+    const n = Number(e.target.value);
+    STATE.demo.yearsExp = (e.target.value.trim() === '' || Number.isNaN(n)) ? null : n;
+    checkDemoComplete();
+  });
 
   // Pretest intro
   $('#btnPreIntroBack').addEventListener('click', prevStep);
