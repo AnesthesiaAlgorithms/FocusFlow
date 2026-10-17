@@ -303,9 +303,10 @@
       probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs (intercostal spaces)."
     },
     a4c: {
-      where: "At the cardiac apex — lower-left chest, around the 4th–6th intercostal space in the midclavicular line, near the point of maximal impulse (where you feel the strongest heartbeat), with the patient in the left lateral decubitus if possible.",
-      marker: "Marker toward the patient's LEFT (~2–3 o'clock); aim the beam up through the apex toward the right shoulder so all four chambers open into view.",
-      probe: "Use a low-frequency (1–5 MHz) phased-array cardiac transducer; its small footprint fits between the ribs to image the heart (Pardo, 2023)."
+      where: "Cardiac apex — the point of maximal impulse (PMI), around the 4th–6th intercostal space in the midclavicular line.",
+      marker: "Toward the patient's left (~2–3 o'clock).",
+      aim: "Direct the beam toward the base of the heart / right shoulder until all four chambers come into view.",
+      probe: "Phased-array cardiac probe, 1–5 MHz (Pardo, 2023)."
     },
     subcostal: {
       where: "Just below the tip of the breastbone (subxiphoid), probe laid nearly FLAT against the upper abdomen.",
@@ -660,6 +661,7 @@
         <div class="ve-place">
           <div><span class="ve-pin">📍 Where</span> ${p.where || ''}</div>
           <div><span class="ve-pin">↗ Marker</span> ${p.marker || ''}</div>
+          ${p.aim ? `<div><span class="ve-pin">🎯 Aim</span> ${p.aim}</div>` : ''}
           ${p.probe ? `<div><span class="ve-pin">📡 Probe</span> ${p.probe}</div>` : ''}
         </div>
         ${v.view}
