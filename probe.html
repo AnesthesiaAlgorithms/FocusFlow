@@ -104,8 +104,8 @@
 
   <!-- Permission -->
   <div class="card" id="screen-permission" hidden>
-    <p>Connected. This turns your phone into a simulated ultrasound probe using its <b>motion &amp; orientation sensors</b>.</p>
-    <p class="muted">Hold the phone <b>flat, screen up</b>, docked on the probe with the long edge along the probe marker. Tap below and allow access.</p>
+    <p><b>Connected!</b> Your phone is now your ultrasound probe.</p>
+    <p class="muted">Rest your phone on your <b>lower-left chest, over your heart</b> &mdash; like scanning yourself. Then tap below to allow motion access.</p>
     <button class="btn btn-primary" id="btnEnableMotion">Enable Motion &amp; Orientation</button>
     <p class="center" id="permissionError" style="color:var(--red); margin-top:10px;" hidden></p>
   </div>
@@ -115,14 +115,14 @@
     <div class="pose-step" id="calibStep">Step 1 of 3</div>
     <div class="pose-label" id="calibLabel">PLAX</div>
     <p id="calibInstructions" class="center"></p>
-    <p class="muted center">Hold this position steady, then capture. The three poses should be distinct but comfortable — natural probe angles, no need to exaggerate.</p>
+    <p class="muted center">Hold still for a moment, then tap <b>Begin Ultrasound</b> and watch the big screen.</p>
     <div class="countdown" id="calibCountdown" hidden></div>
-    <button class="btn btn-primary" id="btnCapture">Hold Steady &amp; Capture</button>
+    <button class="btn btn-primary" id="btnCapture">Begin Ultrasound</button>
   </div>
 
   <!-- Live: move-to-find radar (accelerometer calibration) -->
   <div id="screen-live" hidden>
-    <p class="scan-instr">Move &amp; tilt your phone like a probe to <b>find the A4C window</b>. Line the probe up on the target ring to bring the real view into sharp focus.</p>
+    <p class="scan-instr"><b>Watch the big screen.</b> Slowly move and tilt your phone until the picture is sharp. Keep the arrow inside the green <b>A4C</b> ring.</p>
 
     <div class="compass-wrap">
       <svg class="compass" viewBox="0 0 200 200" aria-hidden="true">
@@ -158,7 +158,7 @@
       <div class="sens-hint">Lower = smaller sweet spot (aim more precisely).</div>
     </div>
 
-    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Re-calibrate the 3 windows</button>
+    <button class="btn btn-ghost" id="btnRecalibrate" style="margin-top:14px;">Start over</button>
   </div>
 
 </div>
@@ -176,7 +176,7 @@
   // Single view: the apical four-chamber (A4C) window.
   var VIEWS = [
     { id:'a4c', label:'A4C',
-      instr:'At the cardiac apex — lower-left chest, 4th–6th rib space in the midclavicular line, patient in the left lateral decubitus if possible. Index marker toward the patient’s LEFT (~2–3 o’clock); aim the beam up toward the patient’s right shoulder. Hold the phone fairly UPRIGHT, like the probe.' }
+      instr:'Hold your phone on your lower-left chest, over your heart, pointed up toward your right shoulder, like a probe at the heart apex.' }
   ];
 
   var FOCUSFLOW_SERVER = 'https://142-93-192-209.sslip.io';
@@ -303,10 +303,10 @@
   }
   function showCalibStep(){
     var v=VIEWS[STATE.calibIndex];
-    $('#calibStep').textContent='Step '+(STATE.calibIndex+1)+' of '+VIEWS.length;
+    $('#calibStep').textContent = VIEWS.length>1 ? ('Step '+(STATE.calibIndex+1)+' of '+VIEWS.length) : '';
     $('#calibLabel').textContent=v.label;
     $('#calibInstructions').textContent=v.instr;
-    $('#btnCapture').disabled=false; $('#btnCapture').textContent='Hold Steady & Capture';
+    $('#btnCapture').disabled=false; $('#btnCapture').textContent='Begin Ultrasound';
     $('#calibCountdown').hidden=true;
     send({type:'calibrating', step:STATE.calibIndex+1, total:VIEWS.length});
   }
