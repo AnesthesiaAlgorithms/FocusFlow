@@ -251,6 +251,7 @@
 
   /* ---------- motion permission ---------- */
   $('#btnEnableMotion').addEventListener('click', function(){
+    requestWakeLock();               // keep the phone screen on during the sim
     var DOE=window.DeviceOrientationEvent;
     if (DOE && typeof DOE.requestPermission==='function'){
       DOE.requestPermission().then(function(res){
@@ -261,6 +262,22 @@
     else showPermErr('This device/browser does not support orientation sensors.');
   });
   function showPermErr(m){ var e=$('#permissionError'); e.hidden=false; e.textContent=m; }
+
+  /* ---------- keep the screen awake during the hands-on sim ---------- */
+  var _wakeLock=null;
+  function requestWakeLock(){
+    if (!('wakeLock' in navigator)) return;      // older browsers: ignore gracefully
+    try {
+      navigator.wakeLock.request('screen').then(function(wl){
+        _wakeLock=wl;
+        wl.addEventListener('release', function(){ _wakeLock=null; });
+      }).catch(function(){});                     // not visible / denied -> ignore
+    } catch(e){}
+  }
+  // iOS and Android drop the lock when the page is hidden; re-acquire on return
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState==='visible' && _wakeLock==null) requestWakeLock();
+  });
 
   /* ---------- orientation ---------- */
   var latest={alpha:0,beta:0,gamma:0};
