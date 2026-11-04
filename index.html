@@ -51,9 +51,6 @@
   #screen-welcome p{font-size:.8rem; line-height:1.48; margin:6px 0;}
   #screen-welcome .muted{font-size:.74rem;}
   #screen-welcome .check-row span{font-size:.82rem;}
-  /* Barry University letterhead on the consent card */
-  .brand-logo{display:block; width:200px; max-width:62%; height:auto; margin:2px auto 14px;
-    padding-bottom:14px; border-bottom:1px solid #eef2f6;}
   p{line-height:1.55; font-size:.95rem;}
   .muted{color:var(--gray); font-size:.85rem;}
   .pill{
@@ -100,7 +97,6 @@
   .seg-opt{flex:1; text-align:center; padding:11px 6px; border:1px solid #cbd5e1; border-radius:8px;
     background:#fff; color:var(--navy); font-size:.85rem; font-weight:600; cursor:pointer;}
   .seg-opt.selected{border-color:var(--accent); background:var(--lightblue); color:var(--blue);}
-  .seg-row-3 .seg-opt{font-size:.8rem;}
 
   /* Buttons */
   .btn-row{display:flex; gap:10px; margin-top:18px;}
@@ -173,7 +169,6 @@
     padding-bottom:max(10px, env(safe-area-inset-bottom));
   }
   footer.appfoot .inner{max-width:760px; margin:0 auto; display:flex; gap:12px; align-items:center;}
-  .foot-logo{height:22px; width:auto; flex:0 0 auto; opacity:.92;}
 
   .center{text-align:center;}
   .id-badge{
@@ -365,7 +360,6 @@
   <!-- ============ SCREEN: WELCOME ============ -->
   <section class="screen active" id="screen-welcome">
     <div class="card">
-      <img src="assets/barry-logo.jpg" alt="Barry University" class="brand-logo">
       <span class="pill">DNP Educational Research</span>
       <h2 class="section-title">Focused Preoperative Cardiac Ultrasound (FoCUS) Training</h2>
       <p class="muted" style="margin-top:0">Informed Consent for an Adult to Participate in Research. Please read this information carefully before you begin.</p>
@@ -384,7 +378,7 @@
         (4) an interactive exercise that uses your own smartphone as a simulated ultrasound probe<br>
         (5) an identical post-training assessment
       </p>
-      <p>You may also choose to attend a brief, optional in-person demonstration of a three-dimensional printed probe-orientation model in the anesthesia break room (specific dates will be announced). No patients are involved, and you will not perform ultrasound on any person.</p>
+      <p>No patients are involved, and you will not perform ultrasound on any person.</p>
       <p>Participation will take approximately <b>45&ndash;60 minutes</b> total and will not exceed 1 hour. The estimated time for each component is as follows:</p>
       <ul style="margin:4px 0 8px; padding-left:20px; font-size:.8rem; line-height:1.48;">
         <li>Pre-intervention knowledge assessment: approximately 5&ndash;10 minutes</li>
@@ -648,7 +642,6 @@
   <!-- ============ SCREEN: RESULTS ============ -->
   <section class="screen" id="screen-results">
     <div class="card">
-      <img src="assets/barry-logo.jpg" alt="Barry University" class="brand-logo">
       <span class="pill">Complete</span>
       <h2 class="section-title">Thank You</h2>
       <p>Here is a summary of your pre- and post-training results.</p>
@@ -671,7 +664,6 @@
     <div class="progress-wrap" style="flex:1; align-self:center;">
       <div class="progress-bar" id="progressBar" style="width:2%"></div>
     </div>
-    <img src="assets/barry-logo.jpg" alt="Barry University" class="foot-logo">
   </div>
   <div class="foot-copyright" style="text-align:center; font-size:.68rem; color:#9aa7b4; padding:5px 12px 2px;">&copy; 2026 Ashley G. Campbell. All rights reserved.</div>
 </footer>
@@ -709,6 +701,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="app.js?v=20261007b"></script>
+<script src="app.js?v=20261104a"></script>
 </body>
 </html>
